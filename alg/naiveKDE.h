@@ -5,12 +5,20 @@
 #ifndef HBE_NAIVEKDE_H
 #define HBE_NAIVEKDE_H
 #include <Eigen/Dense>
+#include "../utils/kernel.h"
 
+using Eigen::MatrixXd;
+using Eigen::VectorXd;
 
 class naiveKDE {
-private:
+public:
+    MatrixXd X;
+    int numPoints;
+    Kernel *kernel;
 
+    naiveKDE(MatrixXd data, Kernel *k);
 
+    double query(VectorXd q);
 };
 
 

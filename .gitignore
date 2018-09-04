@@ -4,6 +4,8 @@ CMakeFiles/
 cmake-build-debug/
 .idea/
 Makefile
+CMakeCache.txt
+*/CMakeCache.txt
 
 # Prerequisites
 *.d

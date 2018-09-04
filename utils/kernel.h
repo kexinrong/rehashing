@@ -5,15 +5,14 @@
 #ifndef HBE_KERNEL_H
 #define HBE_KERNEL_H
 
-
+#include <Eigen/Dense>
 #include <cstddef>
+
+using Eigen::VectorXd;
 
 using namespace std;
 
-class kernel {
-protected:
-    double *delta;
-
+class Kernel {
 public:
     bool denormalized = true;
     int dim;
@@ -22,21 +21,19 @@ public:
     double dimFactor;
     double bwFactor;
 
+    Kernel() {}
+
     void setDenormalized(bool flag) {
         denormalized = flag;
     }
 
-    virtual double getDimFactor(int dim);
-    virtual double density(double *d);
-    virtual double invDensity(double p);
+    virtual double getDimFactor(int dim) = 0;
+    virtual double density(VectorXd d) = 0;
+    virtual double invDensity(double p) = 0;
 
-    double qdensity(double* p, double* q) {
-        for (int i = 0; i < dim; i ++) {
-            delta[i] = p[i] - q[i];
-        }
-        return density(delta);
+    double density(VectorXd p, VectorXd q) {
+        return density(p - q);
     }
-
 
     void initialize(double* dw, size_t len) {
         dim = len;
@@ -55,10 +52,7 @@ public:
                 bwFactor *= invBandwidth[i];
             }
         }
-
-        delta = new double[dim];
     }
 };
-
 
 #endif //HBE_KERNEL_H
