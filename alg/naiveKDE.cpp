@@ -3,7 +3,6 @@
 //
 
 #include "naiveKDE.h"
-#include <iostream>
 
 naiveKDE::naiveKDE(MatrixXd data, Kernel *k) {
     X = data;
