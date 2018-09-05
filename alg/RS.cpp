@@ -24,14 +24,3 @@ double* RS::MoM(VectorXd q, int L, int m) {
     }
     return Z;
 }
-
-double RS::query(VectorXd q, double lb, int m) {
-    int L = 1;
-    double* Z = MoM(q, L, m);
-    double est = mathUtils::median(Z, L) / m;
-    if (est < lb) {
-        return 0;
-    } else {
-        return est;
-    }
-}

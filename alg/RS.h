@@ -5,12 +5,13 @@
 #ifndef HBE_RS_H
 #define HBE_RS_H
 #include <Eigen/Dense>
-#include "../utils/kernel.h"
+#include "MoMEstimator.h"
+#include "kernel.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-class RS {
+class RS : public MoMEstimator {
 
 public:
     MatrixXd X;
@@ -18,9 +19,8 @@ public:
     Kernel *kernel;
 
     RS(MatrixXd data, Kernel *k);
-    double query(VectorXd q, double lb, int m);
 
-private:
+protected:
     double* MoM(VectorXd q, int L, int m);
 };
 

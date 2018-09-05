@@ -5,7 +5,7 @@
 #ifndef HBE_NAIVEKDE_H
 #define HBE_NAIVEKDE_H
 #include <Eigen/Dense>
-#include "../utils/kernel.h"
+#include "kernel.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
