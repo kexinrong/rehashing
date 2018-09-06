@@ -24,10 +24,10 @@ public:
     int numHash;
     int batchSize;
 
-    HashTable(MatrixXd X, double w, int k, int batchSize) {
+    HashTable(MatrixXd X, double w, int k, int batch) {
         binWidth = w;
         numHash = k;
-        batchSize = batchSize;
+        batchSize = batch;
 
         int n = X.rows();
         int d = X.cols();
@@ -59,14 +59,14 @@ public:
     vector<string> getkey(VectorXd v) {
         assert (v.rows() == batchSize * numHash && v.cols() == 1);
         vector<string> keys(batchSize);
-       for (int s = 0; s < batchSize; s ++) {
+        for (int s = 0; s < batchSize; s ++) {
             ostringstream os;
             for (int i = numHash * s; i < numHash * (s + 1); i ++) {
                 os << (int)ceil(v(i));
                 os << ',';
             }
             os << s;
-            keys.push_back(os.str());
+            keys[s] = os.str();
         }
         return keys;
     }
@@ -76,9 +76,9 @@ public:
         vector<HashBucket> buckets(batchSize);
         for (int s = 0; s < batchSize; s ++) {
             try {
-                buckets.push_back(table.at(keys.at(s)));
+                buckets[s] = table.at(keys.at(s));
             } catch (exception& e) {
-                buckets.push_back(HashBucket());
+                buckets[s] = HashBucket();
             }
         }
         return buckets;

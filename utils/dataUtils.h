@@ -11,6 +11,8 @@
 using namespace parser::csv;
 using Eigen::MatrixXd;
 
+const double SQRT_PI2 = sqrt(M_PI/2);
+
 
 class dataUtils {
 
@@ -22,6 +24,19 @@ public:
             radius = max(radius, X.row(i).norm());
         }
         return min(2 * radius, log(n / tau));
+    }
+
+    static int getPower(double diameter, double beta) {
+        return min((int) ceil(diameter * diameter) * 3,
+                (int)ceil(beta * diameter * SQRT_PI2));
+    }
+
+    static int getPowerW(double width, double beta) {
+        return (int) ceil(beta *  SQRT_PI2 * width);
+    }
+
+    static double getWidth(int power, double beta) {
+        return 1 / beta / SQRT_PI2 * power;
     }
 
     static MatrixXd readFile(std::string filename, bool ignoreHeader, int n, int d) {
