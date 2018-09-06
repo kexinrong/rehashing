@@ -7,5 +7,5 @@ include_directories(utils)
 add_subdirectory(alg)
 add_subdirectory(data)
 
-add_executable(hbe library.cpp library.h)
+add_executable(hbe SyntheticDensity.cpp SyntheticDensity.h)
 target_link_libraries(hbe alg data)

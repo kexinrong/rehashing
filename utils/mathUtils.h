@@ -9,6 +9,7 @@
 #include <math.h>
 #include <iostream>
 #include <random>
+#include <memory>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -22,11 +23,6 @@ const double SQRT_2PI = sqrt(2.0 / M_PI);
 class mathUtils {
 
 public:
-    static const double E1;
-    static const double E2;
-
-    static std::default_random_engine generator;
-
     static double expRelVar(double mu) { return E1 / sqrt(mu); }
     static double gaussRelVar(double mu) { return E2 / sqrt(mu); }
     static double randomRelVar(double mu) { return 1 / mu; }
@@ -62,16 +58,20 @@ public:
         return p;
     }
 
-    static double median(double *Z, int L) {
+    static double median(std::vector<double>& Z) {
+        int L = Z.size();
         if (L == 1) { return Z[0]; }
-        std::sort(&Z[0], &Z[L]);
+        std::sort(Z.begin(), Z.end());
         double median = L % 2 ? Z[L / 2] : (Z[L / 2 - 1] + Z[L / 2]) / 2;
         return median;
     }
 
     static VectorXd randNormal(int n) {
+        std::random_device s;
+        std::seed_seq seed2{s(), s()};
+        std::default_random_engine generator(seed2);
         VectorXd r(n);
-        static std::normal_distribution<double> normal(0.0, 1.0);
+        std::normal_distribution<double> normal(0.0, 1.0);
         for (int i = 0; i < n; i ++) {
             r(i) = normal(generator);
         }
@@ -79,8 +79,11 @@ public:
     }
 
     static MatrixXd randNormal(int n, int d) {
+        std::random_device s;
+        std::seed_seq seed2{s(), s()};
+        std::default_random_engine generator(seed2);
         MatrixXd r(n, d);
-        static std::normal_distribution<double> normal(0.0, 1.0);
+        std::normal_distribution<double> normal(0.0, 1.0);
         for (int i = 0; i < n; i ++) {
             for (int j = 0; j < d; j ++) {
                 r(i) = normal(generator);

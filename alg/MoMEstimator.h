@@ -14,8 +14,8 @@ class MoMEstimator {
 public:
     double query(VectorXd q, double lb, int m) {
         int L = 1;
-        double* Z = MoM(q, L, m);
-        double est = mathUtils::median(Z, L) / m;
+        std::vector<double> Z = MoM(q, L, m);
+        double est = mathUtils::median(Z) / m;
         if (est < lb) {
             return 0;
         } else {
@@ -24,7 +24,7 @@ public:
     }
 
 protected:
-    virtual double* MoM(VectorXd q, int L, int m) = 0;
+    virtual std::vector<double> MoM(VectorXd q, int L, int m) = 0;
 
 };
 

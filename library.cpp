@@ -13,12 +13,11 @@ int main() {
     // Data
     MatrixXd data = dataUtils::readFile("resources/test.csv", false, 4, 3);
     std::cout << data << std::endl;
-    Expkernel kernel;
-    kernel.initialize(new double[3]{1,1,1}, 3);
+    Expkernel kernel(3);
 
     // Naive
     std::cout << "Naive KDE" << std::endl;
-    naiveKDE naive(data, &kernel);
+    naive naive(data, &kernel);
     double result = naive.query(data.row(0));
     std::cout << result << std::endl;
 

@@ -5,14 +5,10 @@
 #ifndef HBE_BASELSH_H
 #define HBE_BASELSH_H
 
-#include <Eigen/Dense>
-#include "kernel.h"
 #include "HashBucket.h"
 #include "HashTable.h"
 #include "MoMEstimator.h"
 
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
 
 class BaseLSH : public MoMEstimator {
 public:
@@ -20,17 +16,17 @@ public:
     double binWidth;
     int numHash;
     int numPoints;
-    Kernel *kernel;
+    shared_ptr<Kernel> kernel;
     int batchSize = 100;
     int idx = 0;
 
-    BaseLSH(MatrixXd X, int M, double w, int k, int batch);
+    BaseLSH(MatrixXd X, int M, double w, int k, int batch, shared_ptr<Kernel> ker);
 
 protected:
-    virtual double* evaluateQuery(VectorXd query, int maxSamples) = 0;
+    virtual std::vector<double> evaluateQuery(VectorXd query, int maxSamples) = 0;
 
-    double* evaluate(std::vector<HashBucket> buckets, VectorXd query, int maxSamples);
-    double* MoM(VectorXd query, int L, int m);
+    std::vector<double> evaluate(std::vector<HashBucket> buckets, VectorXd query, int maxSamples);
+    std::vector<double> MoM(VectorXd query, int L, int m);
 
 };
 

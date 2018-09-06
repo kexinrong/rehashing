@@ -9,8 +9,8 @@
 
 class SyntheticData {
 public:
-    static GenericInstance genMixed(int n, int dim, double density, int uncorrelatedClusters,
-            int correlatedClusters, int numScales, double spread);
+    static GenericInstance genMixed(int uN, int cN, int uC, int cC, int dim, double density,
+                                    int numScales, double spread);
 
     static GenericInstance genUncorrelated(int n);
 };

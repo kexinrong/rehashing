@@ -6,16 +6,15 @@
 #include "mathUtils.h"
 #include <iostream>
 
-RS::RS(MatrixXd data, Kernel *k) {
+RS::RS(MatrixXd data, shared_ptr<Kernel> k) {
     X = data;
     kernel = k;
     numPoints = data.rows();
     srand (time(NULL));
 }
 
-double* RS::MoM(VectorXd q, int L, int m) {
-    double* Z = new double[L];
-    std::memset(Z, 0, L);
+std::vector<double> RS::MoM(VectorXd q, int L, int m) {
+    std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
         for (int j = 0; j < m; j ++) {
             int idx = rand() % numPoints;

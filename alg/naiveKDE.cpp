@@ -3,8 +3,9 @@
 //
 
 #include "naiveKDE.h"
+#include <iostream>
 
-naiveKDE::naiveKDE(MatrixXd data, Kernel *k) {
+naiveKDE::naiveKDE(MatrixXd data, shared_ptr<Kernel> k) {
     X = data;
     kernel = k;
     numPoints = data.rows();

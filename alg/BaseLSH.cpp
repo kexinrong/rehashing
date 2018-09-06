@@ -4,21 +4,21 @@
 
 #include "BaseLSH.h"
 
-BaseLSH::BaseLSH(MatrixXd X, int M, double w, int k, int batch) {
+BaseLSH::BaseLSH(MatrixXd X, int M, double w, int k, int batch, shared_ptr<Kernel> ker) {
     batchSize = batch;
     numTables = M / batch + 1;
     binWidth = w;
     numHash = k;
     numPoints = X.rows();
+    kernel = ker;
 }
 
-double* BaseLSH::MoM(VectorXd query, int L, int m) {
-    double* Z = new double[L];
-    std::memset(Z, 0, L);
+vector<double> BaseLSH::MoM(VectorXd query, int L, int m) {
+    std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
         int j = 0;
         while (j < m) {
-            double* results = evaluateQuery(query, m - j);
+            vector<double> results = evaluateQuery(query, m - j);
             Z[i] += results[0];
             j += (int)results[1];
         }
@@ -26,8 +26,8 @@ double* BaseLSH::MoM(VectorXd query, int L, int m) {
     return Z;
 }
 
-double* BaseLSH::evaluate(std::vector<HashBucket> buckets, VectorXd query, int maxSamples) {
-    double *results = new double[2]{0, 0};
+vector<double> BaseLSH::evaluate(vector<HashBucket> buckets, VectorXd query, int maxSamples) {
+    vector<double> results = vector<double>(2, 0);
     for (HashBucket bucket : buckets) {
         if (results[1] >= maxSamples) { break; }
         int cnt = bucket.count;

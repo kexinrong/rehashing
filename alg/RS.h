@@ -16,12 +16,12 @@ class RS : public MoMEstimator {
 public:
     MatrixXd X;
     int numPoints;
-    Kernel *kernel;
+    shared_ptr<Kernel> kernel;
 
-    RS(MatrixXd data, Kernel *k);
+    RS(MatrixXd data, shared_ptr<Kernel> k);
 
 protected:
-    double* MoM(VectorXd q, int L, int m);
+    std::vector<double> MoM(VectorXd q, int L, int m);
 };
 
 

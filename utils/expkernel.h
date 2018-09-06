@@ -7,6 +7,7 @@
 
 #include "kernel.h"
 #include <math.h>
+#include <iostream>
 
 using Eigen::VectorXd;
 
@@ -20,7 +21,7 @@ private:
     double logSn(int d) { return LOG_2PI + logVn(d - 1); }
 
 public:
-    Expkernel() {}
+    Expkernel(int len) : Kernel(len) {}
 
     double getDimFactor(int d) {
         return exp(-logSn(d - 1)) / tgamma(d);

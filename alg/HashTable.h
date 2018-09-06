@@ -13,9 +13,6 @@
 #include <iostream>
 #include <sstream>
 
-using Eigen::MatrixXd;
-using Eigen::VectorXd;
-
 using namespace std;
 
 class HashTable {

@@ -7,6 +7,9 @@
 
 #include <Eigen/Dense>
 #include <cstddef>
+#include <iostream>
+#include <memory>
+#include <vector>
 
 using Eigen::VectorXd;
 
@@ -16,12 +19,17 @@ class Kernel {
 public:
     bool denormalized = true;
     int dim;
-    double *invBandwidth;
+    vector<double> invBandwidth;
 
     double dimFactor;
     double bwFactor;
 
-    Kernel() {}
+    Kernel(int len) {
+        dim = len;
+        invBandwidth = vector<double>(dim, 1);
+        dimFactor = 1.0;
+        bwFactor = 1.0;
+    }
 
     void setDenormalized(bool flag) {
         denormalized = flag;
@@ -35,9 +43,9 @@ public:
         return density(p - q);
     }
 
-    void initialize(double* dw, size_t len) {
+    void initialize(const vector<double>& dw, int len) {
         dim = len;
-        invBandwidth = new double[dim];
+        invBandwidth = vector<double>(dim);
         for (int i = 0; i < dim; i++) {
             invBandwidth[i] = 1.0 / dw[i];
         }

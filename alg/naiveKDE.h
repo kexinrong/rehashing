@@ -14,9 +14,9 @@ class naiveKDE {
 public:
     MatrixXd X;
     int numPoints;
-    Kernel *kernel;
+    shared_ptr<Kernel> kernel;
 
-    naiveKDE(MatrixXd data, Kernel *k);
+    naiveKDE(MatrixXd data, shared_ptr<Kernel> k);
     double query(VectorXd q);
 };
 

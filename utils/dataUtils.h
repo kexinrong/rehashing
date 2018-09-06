@@ -15,6 +15,15 @@ using Eigen::MatrixXd;
 class dataUtils {
 
 public:
+    static double estimateDiameter(MatrixXd X, double tau) {
+        int n = X.rows();
+        double radius = 0;
+        for (int i = 0; i < n; i ++) {
+            radius = max(radius, X.row(i).norm());
+        }
+        return min(2 * radius, log(n / tau));
+    }
+
     static MatrixXd readFile(std::string filename, bool ignoreHeader, int n, int d) {
         std::ifstream f(filename);
         CsvParser parser(f);

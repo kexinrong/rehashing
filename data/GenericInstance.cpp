@@ -6,9 +6,12 @@
 #include "mathUtils.h"
 #include <math.h>
 #include <algorithm>
+#include <iostream>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
+
+typedef Eigen::Matrix<double, 1, Eigen::Dynamic> RowVector;
 
 GenericInstance::GenericInstance(int p, int c, int s, int d,
                 double density, double spread) {
@@ -23,7 +26,7 @@ GenericInstance::GenericInstance(int p, int c, int s, int d,
     for (int i = 0; i < c; i ++) {
         VectorXd x = mathUtils::randNormal(d);
         double n = x.norm();
-        x *= 1 / n;
+        x /= n;
         directions.push_back(x);
     }
 
@@ -58,11 +61,11 @@ GenericInstance::GenericInstance(int p, int c, int s, int d,
             double scale = spread * scales[j] / sqrt(dim);
             MatrixXd rand = mathUtils::randNormal(sizes[j], dim) * scale;
             VectorXd vec = directions.at(i) * scales[j];
+            RowVector v = vec.transpose();
             for (int k = cnt; k < cnt + sizes[j]; k ++) {
-                for (int d = 0; d < dim; d ++) {
-                    points(k, d) += vec(d) + rand(k-c, d);
-                }
+                points.row(k) += rand.row(k - cnt) + v;
             }
+            cnt += sizes[j];
         }
     }
 }
