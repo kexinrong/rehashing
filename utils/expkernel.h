@@ -30,7 +30,7 @@ public:
     double density(VectorXd d) {
         double dist = 0;
         for (int i = 0; i < dim; i ++) {
-            dist += pow(d(i) * invBandwidth[i], 2);
+            dist += d(i) * d(i) * invBandwidth[i] * invBandwidth[i];
         }
         dist = sqrt(dist);
         return dimFactor * bwFactor * exp(-dist);

@@ -27,12 +27,12 @@ const int iterations = 1000;
 
 int main() {
     for (long mu = 100; mu < 1000000; mu *= 10) {
-        std::cout << "mu=" << mu << std::endl;
+        std::cout << "-------------------------------------------------------" << std::endl;
         double density = 1.0 / mu;
         GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, density, scales, spread);
         MatrixXd X = data.points;
         int n = X.rows();
-        std::cout << "N=" << n << ", d=" << dim << std::endl;
+        std::cout << "mu=" << mu << ", N=" << n << ", d=" << dim << std::endl;
 
         // minimum density that we wish to be able to approximate
         double tau = density * 0.5;
@@ -49,13 +49,12 @@ int main() {
         std::cout << "M=" << M << ",w=" << w << ",k=" << k << std::endl;
         naiveKDE naive(X, kernel);
         RS rs(X, kernel);
-        E2LSH hbe(X, M, w, k, 100, kernel, 1);
+        E2LSH hbe(X, M, w, k, 50, kernel, 1);
 
         int m1 = min(n, (int)ceil(1 / eps / eps * mathUtils::randomRelVar(tau)));
         int m2 = min(n, (int)ceil(1 / eps / eps * mathUtils::expRelVar(tau)));
         vector<double> time = vector<double>(3, 0);
         vector<double> error = vector<double>(2, 0);
-        std::cout << "-------------------------------------------------------" << std::endl;
         std::cout << "RS samples:" << m1 << ", HBE samples:" << m2 << std::endl;
         for (int j = 0; j < iterations; j ++) {
             VectorXd q = data.query(1, false);
@@ -79,11 +78,11 @@ int main() {
             time[2] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             error[1] += fabs(kde - hbeKDE) / kde;
         }
-        std::cout << "Naive average time: " << time[0] / iterations / 1e6 << std::endl;
+        std::cout << "Naive average time: " << time[0] / iterations / 1e9 << std::endl;
         std::cout << "RS average error: " << error[0] / iterations << std::endl;
-        std::cout << "RS average time: " << time[1] / iterations / 1e6 << std::endl;
+        std::cout << "RS average time: " << time[1] / iterations / 1e9 << std::endl;
         std::cout << "HBE average error: " << error[1] / iterations << std::endl;
-        std::cout << "HBE average time: " << time[2] / iterations / 1e6 << std::endl;
+        std::cout << "HBE average time: " << time[2] / iterations / 1e9 << std::endl;
         std::cout << "-------------------------------------------------------" << std::endl;
     }
 

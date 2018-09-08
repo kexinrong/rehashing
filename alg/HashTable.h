@@ -78,10 +78,11 @@ public:
         vector<size_t> keys = hashfunction(query);
         vector<HashBucket> buckets(batchSize);
         for (int s = 0; s < batchSize; s ++) {
-            try {
-                buckets[s] = table.at(keys.at(s));
-            } catch (exception& e) {
+            auto it = table.find(keys.at(s));
+            if (it == table.end()) {
                 buckets[s] = HashBucket();
+            } else {
+                buckets[s] = it->second;
             }
         }
         return buckets;
