@@ -5,6 +5,8 @@
 #ifndef HBE_HASHTABLE_H
 #define HBE_HASHTABLE_H
 
+
+
 #include "HashBucket.h"
 #include "mathUtils.h"
 #include <unordered_map>
@@ -12,12 +14,15 @@
 #include <exception>
 #include <iostream>
 #include <sstream>
+#include <chrono>
+#include <boost/functional/hash.hpp>
+
 
 using namespace std;
 
 class HashTable {
 public:
-    unordered_map<string, HashBucket> table;
+    unordered_map<size_t, HashBucket> table;
     MatrixXd G;
     VectorXd b;
     double binWidth;
@@ -31,16 +36,16 @@ public:
 
         int n = X.rows();
         int d = X.cols();
-        G = mathUtils::randNormal(batchSize * k, d);
-        b = mathUtils::randNormal(batchSize * k);
+        G = mathUtils::randNormal(batchSize * k, d) / binWidth;
+        b = mathUtils::randUniform(batchSize * k);
 
-        MatrixXd shift(batchSize * k, n);
-        for (int i = 0; i < n; i ++) { shift.col(i) = b; }
+        MatrixXd project(batchSize * k, n);
+        for (int i = 0; i < n; i ++) { project.col(i) = b; }
 
-        MatrixXd project = G * X.transpose() / binWidth + shift;
+        project += G * X.transpose();
         for (int i = 0; i < n; i ++) {
             VectorXd x = X.row(i);
-            vector<string> keys = getkey(project.col(i));
+            vector<size_t> keys = getkey(project.col(i));
             for (int j = 0; j < batchSize; j ++) {
                 try {
                     table.at(keys.at(j)).update(x);
@@ -51,28 +56,26 @@ public:
         }
     }
 
-    vector<string> hashfunction(VectorXd x) {
-        VectorXd v = G * x / binWidth + b;
+    vector<size_t> hashfunction(VectorXd x) {
+        VectorXd v = G * x + b;
         return getkey(v);
     }
 
-    vector<string> getkey(VectorXd v) {
+    vector<size_t> getkey(VectorXd v) {
         assert (v.rows() == batchSize * numHash && v.cols() == 1);
-        vector<string> keys(batchSize);
+        vector<size_t> keys(batchSize);
         for (int s = 0; s < batchSize; s ++) {
-            ostringstream os;
+            size_t key = s;
             for (int i = numHash * s; i < numHash * (s + 1); i ++) {
-                os << (int)ceil(v(i));
-                os << ',';
+                boost::hash_combine(key, (int)ceil(v(i)));
             }
-            os << s;
-            keys[s] = os.str();
+            keys[s] = key;
         }
         return keys;
     }
 
     vector<HashBucket> sample(VectorXd query) {
-        vector<string> keys = hashfunction(query);
+        vector<size_t> keys = hashfunction(query);
         vector<HashBucket> buckets(batchSize);
         for (int s = 0; s < batchSize; s ++) {
             try {

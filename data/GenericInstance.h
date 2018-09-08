@@ -5,6 +5,7 @@
 #ifndef HBE_GENERICINSTANCE_H
 #define HBE_GENERICINSTANCE_H
 
+
 #include <Eigen/Dense>
 #include <vector>
 

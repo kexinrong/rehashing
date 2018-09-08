@@ -5,6 +5,7 @@
 #ifndef HBE_UTILS_H
 #define HBE_UTILS_H
 
+
 #include <Eigen/Dense>
 #include <math.h>
 #include <iostream>
@@ -67,9 +68,9 @@ public:
     }
 
     static VectorXd randNormal(int n) {
-        std::random_device s;
-        std::seed_seq seed2{s(), s()};
-        std::default_random_engine generator(seed2);
+        std::random_device rd;
+        std::seed_seq seed{rd()};
+        std::default_random_engine generator(seed);
         VectorXd r(n);
         std::normal_distribution<double> normal(0.0, 1.0);
         for (int i = 0; i < n; i ++) {
@@ -78,15 +79,27 @@ public:
         return r;
     }
 
+    static VectorXd randUniform(int n) {
+        std::random_device rd;
+        std::seed_seq seed{rd()};
+        std::default_random_engine generator(seed);
+        VectorXd r(n);
+        std::uniform_real_distribution<double> uniform(0.0, 1.0);
+        for (int i = 0; i < n; i ++) {
+            r(i) = uniform(generator);
+        }
+        return r;
+    }
+
     static MatrixXd randNormal(int n, int d) {
-        std::random_device s;
-        std::seed_seq seed2{s(), s()};
-        std::default_random_engine generator(seed2);
+        std::random_device rd{};
+        std::seed_seq seed{rd()};
+        std::default_random_engine generator(seed);
         MatrixXd r(n, d);
         std::normal_distribution<double> normal(0.0, 1.0);
         for (int i = 0; i < n; i ++) {
             for (int j = 0; j < d; j ++) {
-                r(i) = normal(generator);
+                r(i, j) = normal(generator);
             }
         }
         return r;

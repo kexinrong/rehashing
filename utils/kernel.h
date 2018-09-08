@@ -5,6 +5,7 @@
 #ifndef HBE_KERNEL_H
 #define HBE_KERNEL_H
 
+
 #include <Eigen/Dense>
 #include <cstddef>
 #include <iostream>

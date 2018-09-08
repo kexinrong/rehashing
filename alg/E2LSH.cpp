@@ -15,6 +15,6 @@ vector<double> E2LSH::evaluateQuery(VectorXd query, int maxSamples) {
     idx = (idx + 1) % numTables;
     HashTable t = tables.at(idx);
     std::vector<HashBucket> buckets = t.sample(query);
-    vector<double> results = evaluate(buckets, query ,maxSamples);
+    vector<double> results = evaluate(buckets, query, maxSamples);
     return results;
 }

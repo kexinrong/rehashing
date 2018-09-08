@@ -13,8 +13,7 @@ using Eigen::VectorXd;
 
 typedef Eigen::Matrix<double, 1, Eigen::Dynamic> RowVector;
 
-GenericInstance::GenericInstance(int p, int c, int s, int d,
-                double density, double spread) {
+GenericInstance::GenericInstance(int p, int c, int s, int d, double density, double spread) {
     srand (time(NULL));
 
     numPoints = p;
@@ -41,14 +40,11 @@ GenericInstance::GenericInstance(int p, int c, int s, int d,
 
     // Calculate number of points in each scale such that the contribution
     // of all distance scale is the same up to constant factors
-    double sum = 0;
-    for (int i = 0; i < numScales; i ++) { sum += 1 / mathUtils::expKernel(scales[i]); }
     int N = 0;
     double clusterSize = numPoints * 1.0 / numClusters;
     int sizes[numScales];
     for (int i = 0; i < numScales; i ++) {
-        sizes[i] = (int) round(clusterSize / sum / mathUtils::expKernel(scales[i]));
-        if (sizes[i] == 0 && numClusters < 10) { sizes[i] = 1; }
+        sizes[i] = (int) floor(clusterSize * density / mathUtils::expKernel(scales[i]));
         N += sizes[i];
     }
     N *= numClusters;
@@ -61,10 +57,7 @@ GenericInstance::GenericInstance(int p, int c, int s, int d,
             double scale = spread * scales[j] / sqrt(dim);
             MatrixXd rand = mathUtils::randNormal(sizes[j], dim) * scale;
             VectorXd vec = directions.at(i) * scales[j];
-            RowVector v = vec.transpose();
-            for (int k = cnt; k < cnt + sizes[j]; k ++) {
-                points.row(k) += rand.row(k - cnt) + v;
-            }
+            points.block(cnt, 0, sizes[j], d) = rand + MatrixXd::Ones(sizes[j], 1) * vec.transpose();
             cnt += sizes[j];
         }
     }

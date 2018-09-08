@@ -4,6 +4,8 @@
 
 #ifndef HBE_NAIVEKDE_H
 #define HBE_NAIVEKDE_H
+
+
 #include <Eigen/Dense>
 #include "kernel.h"
 
