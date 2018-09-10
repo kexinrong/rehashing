@@ -20,6 +20,12 @@ const double E1 = exp(1.5);
 const double E2 = exp(1.854);
 const double SQRT_2PI = sqrt(2.0 / M_PI);
 
+const double a1 =  0.254829592;
+const double a2 = -0.284496736;
+const double a3 =  1.421413741;
+const double a4 = -1.453152027;
+const double a5 =  1.061405429;
+const double p  =  0.3275911;
 
 class mathUtils {
 
@@ -31,16 +37,8 @@ public:
     static double expKernel(double x) { return exp(-x); }
     static double inverseExp(double mu) { return -log(mu); }
 
-    static double erf(double x) {
-        // constants
-        double a1 =  0.254829592;
-        double a2 = -0.284496736;
-        double a3 =  1.421413741;
-        double a4 = -1.453152027;
-        double a5 =  1.061405429;
-        double p  =  0.3275911;
-
-        // Save the sign of x
+    static double erfc(double x) {
+       // Save the sign of x
         int sign = 1;
         if (x < 0) { sign = -1; };
         x = fabs(x);
@@ -53,9 +51,17 @@ public:
     }
 
     static double collisionProb(double c, int k) {
-        double base = erf(1 / c) - SQRT_2PI * c * (1 - exp(-1 / (2 * c * c)));
-        double p = 1;
-        for (int i = 0; i < k; i ++) { p*= base; }
+        double base = erfc(1 / c) - SQRT_2PI * c * (1 - exp(-1 / (2 * c * c)));
+        // std::pow slow
+        double p = base;
+        int e = 1;
+        while (e * 2 < k) {
+            p = p * p;
+            e = e * 2;
+        }
+        for (int i = e; i < k; i ++) {
+            p = p * base;
+        }
         return p;
     }
 

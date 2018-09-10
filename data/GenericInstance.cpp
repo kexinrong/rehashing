@@ -41,10 +41,9 @@ GenericInstance::GenericInstance(int p, int c, int s, int d, double density, dou
     // Calculate number of points in each scale such that the contribution
     // of all distance scale is the same up to constant factors
     int N = 0;
-    double clusterSize = numPoints * 1.0 / numClusters;
     int sizes[numScales];
     for (int i = 0; i < numScales; i ++) {
-        sizes[i] = (int) floor(clusterSize * density / mathUtils::expKernel(scales[i]));
+        sizes[i] = (int) floor(numPoints * density / mathUtils::expKernel(scales[i]));
         N += sizes[i];
     }
     N *= numClusters;

@@ -8,6 +8,6 @@ find_package( Boost REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 include_directories(../utils)
-add_library (alg naiveKDE.h naiveKDE.cpp RS.h RS.cpp BaseLSH.cpp BaseLSH.h HashBucket.h HashTable.h MoMEstimator.h E2LSH.cpp E2LSH.h)
+add_library (alg naiveKDE.h naiveKDE.cpp RS.h RS.cpp BaseLSH.cpp BaseLSH.h HashBucket.h HashTable.h MoMEstimator.h)
 target_link_libraries(alg Eigen3::Eigen)
 

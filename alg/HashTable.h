@@ -16,13 +16,13 @@
 #include <sstream>
 #include <chrono>
 #include <boost/functional/hash.hpp>
-
+#include <tsl/robin_map.h>
 
 using namespace std;
 
 class HashTable {
 public:
-    unordered_map<size_t, HashBucket> table;
+    tsl::robin_map<size_t, HashBucket> table;
     MatrixXd G;
     VectorXd b;
     double binWidth;
@@ -45,49 +45,43 @@ public:
         project += G * X.transpose();
         for (int i = 0; i < n; i ++) {
             VectorXd x = X.row(i);
-            vector<size_t> keys = getkey(project.col(i));
-            for (int j = 0; j < batchSize; j ++) {
-                try {
-                    table.at(keys.at(j)).update(x);
-                } catch (exception& e) {
-                    table[keys.at(j)] = HashBucket(x);
-                }
+            size_t key = getkey(project.col(i));
+            auto it = table.find(key);
+            if (it == table.end()) {
+                table[key] = HashBucket(x);
+            } else {
+                table[key].update(x);
             }
         }
     }
 
-    vector<size_t> hashfunction(VectorXd x) {
+    size_t hashfunction(VectorXd x) {
         VectorXd v = G * x + b;
         return getkey(v);
     }
 
-    vector<size_t> getkey(VectorXd v) {
-        assert (v.rows() == batchSize * numHash && v.cols() == 1);
-        vector<size_t> keys(batchSize);
-        for (int s = 0; s < batchSize; s ++) {
-            size_t key = s;
-            for (int i = numHash * s; i < numHash * (s + 1); i ++) {
-                boost::hash_combine(key, (int)ceil(v(i)));
-            }
-            keys[s] = key;
+    size_t getkey(VectorXd v) {
+        size_t key = 0;
+        for (int i = 0; i < numHash; i ++) {
+            boost::hash_combine(key, (int)ceil(v(i)));
         }
-        return keys;
+        return key;
     }
 
-    vector<HashBucket> sample(VectorXd query) {
-        vector<size_t> keys = hashfunction(query);
-        vector<HashBucket> buckets(batchSize);
-        for (int s = 0; s < batchSize; s ++) {
-            auto it = table.find(keys.at(s));
-            if (it == table.end()) {
-                buckets[s] = HashBucket();
-            } else {
-                buckets[s] = it->second;
-            }
+    HashBucket sample(VectorXd query) {
+        size_t key = hashfunction(query);
+        HashBucket bucket;
+//        auto t1 = std::chrono::high_resolution_clock::now();
+        auto it = table.find(key);
+//        auto t2 = std::chrono::high_resolution_clock::now();
+//        std::cout << "Lookup: " << std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count() << std::endl;
+        if (it == table.end()) {
+            bucket = HashBucket();
+        } else {
+            bucket = it->second;
         }
-        return buckets;
+        return bucket;
     }
-
 };
 
 

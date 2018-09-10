@@ -12,6 +12,7 @@
 
 class BaseLSH : public MoMEstimator {
 public:
+    vector<HashTable> tables;
     int numTables;
     double binWidth;
     int numHash;
@@ -20,13 +21,21 @@ public:
     int batchSize = 100;
     int idx = 0;
 
-    BaseLSH(MatrixXd X, int M, double w, int k, int batch, shared_ptr<Kernel> ker);
+    BaseLSH(MatrixXd X, int M, double w, int k, int batch, shared_ptr<Kernel> ker, int threads);
+    void precomputeErf(double tau, double epsilon);
+    double collision(double c, int k);
 
 protected:
-    virtual std::vector<double> evaluateQuery(VectorXd query, int maxSamples) = 0;
+    vector<double> erfs;
+    double step;
+    double r;
 
-    std::vector<double> evaluate(std::vector<HashBucket> buckets, VectorXd query, int maxSamples);
+    double evaluateQuery(VectorXd query);
+    double evaluate(HashBucket buckets, VectorXd query);
     std::vector<double> MoM(VectorXd query, int L, int m);
+
+private:
+    double erfLookup(double x);
 
 };
 

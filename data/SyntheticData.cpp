@@ -8,9 +8,9 @@
 GenericInstance SyntheticData::genMixed(int uN, int cN, int uC, int cC, int dim, double density,
         int numScales, double spread) {
     // Uncorrelated instance
-    GenericInstance uncorrelated(uN, uC, numScales, dim, density / 2, spread);
+    GenericInstance uncorrelated(uN, uC, numScales, dim, density, spread);
     // Correlated instance
-    GenericInstance correlated(cN, cC, numScales, dim, density  / 2, spread);
+    GenericInstance correlated(cN, cC, numScales, dim, density, spread);
     // Mixed datasets
     uncorrelated.merge(correlated.points);
 
