@@ -37,7 +37,7 @@ public:
     static double expKernel(double x) { return exp(-x); }
     static double inverseExp(double mu) { return -log(mu); }
 
-    static double erfc(double x) {
+    static double erf(double x) {
        // Save the sign of x
         int sign = 1;
         if (x < 0) { sign = -1; };
@@ -51,18 +51,18 @@ public:
     }
 
     static double collisionProb(double c, int k) {
-        double base = erfc(1 / c) - SQRT_2PI * c * (1 - exp(-1 / (2 * c * c)));
+        double base = erf(1 / c) - SQRT_2PI * c * (1 - exp(-1 / (2 * c * c)));
         // std::pow slow
-        double p = base;
+        double prob = base;
         int e = 1;
         while (e * 2 < k) {
-            p = p * p;
+            prob = prob * prob;
             e = e * 2;
         }
         for (int i = e; i < k; i ++) {
-            p = p * base;
+            prob = prob * base;
         }
-        return p;
+        return prob;
     }
 
     static double median(std::vector<double>& Z) {

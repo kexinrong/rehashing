@@ -23,7 +23,6 @@ public:
     HashBucket(VectorXd p) {
         sample = p;
         count = 1;
-        srand (time(NULL));
     }
 
     void update(VectorXd p) {

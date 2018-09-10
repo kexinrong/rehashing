@@ -44,8 +44,7 @@ public:
         return density(p - q);
     }
 
-    void initialize(const vector<double>& dw, int len) {
-        dim = len;
+    void initialize(const vector<double>& dw) {
         invBandwidth = vector<double>(dim);
         for (int i = 0; i < dim; i++) {
             invBandwidth[i] = 1.0 / dw[i];

@@ -14,8 +14,6 @@ using Eigen::VectorXd;
 typedef Eigen::Matrix<double, 1, Eigen::Dynamic> RowVector;
 
 GenericInstance::GenericInstance(int p, int c, int s, int d, double density, double spread) {
-    srand (time(NULL));
-
     numPoints = p;
     numClusters = c;
     numScales = std::max(s, 2);

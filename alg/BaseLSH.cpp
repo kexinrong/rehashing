@@ -31,7 +31,7 @@ vector<double> BaseLSH::MoM(VectorXd query, int L, int m) {
 
 double BaseLSH::evaluateQuery(VectorXd query) {
     idx = (idx + 1) % numTables;
-    HashBucket bucket = tables[idx].sample(query);
+    const auto &bucket = tables[idx].sample(query);
     double results = 0;
     int cnt = bucket.count;
     if (cnt > 0) {

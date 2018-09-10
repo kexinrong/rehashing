@@ -15,5 +15,6 @@ include_directories(lib/robin-map)
 add_subdirectory(alg)
 add_subdirectory(data)
 
-add_executable(hbe SyntheticDensity.cpp SyntheticDensity.h)
+#add_executable(hbe SyntheticDensity.cpp SyntheticDensity.h)
+add_executable(hbe RealData.cpp RealData.h)
 target_link_libraries(hbe alg data)

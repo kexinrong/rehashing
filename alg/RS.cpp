@@ -10,7 +10,6 @@ RS::RS(MatrixXd data, shared_ptr<Kernel> k) {
     X = data;
     kernel = k;
     numPoints = data.rows();
-    srand (time(NULL));
 }
 
 std::vector<double> RS::MoM(VectorXd q, int L, int m) {

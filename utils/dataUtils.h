@@ -8,6 +8,7 @@
 
 
 #include "CSVparser.h"
+#include "kernel.h"
 #include <Eigen/Dense>
 
 using namespace parser::csv;
@@ -29,7 +30,7 @@ public:
     }
 
     static int getPower(double diameter, double beta) {
-        return min((int) ceil(diameter * diameter) * 3,
+        return min((int) ceil(beta * beta * diameter * diameter) * 3,
                 (int)ceil(beta * diameter * SQRT_PI2));
     }
 
@@ -39,6 +40,33 @@ public:
 
     static double getWidth(int power, double beta) {
         return 1 / beta / SQRT_PI2 * power;
+    }
+
+    static MatrixXd normalizeBandwidth(MatrixXd X, std::vector<double> bw) {
+        int d = X.cols();
+        for (int i = 0; i < d; i ++) {
+            X.col(i) /= bw[i];
+        }
+        return X;
+    }
+
+    static void checkBandwidthSamples(MatrixXd X, double eps, shared_ptr<Kernel>& kernel) {
+        int n = X.rows();
+        int half = n / 2;
+        size_t samples = round(n / eps / eps);
+        vector<double> densities(2, 0);
+        for (size_t i = 0; i < samples; i ++) {
+            int x = rand() % half;
+            int y = rand() % half;
+            densities[0] += kernel->density(X.row(x), X.row(y));
+            x = rand() % half;
+            y = rand() % half;
+            densities[1] += kernel->density(X.row(x + half), X.row(y + half));
+        }
+        densities[0] /= samples;
+        densities[1] /= samples;
+        std::cout << "u1=" << densities[0] << ", u2=" << densities[1] << std::endl;
+        std::cout << "diff=" << densities[0] - densities[1] << ", expected=" << 1/sqrt(n) << std::endl;
     }
 
     static MatrixXd readFile(std::string filename, bool ignoreHeader, int n, int d) {

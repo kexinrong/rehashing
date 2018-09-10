@@ -71,14 +71,12 @@ public:
 
     HashBucket sample(VectorXd query) {
         size_t key = hashfunction(query);
-        HashBucket bucket;
         auto it = table.find(key);
         if (it == table.end()) {
-            bucket = HashBucket();
+            return HashBucket();
         } else {
-            bucket = it->second;
+            return it->second;
         }
-        return bucket;
     }
 };
 
