@@ -23,7 +23,7 @@ const int scales = 4;
 const int dim = 3;
 const double spread = 0.01;
 
-const int iterations = 100;
+const int iterations = 1000;
 
 int main() {
     for (long mu = 100; mu < 1000000; mu *= 10) {
@@ -50,7 +50,6 @@ int main() {
         naiveKDE naive(X, kernel);
         RS rs(X, kernel);
         BaseLSH hbe(X, M, w, k, 1, kernel, 1);
-//        hbe.precomputeErf(tau, eps);
 
         int m1 = min(n, (int)ceil(1 / eps / eps * mathUtils::randomRelVar(tau)));
         int m2 = min(n, (int)ceil(1 / eps / eps * mathUtils::expRelVar(tau)));
@@ -85,7 +84,6 @@ int main() {
         std::cout << "HBE average time: " << time[2] / iterations / 1e6 << std::endl;
         std::cout << "HBE average error: " << error[1] / iterations << std::endl;
         std::cout << "-------------------------------------------------------" << std::endl;
-        if (mu == 1000) {break;}
     }
 
 }

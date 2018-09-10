@@ -22,7 +22,7 @@ using namespace std;
 
 class HashTable {
 public:
-    tsl::robin_map<size_t, HashBucket> table;
+    unordered_map<size_t, HashBucket> table;
     MatrixXd G;
     VectorXd b;
     double binWidth;
@@ -50,7 +50,8 @@ public:
             if (it == table.end()) {
                 table[key] = HashBucket(x);
             } else {
-                table[key].update(x);
+                //table[key].update(x);
+                it->second.update(x);
             }
         }
     }
@@ -71,10 +72,7 @@ public:
     HashBucket sample(VectorXd query) {
         size_t key = hashfunction(query);
         HashBucket bucket;
-//        auto t1 = std::chrono::high_resolution_clock::now();
         auto it = table.find(key);
-//        auto t2 = std::chrono::high_resolution_clock::now();
-//        std::cout << "Lookup: " << std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count() << std::endl;
         if (it == table.end()) {
             bucket = HashBucket();
         } else {
