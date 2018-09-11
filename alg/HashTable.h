@@ -15,9 +15,6 @@
 #include <sstream>
 #include <chrono>
 #include <boost/functional/hash.hpp>
-#include <omp.h>
-
-typedef unordered_map<size_t, HashBucket> htable;
 
 using namespace std;
 

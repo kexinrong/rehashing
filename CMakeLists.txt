@@ -8,12 +8,14 @@ endif()
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fopenmp -march=native")
+#set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fopenmp -march=native")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native")
 
 include_directories(utils)
 add_subdirectory(alg)
 add_subdirectory(data)
 
-add_executable(hbe SyntheticDensity.cpp SyntheticDensity.h)
+add_executable(hbe SyntheticFixAcc.cpp SyntheticFixAcc.h)
+#add_executable(hbe SyntheticDensity.cpp SyntheticDensity.h)
 #add_executable(hbe RealData.cpp RealData.h)
 target_link_libraries(hbe alg data)
