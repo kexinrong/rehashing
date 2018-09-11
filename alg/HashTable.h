@@ -6,7 +6,6 @@
 #define HBE_HASHTABLE_H
 
 
-
 #include "HashBucket.h"
 #include "mathUtils.h"
 #include <unordered_map>
@@ -16,7 +15,6 @@
 #include <sstream>
 #include <chrono>
 #include <boost/functional/hash.hpp>
-#include <tsl/robin_map.h>
 
 using namespace std;
 
@@ -36,8 +34,11 @@ public:
 
         int n = X.rows();
         int d = X.cols();
-        G = mathUtils::randNormal(batchSize * k, d) / binWidth;
-        b = mathUtils::randUniform(batchSize * k);
+        std::random_device rd;  //Will be used to obtain a seed for the random number engine
+        std::mt19937_64 rng(rd());
+
+        G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
+        b = mathUtils::randUniform(batchSize * k, rng);
 
         MatrixXd project(batchSize * k, n);
         for (int i = 0; i < n; i ++) { project.col(i) = b; }

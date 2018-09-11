@@ -19,6 +19,7 @@ public:
     MatrixXd X;
     int numPoints;
     shared_ptr<Kernel> kernel;
+    std::mt19937_64 rng;
 
     RS(MatrixXd data, shared_ptr<Kernel> k);
 

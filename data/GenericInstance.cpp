@@ -14,6 +14,9 @@ using Eigen::VectorXd;
 typedef Eigen::Matrix<double, 1, Eigen::Dynamic> RowVector;
 
 GenericInstance::GenericInstance(int p, int c, int s, int d, double density, double spread) {
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    rng = std::mt19937_64(rd());
+
     numPoints = p;
     numClusters = c;
     numScales = std::max(s, 2);
@@ -21,7 +24,7 @@ GenericInstance::GenericInstance(int p, int c, int s, int d, double density, dou
 
     directions.clear();
     for (int i = 0; i < c; i ++) {
-        VectorXd x = mathUtils::randNormal(d);
+        VectorXd x = mathUtils::randNormal(d, rng);
         double n = x.norm();
         x /= n;
         directions.push_back(x);
@@ -52,7 +55,7 @@ GenericInstance::GenericInstance(int p, int c, int s, int d, double density, dou
     for (int i = 0; i < numClusters; i ++) {
         for (int j = 0; j < numScales; j ++) {
             double scale = spread * scales[j] / sqrt(dim);
-            MatrixXd rand = mathUtils::randNormal(sizes[j], dim) * scale;
+            MatrixXd rand = mathUtils::randNormal(sizes[j], dim, rng) * scale;
             VectorXd vec = directions.at(i) * scales[j];
             points.block(cnt, 0, sizes[j], d) = rand + MatrixXd::Ones(sizes[j], 1) * vec.transpose();
             cnt += sizes[j];
@@ -69,10 +72,11 @@ void GenericInstance::merge(MatrixXd data) {
 }
 
 VectorXd GenericInstance::query(double dist, bool correlated) {
+    std::uniform_int_distribution<int> distribution(0, numClusters - 1);
     if (correlated) {
-        int idx = rand() % numClusters;
+        int idx = distribution(rng);
         return directions.at(idx) * dist;;
     } else {
-        return mathUtils::randNormal(dim) * dist / sqrt(dim);
+        return mathUtils::randNormal(dim, rng) * dist / sqrt(dim);
     }
 }

@@ -22,20 +22,14 @@ public:
     int idx = 0;
 
     BaseLSH(MatrixXd X, int M, double w, int k, int batch, shared_ptr<Kernel> ker, int threads);
-    void precomputeErf(double tau, double epsilon);
-    double collision(double c, int k);
 
 protected:
-    vector<double> erfs;
     double step;
     double r;
 
     double evaluateQuery(VectorXd query);
     double evaluate(HashBucket buckets, VectorXd query);
     std::vector<double> MoM(VectorXd query, int L, int m);
-
-private:
-    double erfLookup(double x);
 
 };
 

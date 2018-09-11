@@ -5,9 +5,9 @@
 #ifndef HBE_GENERICINSTANCE_H
 #define HBE_GENERICINSTANCE_H
 
-
 #include <Eigen/Dense>
-#include <vector>
+#include <random>
+#include <memory>
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -19,10 +19,10 @@ private:
     int numScales;
     int dim;
 
-
 public:
     std::vector<VectorXd> directions;
     MatrixXd points;
+    std::mt19937_64 rng;
 
     GenericInstance(int numPoints, int numClusters, int numScales, int dim,
         double density, double spread);

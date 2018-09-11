@@ -15,7 +15,6 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-
 const double E1 = exp(1.5);
 const double E2 = exp(1.854);
 const double SQRT_2PI = sqrt(2.0 / M_PI);
@@ -73,39 +72,30 @@ public:
         return median;
     }
 
-    static VectorXd randNormal(int n) {
-        std::random_device rd;
-        std::seed_seq seed{rd()};
-        std::default_random_engine generator(seed);
+    static VectorXd randNormal(int n, std::mt19937_64 &rng) {
         VectorXd r(n);
         std::normal_distribution<double> normal(0.0, 1.0);
         for (int i = 0; i < n; i ++) {
-            r(i) = normal(generator);
+            r(i) = normal(rng);
         }
         return r;
     }
 
-    static VectorXd randUniform(int n) {
-        std::random_device rd;
-        std::seed_seq seed{rd()};
-        std::default_random_engine generator(seed);
+    static VectorXd randUniform(int n, std::mt19937_64 &rng) {
         VectorXd r(n);
         std::uniform_real_distribution<double> uniform(0.0, 1.0);
         for (int i = 0; i < n; i ++) {
-            r(i) = uniform(generator);
+            r(i) = uniform(rng);
         }
         return r;
     }
 
-    static MatrixXd randNormal(int n, int d) {
-        std::random_device rd{};
-        std::seed_seq seed{rd()};
-        std::default_random_engine generator(seed);
+    static MatrixXd randNormal(int n, int d, std::mt19937_64 &rng) { ;
         MatrixXd r(n, d);
         std::normal_distribution<double> normal(0.0, 1.0);
         for (int i = 0; i < n; i ++) {
             for (int j = 0; j < d; j ++) {
-                r(i, j) = normal(generator);
+                r(i, j) = normal(rng);
             }
         }
         return r;
@@ -114,5 +104,4 @@ public:
 
 
 };
-
 #endif //HBE_UTILS_H

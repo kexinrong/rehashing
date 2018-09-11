@@ -20,7 +20,6 @@ const double beta = 0.1;
 const int iterations = 1000;
 
 int main() {
-    srand (time(NULL));
     MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 9);
 
     int n = X.rows();
@@ -52,9 +51,14 @@ int main() {
 
     vector<double> time = vector<double>(3, 0);
     vector<double> error = vector<double>(2, 0);
+
     int m1 = 100;
+    // Random
+    std::uniform_int_distribution<int> distribution(0, n - 1);
+    std::random_device rd;
+    std::mt19937_64 rng = std::mt19937_64(rd());
     for (int j = 0; j < iterations; j ++) {
-        int idx = rand() % n;
+        int idx = distribution(rng);
         VectorXd q = X.row(idx);
         // Naive
         auto t1 = std::chrono::high_resolution_clock::now();
