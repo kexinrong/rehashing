@@ -18,10 +18,10 @@ public:
     int numHash;
     int numPoints;
     shared_ptr<Kernel> kernel;
-    int batchSize = 100;
+    int batchSize = 1;
     int idx = 0;
 
-    BaseLSH(MatrixXd X, int M, double w, int k, int batch, shared_ptr<Kernel> ker, int threads);
+    BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch, shared_ptr<Kernel> ker, int threads);
 
 protected:
     double step;

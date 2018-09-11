@@ -20,7 +20,7 @@ const double SQRT_PI2 = sqrt(M_PI/2);
 class dataUtils {
 
 public:
-    static double estimateDiameter(MatrixXd X, double tau) {
+    static double estimateDiameter(MatrixXd &X, double tau) {
         int n = X.rows();
         double radius = 0;
         for (int i = 0; i < n; i ++) {
@@ -42,7 +42,7 @@ public:
         return 1 / beta / SQRT_PI2 * power;
     }
 
-    static MatrixXd normalizeBandwidth(MatrixXd X, std::vector<double> bw) {
+    static MatrixXd normalizeBandwidth(MatrixXd &X, std::vector<double> bw) {
         int d = X.cols();
         for (int i = 0; i < d; i ++) {
             X.col(i) /= bw[i];
@@ -50,7 +50,7 @@ public:
         return X;
     }
 
-    static void checkBandwidthSamples(MatrixXd X, double eps, shared_ptr<Kernel>& kernel) {
+    static void checkBandwidthSamples(MatrixXd &X, double eps, shared_ptr<Kernel>& kernel) {
         int n = X.rows();
         int half = n / 2;
         size_t samples = round(n / eps / eps);

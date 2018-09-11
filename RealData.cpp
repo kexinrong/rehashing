@@ -34,6 +34,7 @@ int main() {
     dataUtils::checkBandwidthSamples(X, eps, kernel);
     // Normalized by bandwidth
     X = dataUtils::normalizeBandwidth(X, band->bw);
+    shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
     // Estimate parameters
     double means = ceil(6 * mathUtils::expRelVar(tau) / eps / eps);
@@ -45,9 +46,13 @@ int main() {
     // Algorithms init
     std::cout << "M=" << M << ",w=" << w << ",k=" << k << std::endl;
     shared_ptr<Kernel> simpleKernel = make_shared<Expkernel>(dim);
-    naiveKDE naive(X, simpleKernel);
-    RS rs(X, simpleKernel);
-    BaseLSH hbe(X, M, w, k, 1, simpleKernel, 1);
+    naiveKDE naive(X_ptr, simpleKernel);
+    RS rs(X_ptr, simpleKernel);
+    auto t1 = std::chrono::high_resolution_clock::now();
+    BaseLSH hbe(X_ptr, M, w, k, 1, simpleKernel, 5);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+
 
     vector<double> time = vector<double>(3, 0);
     vector<double> error = vector<double>(2, 0);
@@ -61,9 +66,9 @@ int main() {
         int idx = distribution(rng);
         VectorXd q = X.row(idx);
         // Naive
-        auto t1 = std::chrono::high_resolution_clock::now();
+        t1 = std::chrono::high_resolution_clock::now();
         double kde = naive.query(q);
-        auto t2 = std::chrono::high_resolution_clock::now();
+        t2 = std::chrono::high_resolution_clock::now();
         time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
 
         // RS

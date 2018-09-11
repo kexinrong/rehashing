@@ -16,12 +16,12 @@ using Eigen::VectorXd;
 class RS : public MoMEstimator {
 
 public:
-    MatrixXd X;
+    shared_ptr<MatrixXd> X;
     int numPoints;
     shared_ptr<Kernel> kernel;
     std::mt19937_64 rng;
 
-    RS(MatrixXd data, shared_ptr<Kernel> k);
+    RS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k);
 
 protected:
     std::vector<double> MoM(VectorXd q, int L, int m);

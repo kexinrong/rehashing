@@ -14,11 +14,11 @@ using Eigen::VectorXd;
 
 class naiveKDE {
 public:
-    MatrixXd X;
+    shared_ptr<MatrixXd> X;
     int numPoints;
     shared_ptr<Kernel> kernel;
 
-    naiveKDE(MatrixXd data, shared_ptr<Kernel> k);
+    naiveKDE(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k);
     double query(VectorXd q);
 };
 

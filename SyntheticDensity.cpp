@@ -32,6 +32,7 @@ int main() {
         GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, density, scales, spread);
         MatrixXd X = data.points;
         int n = X.rows();
+        shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
         std::cout << "mu=" << mu << ", N=" << n << ", d=" << dim << std::endl;
 
         // minimum density that we wish to be able to approximate
@@ -47,9 +48,9 @@ int main() {
 
         // Algorithms init
         std::cout << "M=" << M << ",w=" << w << ",k=" << k << std::endl;
-        naiveKDE naive(X, kernel);
-        RS rs(X, kernel);
-        BaseLSH hbe(X, M, w, k, 1, kernel, 1);
+        naiveKDE naive(X_ptr, kernel);
+        RS rs(X_ptr, kernel);
+        BaseLSH hbe(X_ptr, M, w, k, 1, kernel, 1);
 
         int m1 = min(n, (int)ceil(1 / eps / eps * mathUtils::randomRelVar(tau)));
         int m2 = min(n, (int)ceil(1 / eps / eps * mathUtils::expRelVar(tau)));

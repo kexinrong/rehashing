@@ -29,7 +29,7 @@ public:
         scaleFactor = pow(n, -1.0/(d+4));
     }
 
-    void getBandwidth(MatrixXd X) {
+    void getBandwidth(MatrixXd &X) {
         int n = X.rows();
         for (int i = 0; i < dim; i ++) {
             VectorXd vec = X.col(i);

@@ -4,19 +4,21 @@
 
 #include "BaseLSH.h"
 
-BaseLSH::BaseLSH(MatrixXd X, int M, double w, int k, int batch,
+
+BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch,
                  shared_ptr<Kernel> ker, int threads) {
     batchSize = batch;
     numTables = M / batch + 1;
     binWidth = w;
     numHash = k;
-    numPoints = X.rows();
+    numPoints = X->rows();
     kernel = ker;
 
-    for (int i = 0; i < numTables; i ++ ) {
-        tables.push_back(HashTable(X, w, k, batchSize));
+    for (int i = 0; i < numTables; i++) {
+        tables.push_back(HashTable(X, w, k, batch));
     }
 }
+
 
 
 vector<double> BaseLSH::MoM(VectorXd query, int L, int m) {

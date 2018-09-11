@@ -15,6 +15,9 @@
 #include <sstream>
 #include <chrono>
 #include <boost/functional/hash.hpp>
+#include <omp.h>
+
+typedef unordered_map<size_t, HashBucket> htable;
 
 using namespace std;
 
@@ -27,31 +30,32 @@ public:
     int numHash;
     int batchSize;
 
-    HashTable(MatrixXd X, double w, int k, int batch) {
+    HashTable() {}
+
+    HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch) {
         binWidth = w;
         numHash = k;
         batchSize = batch;
 
-        int n = X.rows();
-        int d = X.cols();
         std::random_device rd;  //Will be used to obtain a seed for the random number engine
         std::mt19937_64 rng(rd());
 
+        int d = X->cols();
         G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
         b = mathUtils::randUniform(batchSize * k, rng);
 
-        MatrixXd project(batchSize * k, n);
+        int n = X->rows();
+        MatrixXd project(batchSize * numHash, n);
         for (int i = 0; i < n; i ++) { project.col(i) = b; }
 
-        project += G * X.transpose();
+        project += G * X->transpose();
         for (int i = 0; i < n; i ++) {
-            VectorXd x = X.row(i);
+            VectorXd x = X->row(i);
             size_t key = getkey(project.col(i));
             auto it = table.find(key);
             if (it == table.end()) {
                 table[key] = HashBucket(x);
             } else {
-                //table[key].update(x);
                 it->second.update(x);
             }
         }
