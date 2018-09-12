@@ -30,7 +30,7 @@ const int iterations = 1000;
 
 
 int main() {
-    for (long mu = 100; mu <= 1000000; mu *= 10) {
+    for (long mu = 10000; mu <= 1000000; mu *= 10) {
         std::cout << "-------------------------------------------------------" << std::endl;
         double density = 1.0 / mu;
         GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, density, scales, spread);
@@ -60,7 +60,8 @@ int main() {
         int m2 = min(n, (int)ceil(1 / eps / eps * mathUtils::expRelVar(tau)));
 
         bool foundHBE = false;
-        for (int s = m2 / 2; s < m1; s += 5) {
+        double count = 0;
+        for (int s = m2 / 4; s < m1; s += 5) {
             vector<double> time = vector<double>(3, 0);
             vector<double> error = vector<double>(2, 0);
             for (int j = 0; j < iterations; j ++) {
@@ -92,11 +93,27 @@ int main() {
             std::cout << "s=" << s << std::endl;
             if (foundHBE) {
                 std::cout << "RS: " << time[1] / iterations / 1e6 << "," << error[0] / iterations << std::endl;
+                if (error[0] / iterations <= acc) {
+                    count += 1;
+                } else {
+                    count = 0;
+                    if (error[0] / iterations > acc * 2) {
+                        s *= 3;
+                    }
+                }
+                if (count == 5) { break; }
             } else {
                 std::cout << "HBE: " << time[2] / iterations / 1e6 << "," << error[1] / iterations << std::endl;
-                if (error[1] / iterations <= acc * 0.9) { foundHBE = true; }
+                if (error[1] / iterations <= acc ) {
+                    count += 1;
+                }  else {
+                    count = 0;
+                }
+                if (count == 5) {
+                    foundHBE = true;
+                    count = 0;
+                }
             }
-            if (foundHBE && error[0] / iterations <= acc * 0.9) { break; }
         }
         std::cout << "-------------------------------------------------------" << std::endl;
     }

@@ -26,7 +26,7 @@ const double spread = 0.01;
 const int iterations = 1000;
 
 int main() {
-    for (long mu = 100; mu < 1000000; mu *= 10) {
+    for (long mu = 1000000; mu < 10000000; mu *= 10) {
         std::cout << "-------------------------------------------------------" << std::endl;
         double density = 1.0 / mu;
         GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, density, scales, spread);
