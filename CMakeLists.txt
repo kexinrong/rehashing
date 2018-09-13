@@ -17,5 +17,6 @@ add_subdirectory(data)
 
 #add_executable(hbe SyntheticFindHBE.cpp)
 #add_executable(hbe SyntheticFindRandom.cpp SyntheticFindRandom.h)
-add_executable(hbe experiments/SyntheticFixAcc.cpp experiments/SyntheticFixAcc.cpp)
+#add_executable(hbe experiments/SyntheticFixAcc.cpp experiments/SyntheticFixAcc.cpp)
+add_executable(hbe experiments/RealData.cpp experiments/RealData.h)
 target_link_libraries(hbe alg data)
