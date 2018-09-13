@@ -2,15 +2,14 @@
 // Created by Kexin Rong on 9/11/18.
 //
 
-#include "SyntheticFixAcc.h"
 #include "expkernel.h"
 #include "mathUtils.h"
 #include "dataUtils.h"
 #include "math.h"
-#include "alg/RS.h"
-#include "alg/naiveKDE.h"
-#include "alg/BaseLSH.h"
-#include "data/SyntheticData.h"
+#include "../alg/RS.h"
+#include "../alg/naiveKDE.h"
+#include "../alg/BaseLSH.h"
+#include "../data/SyntheticData.h"
 #include <chrono>
 
 const double eps = 0.5;
@@ -30,7 +29,7 @@ const int iterations = 1000;
 
 
 int main() {
-    for (long mu = 10000; mu <= 1000000; mu *= 10) {
+    for (long mu = 10000; mu <= 10000; mu *= 10) {
         std::cout << "-------------------------------------------------------" << std::endl;
         double density = 1.0 / mu;
         GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, density, scales, spread);
@@ -53,15 +52,12 @@ int main() {
         // Algorithms init
         std::cout << "M=" << M << ",w=" << w << ",k=" << k << std::endl;
         naiveKDE naive(X_ptr, kernel);
-        RS rs(X_ptr, kernel);
         BaseLSH hbe(X_ptr, M, w, k, 1, kernel, 1);
 
-        int m1 = min(n, (int)ceil(1 / eps / eps * mathUtils::randomRelVar(tau)));
         int m2 = min(n, (int)ceil(1 / eps / eps * mathUtils::expRelVar(tau)));
 
-        bool foundHBE = false;
         double count = 0;
-        for (int s = m2 / 4; s < m1; s += 5) {
+        for (int s = 1100; s < m2 * 2; s += 5) {
             vector<double> time = vector<double>(3, 0);
             vector<double> error = vector<double>(2, 0);
             for (int j = 0; j < iterations; j ++) {
@@ -73,46 +69,21 @@ int main() {
                 time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
 
                 // HBE
-                if (!foundHBE) {
-                    t1 = std::chrono::high_resolution_clock::now();
-                    double hbeKDE = hbe.query(q, tau, s);
-                    t2 = std::chrono::high_resolution_clock::now();
-                    time[2] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
-                    error[1] += fabs(kde - hbeKDE) / kde;
-                }
-
-                // RS
-                if (foundHBE) {
-                    t1 = std::chrono::high_resolution_clock::now();
-                    double rsKDE = rs.query(q, tau, s);
-                    t2 = std::chrono::high_resolution_clock::now();
-                    time[1] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
-                    error[0] += fabs(kde - rsKDE) / kde;
-                }
+                t1 = std::chrono::high_resolution_clock::now();
+                double hbeKDE = hbe.query(q, tau, s);
+                t2 = std::chrono::high_resolution_clock::now();
+                time[2] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+                error[1] += fabs(kde - hbeKDE) / kde;
             }
             std::cout << "s=" << s << std::endl;
-            if (foundHBE) {
-                std::cout << "RS: " << time[1] / iterations / 1e6 << "," << error[0] / iterations << std::endl;
-                if (error[0] / iterations <= acc) {
-                    count += 1;
-                } else {
-                    count = 0;
-                    if (error[0] / iterations > acc * 2) {
-                        s *= 3;
-                    }
-                }
-                if (count == 5) { break; }
-            } else {
-                std::cout << "HBE: " << time[2] / iterations / 1e6 << "," << error[1] / iterations << std::endl;
-                if (error[1] / iterations <= acc ) {
-                    count += 1;
-                }  else {
-                    count = 0;
-                }
-                if (count == 5) {
-                    foundHBE = true;
-                    count = 0;
-                }
+            std::cout << "HBE: " << time[2] / iterations / 1e6 << "," << error[1] / iterations << std::endl;
+            if (error[1] / iterations <= acc ) {
+                count += 1;
+            }  else {
+                count = 0;
+            }
+            if (count == 5) {
+                break;
             }
         }
         std::cout << "-------------------------------------------------------" << std::endl;

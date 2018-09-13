@@ -1,5 +1,5 @@
 //
-// Created by Kexin Rong on 9/11/18.
+// Created by Kexin Rong on 9/12/18.
 //
 
 #ifndef HBE_SYNTHETICFIXACC_H
@@ -7,6 +7,5 @@
 
 
 int main();
-
 
 #endif //HBE_SYNTHETICFIXACC_H

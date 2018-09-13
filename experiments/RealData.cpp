@@ -2,15 +2,14 @@
 // Created by Kexin Rong on 9/10/18.
 //
 
-#include "SyntheticDensity.h"
 #include "expkernel.h"
 #include "mathUtils.h"
 #include "dataUtils.h"
 #include "bandwidth.h"
 #include "math.h"
-#include "alg/RS.h"
-#include "alg/naiveKDE.h"
-#include "alg/BaseLSH.h"
+#include "../alg/RS.h"
+#include "../alg/naiveKDE.h"
+#include "../alg/BaseLSH.h"
 #include <chrono>
 
 const double eps = 0.5;
