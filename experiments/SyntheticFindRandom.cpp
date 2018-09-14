@@ -30,7 +30,7 @@ const int iterations = 1000;
 
 
 int main() {
-    for (long mu = 100000; mu <= 100000; mu *= 10) {
+    for (long mu = 1000000; mu <= 1000000; mu *= 10) {
         std::cout << "-------------------------------------------------------" << std::endl;
         double density = 1.0 / mu;
         GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, density, scales, spread);
@@ -51,7 +51,7 @@ int main() {
         int m1 = min(n, (int)ceil(1 / eps / eps * mathUtils::randomRelVar(tau)));
 
         double count = 0;
-        for (int s = 71000; s < min(m1 * 2, n); s += 100) {
+        for (int s = m1 / 8; s < min(m1 * 2, n); s += 100) {
             vector<double> time = vector<double>(3, 0);
             vector<double> error = vector<double>(2, 0);
             for (int j = 0; j < iterations; j ++) {

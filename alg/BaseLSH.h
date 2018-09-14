@@ -27,8 +27,7 @@ protected:
     double step;
     double r;
 
-    double evaluateQuery(VectorXd query);
-    double evaluate(HashBucket buckets, VectorXd query);
+    vector<double> evaluateQuery(VectorXd query, int maxSamples);
     std::vector<double> MoM(VectorXd query, int L, int m);
 
 };

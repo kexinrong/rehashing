@@ -13,12 +13,12 @@
 #include <chrono>
 
 const double eps = 0.5;
-const double tau = 0.001;
+const double tau = 0.0001;
 const double beta = 0.1;
 
 const int iterations = 1000;
 
-const std::vector<int> hbe_samples = {50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+const std::vector<int> hbe_samples = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 
 int main() {
     MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 9);
@@ -54,7 +54,7 @@ int main() {
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
-    double ratio = 4;
+    double ratio = 3;
     for (size_t i = 0; i < hbe_samples.size(); i ++) {
         int m1 = hbe_samples[i];
         int m2 = int(hbe_samples[i] * ratio);

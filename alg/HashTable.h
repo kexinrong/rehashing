@@ -5,6 +5,7 @@
 #ifndef HBE_HASHTABLE_H
 #define HBE_HASHTABLE_H
 
+#define EIGEN_USE_MKL_ALL
 
 #include "HashBucket.h"
 #include "mathUtils.h"
@@ -20,7 +21,7 @@ using namespace std;
 
 class HashTable {
 public:
-    unordered_map<size_t, HashBucket> table;
+    map<size_t, HashBucket> table;
     MatrixXd G;
     VectorXd b;
     double binWidth;
@@ -48,37 +49,47 @@ public:
         project += G * X->transpose();
         for (int i = 0; i < n; i ++) {
             VectorXd x = X->row(i);
-            size_t key = getkey(project.col(i));
-            auto it = table.find(key);
-            if (it == table.end()) {
-                table[key] = HashBucket(x);
-            } else {
-                it->second.update(x);
+            vector<size_t> keys = getkey(project.col(i));
+            for (auto key: keys) {
+                auto it = table.find(key);
+                if (it == table.end()) {
+                    table[key] = HashBucket(x);
+                } else {
+                    it->second.update(x);
+                }
             }
         }
     }
 
-    size_t hashfunction(VectorXd x) {
+    vector<size_t> hashfunction(VectorXd x) {
         VectorXd v = G * x + b;
         return getkey(v);
     }
 
-    size_t getkey(VectorXd v) {
-        size_t key = 0;
-        for (int i = 0; i < numHash; i ++) {
-            boost::hash_combine(key, (int)ceil(v(i)));
+    vector<size_t> getkey(VectorXd v) {
+        vector<size_t> keys(batchSize);
+        for (int b = 0; b < batchSize; b++) {
+            size_t key = b;
+            for (int i = 0; i < numHash; i ++) {
+                boost::hash_combine(key, (int)ceil(v(i)));
+            }
+            keys[b] = key;
         }
-        return key;
+        return keys;
     }
 
-    HashBucket sample(VectorXd query) {
-        size_t key = hashfunction(query);
-        auto it = table.find(key);
-        if (it == table.end()) {
-            return HashBucket();
-        } else {
-            return it->second;
+    vector<HashBucket> sample(VectorXd query) {
+        vector<size_t> keys = hashfunction(query);
+        vector<HashBucket> buckets;
+        for (auto key : keys) {
+            auto it = table.find(key);
+            if (it == table.end()) {
+                buckets.push_back(HashBucket());
+            } else {
+                buckets.push_back(it->second);
+            }
         }
+        return buckets;
     }
 };
 

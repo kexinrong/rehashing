@@ -27,7 +27,7 @@ const double spread = 0.01;
 const int iterations = 1000;
 
 const std::vector<int> hbe_samples = {90, 305, 1125, 3650};
-const std::vector<int>  rs_samples = {285, 1790, 13000, 70000};
+const std::vector<int>  rs_samples = {285, 1790, 13000, 94600};
 const std::vector<int> mus = {100, 1000, 10000, 100000};
 
 int main() {
@@ -60,7 +60,7 @@ int main() {
 
         int m1 = rs_samples[i];
         int m2 = hbe_samples[i];
-        for (int repeats = 0; repeats < 3; repeats++) {
+        for (int repeats = 0; repeats < 10; repeats++) {
             vector<double> time = vector<double>(3, 0);
             vector<double> error = vector<double>(2, 0);
             std::cout << "RS samples:" << m1 << ", HBE samples:" << m2 << std::endl;
