@@ -1,0 +1,36 @@
+# -*- mode: makefile -*-
+
+ifeq ($(USE_MKL), true)
+# BLAS_LIBS=-mkl=parallel
+BLAS_LIBS=-mkl=sequential -openmp
+
+BLAS_INCLUDE=-I${MKLROOT}/include
+endif
+
+ifeq ($(USE_KS), true)
+KS_INCLUDE := -I${KS_DIR}/include/
+KS_LIB := ${KS_DIR}/lib/libks.a
+endif
+
+RANLIB = ranlib
+DOX = doxygen
+TAGS = etags
+ARFLAGS = -r
+
+# /******************************************************/ 
+# COMPILER FLAGS
+#/******************************************************/
+
+$(info Checking for intel compiler)
+$(info Using maverick makefile)
+
+ifeq ($(USE_INTEL), true)
+$(info USING INTEL COMPILER)
+CPPFLAGS += -openmp -fPIC -O3 -g -xSSE4.2 -ip -unroll-aggressive -no-prec-div -simd -opt-prefetch -use-intel-optimized-headers
+endif
+
+PLATFORM_LD_FLAGS=-lpthread
+CPPFLAGS +=  -Wall -DTIXML_USE_STL
+
+
+

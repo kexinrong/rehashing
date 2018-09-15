@@ -1,0 +1,12 @@
+make  \
+KNN_DIR=/h2/bo/git.ronaldo/knn/src  \
+KS_DIR=/h2/bo/git.ronaldo/gnf/ks \
+MPICXX=mpicxx \
+MPICC=mpicc \
+FC=gfortran \
+USE_MKL=true \
+USE_GNU=false \
+USE_INTEL=true \
+PLATFORM=ronaldo
+
+

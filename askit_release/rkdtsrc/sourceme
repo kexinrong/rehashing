@@ -1,0 +1,7 @@
+export KNN_DIR=$PWD
+echo "KNN_DIR = $KNN_DIR"
+export MPICC=mpicc
+export MPICXX=mpicxx
+export MPIF90=mpif90
+#export MPIF90=mpifort
+

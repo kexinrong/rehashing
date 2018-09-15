@@ -1,0 +1,9 @@
+make  \
+KNN_DIR=${HOME}/lib/knn  \
+MPICXX=mpicxx \
+MPICC=mpicc \
+USE_MKL=true \
+USE_GNU=false \
+USE_INTEL=true \
+PLATFORM=default
+			 

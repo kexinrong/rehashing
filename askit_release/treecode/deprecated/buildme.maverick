@@ -1,0 +1,15 @@
+make  \
+KNN_DIR=${HOME}/lib/knn/src  \
+MPICXX=mpicxx \
+MPICC=mpicc \
+FC=gfortran \
+USE_MKL=true \
+USE_GNU=false \
+USE_INTEL=true \
+PLATFORM=maverick
+
+
+
+
+
+
