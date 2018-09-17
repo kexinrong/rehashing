@@ -15,7 +15,7 @@
 #include <boost/math/distributions/normal.hpp>
 
 const double eps = 0.5;
-const double tau = 0.001;
+const double tau = 0.0001;
 const double beta = 0.1;
 
 const std::vector<int> hbe_samples = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
@@ -31,9 +31,9 @@ int main() {
     for (int i = 0; i < n; i ++) {
         densities[i] = tmp(i, 0);
     }
-    int pos = int(n * 0.1);
+    int pos = int(n * 0.05);
     std::nth_element (densities.begin(), densities.begin()+pos, densities.end());
-    // 10th percentile
+    // 95th percentile
     double thresh = densities[pos];
 
     // Bandwidth

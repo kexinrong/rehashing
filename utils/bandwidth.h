@@ -29,6 +29,10 @@ public:
         scaleFactor = pow(n, -1.0/(d+4));
     }
 
+    void useConstant(double h) {
+        for (int i = 0; i < dim; i++) { bw[i] = h; }
+    }
+
     void getBandwidth(MatrixXd &X) {
         int n = X.rows();
         for (int i = 0; i < dim; i ++) {

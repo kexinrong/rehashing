@@ -93,6 +93,32 @@ public:
         return data;
     }
 
+    static MatrixXd readFile(std::string filename, bool ignoreHeader, int n, int startCol, int endCol) {
+        std::ifstream f(filename);
+        CsvParser parser(f);
+
+        MatrixXd data(n, endCol - startCol + 1);
+        bool firstRow = true;
+        int i = 0;
+        for (auto& row : parser) {
+            if (ignoreHeader && firstRow) {
+                firstRow = false;
+                continue;
+            }
+            int j = 0;
+            for (auto& field : row) {
+                if (j < startCol) {
+                    j += 1;
+                    continue; }
+                data(i, j - startCol) = std::stof(field);
+                j += 1;
+                if (j == endCol) { break; }
+            }
+            i += 1;
+            if (i == n) { break; }
+        }
+        return data;
+    }
 
 };
 
