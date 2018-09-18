@@ -5,8 +5,6 @@
 #ifndef HBE_HASHTABLE_H
 #define HBE_HASHTABLE_H
 
-#define EIGEN_USE_MKL_ALL
-
 #include "HashBucket.h"
 #include "mathUtils.h"
 #include <unordered_map>
@@ -21,7 +19,7 @@ using namespace std;
 
 class HashTable {
 public:
-    map<size_t, HashBucket> table;
+    unordered_map<size_t, HashBucket> table;
     MatrixXd G;
     VectorXd b;
     double binWidth;

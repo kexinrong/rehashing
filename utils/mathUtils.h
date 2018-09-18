@@ -64,6 +64,16 @@ public:
         return prob;
     }
 
+    static double collisionProb(double dist, double w, double k) {
+        // Normalized distance
+        double c = dist / w;
+        if (c < 1e-2) {
+            return 1.0;
+        } else {
+            return collisionProb(c, k);
+        }
+    }
+
     static double median(std::vector<double>& Z) {
         int L = Z.size();
         if (L == 1) { return Z[0]; }

@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include "mathUtils.h"
 
 using Eigen::VectorXd;
 
@@ -38,6 +39,7 @@ public:
 
     virtual double getDimFactor(int dim) = 0;
     virtual double density(VectorXd d) = 0;
+    virtual double density(double dist) = 0;
     virtual double invDensity(double p) = 0;
 
     double density(VectorXd p, VectorXd q) {
@@ -61,6 +63,11 @@ public:
             }
         }
     }
+
+    virtual bool shouldReject(double weight, double prob, double prob_mu, double mu, double delta) = 0;
+    virtual int findLevel(double mu, int T) = 0;
+    virtual double RelVar(double mu, double delta) = 0;
+
 };
 
 #endif //HBE_KERNEL_H

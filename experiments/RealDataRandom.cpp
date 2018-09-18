@@ -10,6 +10,7 @@
 #include "../alg/RS.h"
 #include "../alg/naiveKDE.h"
 #include "../alg/BaseLSH.h"
+#include "../alg/multiHBE.h"
 #include <chrono>
 
 const double eps = 0.5;
@@ -63,6 +64,11 @@ int main() {
         auto t2 = std::chrono::high_resolution_clock::now();
         std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
+        t1 = std::chrono::high_resolution_clock::now();
+        multiHBE mr(X_ptr, simpleKernel, 1, tau, eps, 0.52, 1);
+        t2 = std::chrono::high_resolution_clock::now();
+        std::cout << "MR_HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+
         for (size_t i = 0; i < hbe_samples.size(); i ++) {
             int m1 = hbe_samples[i];
             int m2 = int(hbe_samples[i] * sample_ratio);
@@ -72,8 +78,8 @@ int main() {
             std::random_device rd;
             std::mt19937_64 rng = std::mt19937_64(rd());
             for (int repeats = 0; repeats < 10; repeats ++) {
-                vector<double> time = vector<double>(3, 0);
-                vector<double> error = vector<double>(2, 0);
+                vector<double> time = vector<double>(4, 0);
+                vector<double> error = vector<double>(3, 0);
                 for (int j = 0; j < iterations; j ++) {
                     int idx = distribution(rng);
                     VectorXd q = X.row(idx);
@@ -96,6 +102,13 @@ int main() {
                     t2 = std::chrono::high_resolution_clock::now();
                     time[2] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
                     error[1] += fabs(kde - hbeKDE) / kde;
+
+                    // MR
+                    t1 = std::chrono::high_resolution_clock::now();
+                    double mrKDE = mr.query(q);
+                    t2 = std::chrono::high_resolution_clock::now();
+                    time[3] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+                    error[2] += fabs(kde - mrKDE) / kde;
                 }
                 std::cout << "# " << repeats << std::endl;
                 std::cout << "Naive average time: " << time[0] / iterations / 1e6  << std::endl;
@@ -103,6 +116,8 @@ int main() {
                 std::cout << "RS average error: " << error[0] / iterations << std::endl;
                 std::cout << "HBE average time: " << time[2] / iterations / 1e6 << std::endl;
                 std::cout << "HBE average error: " << error[1] / iterations << std::endl;
+                std::cout << "MR average time: " << time[3] / iterations / 1e6 << std::endl;
+                std::cout << "MR average error: " << error[2] / iterations << std::endl;
                 std::cout << "-------------------------------------------------------" << std::endl;
             }
 

@@ -9,12 +9,14 @@
 
 #include "CSVparser.h"
 #include "kernel.h"
+#include "math.h"
 #include <Eigen/Dense>
 
 using namespace parser::csv;
 using Eigen::MatrixXd;
 
 const double SQRT_PI2 = sqrt(M_PI/2);
+const double SQRT_2_PI = sqrt(2 * M_PI);
 
 
 class dataUtils {
@@ -27,6 +29,10 @@ public:
             radius = max(radius, X.row(i).norm());
         }
         return min(2 * radius, log(n / tau));
+    }
+
+    static int getPowerMu(double mu, double beta) {
+        return ceil(SQRT_2_PI * beta * log(1 / mu));
     }
 
     static int getPower(double diameter, double beta) {
