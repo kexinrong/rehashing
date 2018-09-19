@@ -16,7 +16,8 @@
 
 const double eps = 0.5;
 const double tau = 0.0001;
-const double beta = 0.1;
+const double beta = 0.0936284;
+const double sample_ratio = 4;
 
 const std::vector<int> hbe_samples = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 
@@ -31,10 +32,12 @@ int main() {
     for (int i = 0; i < n; i ++) {
         densities[i] = tmp(i, 0);
     }
-    int pos = int(n * 0.05);
-    std::nth_element (densities.begin(), densities.begin()+pos, densities.end());
-    // 95th percentile
-    double thresh = densities[pos];
+    std::vector<double> shuffle;
+    copy(densities.begin(), densities.end(), back_inserter(shuffle));
+    int pos = int(n * 0.01);
+    std::nth_element (shuffle.begin(), shuffle.begin()+pos, shuffle.end());
+    // 99th percentile
+    double thresh = shuffle[pos];
 
     // Bandwidth
     auto band = make_unique<Bandwidth>(n, dim);
@@ -63,10 +66,9 @@ int main() {
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
-    double ratio = 3;
     for (size_t i = 0; i < hbe_samples.size(); i ++) {
         int m1 = hbe_samples[i];
-        int m2 = int(hbe_samples[i] * ratio);
+        int m2 = int(hbe_samples[i] * sample_ratio);
         std::cout << "#hbe samples: " << m1 << ", #rs samples: " << m2 << std::endl;
         for (int repeat = 0; repeat < 3; repeat++ ) {
             // Random
@@ -74,7 +76,7 @@ int main() {
             vector<double> error = vector<double>(2, 0);
             int iterations = 0;
             for (int idx = 0; idx < n; idx++) {
-                if (densities[idx] > thresh) { continue; }
+                if (densities[idx] > thresh || densities[idx] < tau) { continue; }
                 iterations += 1;
                 VectorXd q = X.row(idx);
                 // Naive
@@ -96,6 +98,7 @@ int main() {
                 t2 = std::chrono::high_resolution_clock::now();
                 time[2] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
                 error[1] += fabs(kde - hbeKDE) / kde;
+
             }
             std::cout << iterations << std::endl;
             std::cout << "Naive average time: " << time[0] / iterations / 1e6  << std::endl;
