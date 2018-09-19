@@ -70,12 +70,12 @@ int main() {
             double kde = naive.query(q);
             t2 = std::chrono::high_resolution_clock::now();
             time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
-            cout << "True density: " << kde << endl;
 
             // MR
             t1 = std::chrono::high_resolution_clock::now();
             vector<double> est = mr.query(q);
             t2 = std::chrono::high_resolution_clock::now();
+            mr.clear();
             time[2] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
             error[1] += fabs(kde - est[0]) / kde;
             samples += est[1];
