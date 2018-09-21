@@ -16,7 +16,6 @@ private:
     const double LOG_PI = log(M_PI);
     const double LOG_2PI = log(2 * M_PI);
     const double LOG_25 = log(0.25);
-    //const double E1 = exp(1.5);
 
     double logVn(int d) { return 0.5 * d * LOG_PI - lgamma(0.5 * d + 1); }
 
@@ -41,8 +40,7 @@ public:
     double density(double dist) { return exp(-dist); }
     double invDensity(double p) { return -log(p); }
 
-    bool shouldReject(double weight, double prob, double prob_mu, double mu, double delta) {
-        double log_mu = log(mu);
+    bool shouldReject(double weight, double prob, double prob_mu, double log_mu, double delta) {
         double alpha = log(weight) / log_mu;
         double beta = log(prob) / log_mu;
         double gamma = log(prob_mu) / log_mu;
