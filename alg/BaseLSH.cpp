@@ -8,7 +8,7 @@
 BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch,
                  shared_ptr<Kernel> ker, int threads) {
     batchSize = batch;
-    numTables = M / batch + 1;
+    numTables = round(M / batch);
     binWidth = w;
     numHash = k;
     numPoints = X->rows();

@@ -40,9 +40,10 @@ protected:
     vector<vector<vector<double>>> probs;
 
     vector<double> getNewSamples(VectorXd query, double mu, int t, int maxSamples);
-    vector<double> normalizeConst(double dist, double weight, double mu,
+    vector<double> normalizeConst(double dist, double weight, double log_mu,
                                   int currLevel, int targetLevel, double* z);
-    double sumNormalizeConst(double weight, double mu, int ignoreLevel, int targetLevel, vector<double> &probs);
+    double sumNormalizeConst(double dist, double weight, double log_mu, int ignoreLevel,
+            int targetLevel, vector<double> &probs);
     double reweightSample(VectorXd query, double mu, int t);
 
 };

@@ -85,7 +85,7 @@ vector<double> multiHBE::query(VectorXd query) {
     return est;
 };
 
-vector<double> multiHBE::normalizeConst(double dist, double weight, double mu,
+vector<double> multiHBE::normalizeConst(double dist, double weight, double log_mu,
                                         int skipLevel, int targetLevel, double* z) {
     if (targetLevel == 0) { return vector<double>(1); }
 
@@ -95,20 +95,25 @@ vector<double> multiHBE::normalizeConst(double dist, double weight, double mu,
         double p = mathUtils::collisionProb(dist, binWidth[i], numHash[i]);
         double p_mu = p_mus[targetLevel][i];
         ps[i] = p;
-        if (!kernel->shouldReject(weight, p, p_mu, mu, delta)) {
+        if (!kernel->shouldReject(weight, p, p_mu, log_mu, delta)) {
             *z += p * p;
         }
     }
     return ps;
 }
 
-double multiHBE::sumNormalizeConst(double weight, double mu, int skipLevel, int targetLevel, vector<double> &probs) {
+double multiHBE::sumNormalizeConst(double dist, double weight, double log_mu, int skipLevel,
+        int targetLevel, vector<double> &probs) {
     double z = 0;
     for (int i = 0; i <= targetLevel; i ++) {
         if (i == skipLevel) { continue; }
+        if (probs[i] < 0) {
+            probs[i] = mathUtils::collisionProb(dist, binWidth[i], numHash[i]);
+        }
         double p = probs[i];
+        if (p < 0) { cout << "i" << i << endl; }
         double p_mu = p_mus[targetLevel][i];
-        if (!kernel->shouldReject(weight, p, p_mu, mu, delta)) {
+        if (!kernel->shouldReject(weight, p, p_mu, log_mu, delta)) {
             z += p * p;
         }
     }
@@ -121,6 +126,7 @@ vector<double> multiHBE::getNewSamples(VectorXd query, double mu, int t, int max
     idx = (idx + 1) % numTables;
     size_t n = min(maxSamples, batchSize);
     results[1] = n;
+    double log_mu = log(mu);
     tableIdx.push_back(idx);
     vector<int> bucket_count(t + 1, 0);
     vector<double> curr_dist(t + 1, 0);
@@ -131,26 +137,23 @@ vector<double> multiHBE::getNewSamples(VectorXd query, double mu, int t, int max
         int k = numHash[i];
         double p_mu = p_mus[t][i];
 
-        vector<HashBucket> buckets = tables[i][idx].sample(query);
-        for (size_t j = 0; j < n; j ++) {
-            HashBucket bucket = buckets[j];
-            int cnt = bucket.count;
-            bucket_count[i] = cnt;
-            if (cnt > 0) {
-                double dist = (bucket.sample - query).norm();
-                double weight = kernel->density(dist);
-                curr_dist[i] = dist;
-                curr_kernel[i] = weight;
-                double p = mathUtils::collisionProb(dist, w, k);
-                double z = 0;
-                vector<double> ps = normalizeConst(dist, weight, mu, i, t, &z);
-                ps[i] = p;
-                curr_probs[i] = ps;
-                if (!kernel->shouldReject(weight, p, p_mu, mu, delta)) {
-                    z += p * p;
-                    results[0] += weight * p / z * cnt / numPoints;
-                }
+        HashBucket bucket = tables[i][idx].sample(query)[0];
+        int cnt = bucket.count;
+        bucket_count[i] = cnt;
+        if (cnt > 0) {
+            double dist = (bucket.sample - query).norm();
+            double weight = kernel->density(dist);
+            curr_dist[i] = dist;
+            curr_kernel[i] = weight;
+            double p = mathUtils::collisionProb(dist, w, k);
+            if (!kernel->shouldReject(weight, p, p_mu, log_mu, delta)) {
+                double z = p * p;
+                curr_probs[i] = normalizeConst(dist, weight, log_mu, i, t, &z);
+                results[0] += weight * p / z * cnt / numPoints;
+            } else {
+                curr_probs[i] = vector<double>(t+1, -1);
             }
+            curr_probs[i][i] = p;
         }
     }
     counts.push_back(bucket_count);
@@ -162,6 +165,7 @@ vector<double> multiHBE::getNewSamples(VectorXd query, double mu, int t, int max
 
 double multiHBE::reweightSample(VectorXd query, double mu, int t) {
     if (t == 0) { return 0; }
+    double log_mu = log(mu);
 
     double Z = 0;
     for (size_t i = 0; i < tableIdx.size(); i++) {
@@ -180,14 +184,14 @@ double multiHBE::reweightSample(VectorXd query, double mu, int t) {
                     dists[i].push_back(dist);
                     kernels[i].push_back(weight);
                     double p = mathUtils::collisionProb(dist, w, k);
-                    double z = 0;
-                    vector<double> ps = normalizeConst(dist, weight, mu, l, t, &z);
-                    ps[l] = p;
-                    probs[i].push_back(ps);
-                    if (!kernel->shouldReject(weight, p, p_mu, mu, delta)) {
-                        z += p * p;
+                    if (!kernel->shouldReject(weight, p, p_mu, log_mu, delta)) {
+                        double z = p * p;
+                        probs[i].push_back(normalizeConst(dist, weight, log_mu, l, t, &z));
                         Z += weight * p / z * cnt / numPoints;
+                    } else {
+                        probs[i].push_back(vector<double>(t+1, -1));
                     }
+                    probs[i][l][l] = p;
                 }
             } else {
                 int cnt = counts[i][l];
@@ -198,8 +202,9 @@ double multiHBE::reweightSample(VectorXd query, double mu, int t) {
                     // New: collision probability at the new level
                     double new_p = mathUtils::collisionProb(dist, binWidth[t], numHash[t]);
                     probs[i][l].push_back(new_p);
-                    if (!kernel->shouldReject(weight, p, p_mu, mu, delta)) {
-                        double z = sumNormalizeConst(weight, mu, l, t, probs[i][l]) + p * p;
+                    if (!kernel->shouldReject(weight, p, p_mu, log_mu, delta)) {
+                        double z = p * p;
+                        z += sumNormalizeConst(dist, weight, log_mu, l, t, probs[i][l]);
                         Z += weight * p / z * cnt / numPoints;
                     }
                 }

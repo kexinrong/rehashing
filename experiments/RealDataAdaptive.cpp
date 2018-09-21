@@ -19,7 +19,7 @@ const double tau = 0.001;
 
 const int iterations = 1000;
 
-const double sample_ratio = 4;
+const double sample_ratio = 24;
 
 int main() {
     MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 9);
