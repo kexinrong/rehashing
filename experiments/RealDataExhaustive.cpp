@@ -36,5 +36,5 @@ int main() {
         outfile << kde << "\n";
     }
     outfile.close();
-    std::cout << "Total time: " << t / 1e6 << " sec";
+    std::cout << "Total time: " << t / 1e3 << " sec";
 }
