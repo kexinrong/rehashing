@@ -10,20 +10,24 @@
 #include "../alg/RS.h"
 #include "../alg/naiveKDE.h"
 #include "../alg/BaseLSH.h"
-#include "../alg/multiHBE.h"
 #include <chrono>
 
 const double eps = 0.5;
-const double tau = 0.0001;
+const double tau = 0.001;
 
 const int iterations = 1000;
-const double sample_ratio = 4;
+const double sample_ratio = 5;
 
 const std::vector<int> hbe_samples = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 
 int main() {
     MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 9);
-    //MatrixXd X = dataUtils::readFile("resources/SUSY.csv", false, 500000, 1, 18);
+    //MatrixXd X = dataUtils::readFile("resources/SUSY.csv", false, 5000000, 1, 18);
+    //MatrixXd X = dataUtils::readFile("resources/corel_hist.csv", true, 68040, 2, 33);
+    //MatrixXd X = dataUtils::readFile("resources/HT_Sensor_dataset.csv", true, 928991, 3, 12);
+
+    //MatrixXd tmp = dataUtils::readFile("resources/true_densities/home_all_errors.txt", true, 928991, 1);
+    MatrixXd tmp = dataUtils::readFile("resources/true_densities/shuttle_all_errors.txt", true, 43500, 1);
 
     int n = X.rows();
     int dim = X.cols();
@@ -31,7 +35,8 @@ int main() {
 
     // Bandwidth
     auto band = make_unique<Bandwidth>(n, dim);
-    //band->multiplier = 5;
+    //band->multiplier = 4;
+    //band->multiplier = 2.23;
     band->getBandwidth(X);
     shared_ptr<Kernel> kernel = make_shared<Expkernel>(dim);
     kernel->initialize(band->bw);
@@ -44,7 +49,7 @@ int main() {
     double means = ceil(6 * mathUtils::expRelVar(tau) / eps / eps);
     int M = (int)(means * 1.1);
     double diam = dataUtils::estimateDiameter(X, tau);
-    double beta = 0;
+    double beta = 0.49;
     double stepSize = 1 / log(n);
     shared_ptr<Kernel> simpleKernel = make_shared<Expkernel>(dim);
     naiveKDE naive(X_ptr, simpleKernel);
@@ -64,11 +69,6 @@ int main() {
         auto t2 = std::chrono::high_resolution_clock::now();
         std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
-        t1 = std::chrono::high_resolution_clock::now();
-        multiHBE mr(X_ptr, simpleKernel, 1, tau, eps, 0.52, 1);
-        t2 = std::chrono::high_resolution_clock::now();
-        std::cout << "MR_HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
-
         for (size_t i = 0; i < hbe_samples.size(); i ++) {
             int m1 = hbe_samples[i];
             int m2 = int(hbe_samples[i] * sample_ratio);
@@ -78,15 +78,18 @@ int main() {
             std::random_device rd;
             std::mt19937_64 rng = std::mt19937_64(rd());
             for (int repeats = 0; repeats < 10; repeats ++) {
-                vector<double> time = vector<double>(4, 0);
-                vector<double> error = vector<double>(3, 0);
-                for (int j = 0; j < iterations; j ++) {
+                vector<double> time = vector<double>(3, 0);
+                vector<double> error = vector<double>(2, 0);
+                int j = 0;
+                while (j < iterations) {
                     int idx = distribution(rng);
                     VectorXd q = X.row(idx);
                     // Naive
                     t1 = std::chrono::high_resolution_clock::now();
                     double kde = naive.query(q);
                     t2 = std::chrono::high_resolution_clock::now();
+                    if (kde < tau) { continue; }
+                    j += 1;
                     time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
 
                     // RS
@@ -102,13 +105,6 @@ int main() {
                     t2 = std::chrono::high_resolution_clock::now();
                     time[2] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
                     error[1] += fabs(kde - hbeKDE) / kde;
-
-                    // MR
-                    t1 = std::chrono::high_resolution_clock::now();
-                    double mrKDE = mr.query(q);
-                    t2 = std::chrono::high_resolution_clock::now();
-                    time[3] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
-                    error[2] += fabs(kde - mrKDE) / kde;
                 }
                 std::cout << "# " << repeats << std::endl;
                 std::cout << "Naive average time: " << time[0] / iterations / 1e6  << std::endl;
@@ -116,8 +112,6 @@ int main() {
                 std::cout << "RS average error: " << error[0] / iterations << std::endl;
                 std::cout << "HBE average time: " << time[2] / iterations / 1e6 << std::endl;
                 std::cout << "HBE average error: " << error[1] / iterations << std::endl;
-                std::cout << "MR average time: " << time[3] / iterations / 1e6 << std::endl;
-                std::cout << "MR average error: " << error[2] / iterations << std::endl;
                 std::cout << "-------------------------------------------------------" << std::endl;
             }
 

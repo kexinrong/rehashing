@@ -15,32 +15,39 @@
 #include <boost/math/distributions/normal.hpp>
 
 const double eps = 0.5;
-const double tau = 0.0001;
-const double beta = 0.0936284;
-const double sample_ratio = 4;
+const double tau = 0.001;
+const double beta = 0.5;
+//const double sample_ratio = 6.5;
+const double sample_ratio = 8;
 
 const std::vector<int> hbe_samples = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 
 int main() {
-    MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 9);
+    //MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 9);
+    //MatrixXd X = dataUtils::readFile("resources/corel_hist.csv", true, 68040, 2, 33);
+    MatrixXd X = dataUtils::readFile("resources/HT_Sensor_dataset.csv", true, 928991, 3, 12);
+
     int n = X.rows();
     int dim = X.cols();
     std::cout << "N=" << n << ", d=" << dim << std::endl;
 
-    MatrixXd tmp = dataUtils::readFile("resources/true_densities/shuttle_all_errors.txt", true, 43500, 1);
+    //MatrixXd tmp = dataUtils::readFile("resources/true_densities/shuttle_all_errors.txt", true, 43500, 1);
+    MatrixXd tmp = dataUtils::readFile("resources/true_densities/home_all_errors.txt", true, 928991, 1);
     std::vector<double> densities(n);
     for (int i = 0; i < n; i ++) {
         densities[i] = tmp(i, 0);
     }
     std::vector<double> shuffle;
     copy(densities.begin(), densities.end(), back_inserter(shuffle));
-    int pos = int(n * 0.01);
+    int pos = int(n * 0.05);
     std::nth_element (shuffle.begin(), shuffle.begin()+pos, shuffle.end());
     // 99th percentile
     double thresh = shuffle[pos];
+    cout << thresh << endl;
 
     // Bandwidth
     auto band = make_unique<Bandwidth>(n, dim);
+//    band->multiplier = 2.23;
     band->getBandwidth(X);
     shared_ptr<Kernel> kernel = make_shared<Expkernel>(dim);
     kernel->initialize(band->bw);
@@ -54,7 +61,7 @@ int main() {
     int M = (int)(means * 1.1);
     double diam = dataUtils::estimateDiameter(X, tau);
     int k = dataUtils::getPower(diam, beta);
-    double w = dataUtils::getWidth(3, beta);
+    double w = dataUtils::getWidth(k, beta);
 
     // Algorithms init
     std::cout << "M=" << M << ",w=" << w << ",k=" << k << std::endl;
@@ -70,7 +77,7 @@ int main() {
         int m1 = hbe_samples[i];
         int m2 = int(hbe_samples[i] * sample_ratio);
         std::cout << "#hbe samples: " << m1 << ", #rs samples: " << m2 << std::endl;
-        for (int repeat = 0; repeat < 3; repeat++ ) {
+        for (int repeat = 0; repeat < 5; repeat++ ) {
             // Random
             vector<double> time = vector<double>(3, 0);
             vector<double> error = vector<double>(2, 0);
@@ -80,10 +87,11 @@ int main() {
                 iterations += 1;
                 VectorXd q = X.row(idx);
                 // Naive
-                t1 = std::chrono::high_resolution_clock::now();
-                double kde = naive.query(q);
-                t2 = std::chrono::high_resolution_clock::now();
-                time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+//                t1 = std::chrono::high_resolution_clock::now();
+//                double kde = naive.query(q);
+//                t2 = std::chrono::high_resolution_clock::now();
+//                time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+                double kde = densities[idx];
 
                 // RS
                 t1 = std::chrono::high_resolution_clock::now();
