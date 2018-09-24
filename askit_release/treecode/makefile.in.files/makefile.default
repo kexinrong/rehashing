@@ -2,7 +2,7 @@
 
 ifeq ($(USE_MKL), true)
 #BLAS_LIBS=  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
-#BLAS_INCLUDE=-I${MKLROOT}/include -DMKL_ILP64 -m64
+BLAS_INCLUDE=-I${MKLROOT}/include
 BLAS_LIBS=-mkl=sequential -qopenmp
 endif
 
