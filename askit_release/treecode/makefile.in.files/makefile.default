@@ -1,9 +1,9 @@
 # -*- mode: makefile -*-
 
 ifeq ($(USE_MKL), true)
-BLAS_LIBS=  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
-#BLAS_LIBS=-mkl=sequential -openmp
-BLAS_INCLUDE=-I${MKLROOT}/include -DMKL_ILP64 -m64
+#BLAS_LIBS=  -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
+#BLAS_INCLUDE=-I${MKLROOT}/include -DMKL_ILP64 -m64
+BLAS_LIBS=-mkl=sequential -qopenmp
 endif
 
 ifeq ($(USE_KS), true)
@@ -29,7 +29,7 @@ endif
 
 ifeq ($(USE_INTEL), true)
 $(info USING INTEL COMPILER)
-CPPFLAGS += -openmp -fPIC -O3 -xSSE4.2 -ip -unroll-aggressive -no-prec-div -simd -opt-prefetch -use-intel-optimized-headers
+CPPFLAGS += -qopenmp -fPIC -O3 -xSSE4.2 -ip -unroll-aggressive -no-prec-div -simd -qopt-prefetch -use-intel-optimized-headers
 endif
 
 PLATFORM_LD_FLAGS=-lpthread

@@ -1,13 +1,13 @@
 ## ARCHITECTURE DEPENDENT ---- PLEASE EDIT THESE THREE LINES (for example if you use gcc -openmp needs to be -fopenmp)
 
-#COMPFLAGS=-openmp -fPIC -O3
-#COMPOPTFLAGS = -xSSE4.2 -ip -unroll-aggressive -no-prec-div -simd -opt-prefetch
-#BLAS_LIBS = -mkl=parallel -openmp
-export MKLROOT=/opt/intel/mkl
-export LDFLAGS=-L/opt/intel/mkl/lib/intel64
-CPPFLAGS = -fopenmp -fPIC -fno-exceptions -w -O3 -finline-functions -funroll-loops
-BLAS_INCLUDE = -DMKL_ILP64 -m64 -I${MKLROOT}/include
-BLAS_LIBS = -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
+COMPFLAGS=-qopenmp -fPIC -O3
+COMPOPTFLAGS = -xSSE4.2 -ip -unroll-aggressive -no-prec-div -simd -qopt-prefetch
+BLAS_LIBS = -mkl=parallel -qopenmp
+export MKLROOT=/lfs/1/krong/intel/mkl
+export LDFLAGS=-L/lfs/1/krong/intel/mkl/lib/intel64
+#CPPFLAGS = -fopenmp -fPIC -fno-exceptions -w -O3 -finline-functions -funroll-loops
+#BLAS_INCLUDE = -DMKL_ILP64 -m64 -I${MKLROOT}/include
+#BLAS_LIBS = -Wl,--start-group ${MKLROOT}/lib/intel64/libmkl_intel_ilp64.a ${MKLROOT}/lib/intel64/libmkl_intel_thread.a ${MKLROOT}/lib/intel64/libmkl_core.a -Wl,--end-group -liomp5 -lpthread -lm -ldl
 #--------------- SHOULD NOT BE NECESSARY TO  EDIT BELOW THIS LINE 
 
 
