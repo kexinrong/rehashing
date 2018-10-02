@@ -10,55 +10,7 @@
 #include <math.h>   // for abs
 #include <algorithm>    // std::max
 #include <chrono>
-
-void readFile(std::string filename, bool ignoreHeader, int n, int startCol, int endCol, double *data) {
-    std::ifstream infile(filename.c_str());
-
-    int dim = endCol - startCol + 1;
-    int i = 0;
-
-    std::string line;
-    std::string delim = ",";
-    while (std::getline(infile, line)) {
-        if (ignoreHeader && i == 0) {
-            i += 1;
-            continue;
-        }
-
-        size_t start = 0;
-        size_t end = line.find(delim);
-        if (endCol == 0) {
-            end = line.length();
-            if (ignoreHeader) {
-                data[(i-1) * dim] = atof(line.substr(start, end - start).c_str());
-            } else {
-                data[i * dim] = atof(line.substr(start, end - start).c_str());
-            }
-        } else {
-            int j = 0;
-            while (end != std::string::npos && j <= endCol) {
-                if (j >= startCol) {
-                    if (ignoreHeader) {
-                        data[(i-1) * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
-                    } else {
-                        data[i * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
-                    }
-                }
-                start = end + delim.length();
-                end = line.find(delim, start);
-                j += 1;
-            }
-        }
-
-        i += 1;
-        if (ignoreHeader && i == n + 1) {
-            break;
-        } else if (!ignoreHeader && i == n) {
-            break;
-        }
-    }
-    infile.close();
-}
+#include "dataUtils.h"
 
 int main() {
     // The dimensionality of each sample vector.
@@ -70,7 +22,7 @@ int main() {
     // The number of sources which will be used for the gauss transform.
     int N = 43500;
 
-    int samples = 50;
+    int samples = 600;
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
@@ -79,7 +31,8 @@ int main() {
     double h = sqrt(2);
 
     double x[N * d];
-    readFile("resources/shuttle_normed.csv", true, N, 0, 8, &x[0]);
+    dataUtils::readFile("resources/shuttle_normed.csv", true, N, 1, 9, &x[0]);
+    //readFile("../../resources/home_normed.csv", true, N, 0, 8, &x[0]);
 
     // The target array.  It is a contiguous array, where
     // ( y[j*d], y[j*d+1], ..., y[j*d+d-1] ) is the jth d-dimensional sample.

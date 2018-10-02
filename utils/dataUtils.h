@@ -126,6 +126,55 @@ public:
         return data;
     }
 
+    static void readFile(std::string filename, bool ignoreHeader, int n, int startCol, int endCol, double *data) {
+        std::ifstream infile(filename.c_str());
+
+        int dim = endCol - startCol + 1;
+        int i = 0;
+
+        std::string line;
+        std::string delim = ",";
+        while (std::getline(infile, line)) {
+            if (ignoreHeader && i == 0) {
+                i += 1;
+                continue;
+            }
+
+            size_t start = 0;
+            size_t end = line.find(delim);
+            if (endCol == 0) {
+                end = line.length();
+                if (ignoreHeader) {
+                    data[(i-1) * dim] = atof(line.substr(start, end - start).c_str());
+                } else {
+                    data[i * dim] = atof(line.substr(start, end - start).c_str());
+                }
+            } else {
+                int j = 0;
+                while (end != std::string::npos && j <= endCol) {
+                    if (j >= startCol) {
+                        if (ignoreHeader) {
+                            data[(i-1) * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
+                        } else {
+                            data[i * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
+                        }
+                    }
+                    start = end + delim.length();
+                    end = line.find(delim, start);
+                    j += 1;
+                }
+            }
+
+            i += 1;
+            if (ignoreHeader && i == n + 1) {
+                break;
+            } else if (!ignoreHeader && i == n) {
+                break;
+            }
+        }
+        infile.close();
+    }
+
 };
 
 #endif //HBE_DATAUTILS_H

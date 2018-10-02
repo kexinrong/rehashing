@@ -1,3 +1,7 @@
+notebooks/*.txt
+resources/*
+*/*.pyc
+
 cmake_install.cmake
 build/
 CMakeFiles/
