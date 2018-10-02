@@ -2,7 +2,6 @@
 // Created by Kexin Rong on 9/13/18.
 //
 
-#include "RealDataAll.h"
 #include "expkernel.h"
 #include "mathUtils.h"
 #include "dataUtils.h"
@@ -17,22 +16,21 @@
 const double eps = 0.5;
 const double tau = 0.001;
 const double beta = 0.5;
-//const double sample_ratio = 6.5;
-const double sample_ratio = 8;
+const double sample_ratio = 6.5;
 
 const std::vector<int> hbe_samples = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
 
 int main() {
-    //MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 9);
+    MatrixXd X = dataUtils::readFile("resources/shuttle.csv", true, 43500, 1, 9);
     //MatrixXd X = dataUtils::readFile("resources/corel_hist.csv", true, 68040, 2, 33);
-    MatrixXd X = dataUtils::readFile("resources/HT_Sensor_dataset.csv", true, 928991, 3, 12);
+    //MatrixXd X = dataUtils::readFile("resources/HT_Sensor_dataset.csv", true, 928991, 3, 12);
 
     int n = X.rows();
     int dim = X.cols();
     std::cout << "N=" << n << ", d=" << dim << std::endl;
 
-    //MatrixXd tmp = dataUtils::readFile("resources/true_densities/shuttle_all_errors.txt", true, 43500, 1);
-    MatrixXd tmp = dataUtils::readFile("resources/true_densities/home_all_errors.txt", true, 928991, 1);
+    MatrixXd tmp = dataUtils::readFile("resources/true_densities/shuttle_all_errors.txt", true, 43500, 1);
+    //MatrixXd tmp = dataUtils::readFile("resources/true_densities/home_all_errors.txt", true, 928991, 1);
     std::vector<double> densities(n);
     for (int i = 0; i < n; i ++) {
         densities[i] = tmp(i, 0);
@@ -87,11 +85,11 @@ int main() {
                 iterations += 1;
                 VectorXd q = X.row(idx);
                 // Naive
-//                t1 = std::chrono::high_resolution_clock::now();
-//                double kde = naive.query(q);
-//                t2 = std::chrono::high_resolution_clock::now();
-//                time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
-                double kde = densities[idx];
+                t1 = std::chrono::high_resolution_clock::now();
+                double kde = naive.query(q);
+                t2 = std::chrono::high_resolution_clock::now();
+                time[0] += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+                //double kde = densities[idx];
 
                 // RS
                 t1 = std::chrono::high_resolution_clock::now();

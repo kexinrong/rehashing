@@ -2,7 +2,6 @@
 // Created by Kexin Rong on 9/12/18.
 //
 
-#include "SyntheticFindRandom.h"
 #include "expkernel.h"
 #include "mathUtils.h"
 #include "dataUtils.h"

@@ -2,7 +2,6 @@
 // Created by Kexin Rong on 9/12/18.
 //
 
-#include "SyntheticFixAcc.h"
 #include "../data/SyntheticData.h"
 #include "expkernel.h"
 #include "mathUtils.h"

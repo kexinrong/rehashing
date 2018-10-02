@@ -66,6 +66,10 @@ public:
         return cfg->lookupString(scope, "fpath");
     }
 
+    const char* getExactPath() {
+        return cfg->lookupString(scope, "exact_path");
+    }
+
     const char* getKernel() {
         return cfg->lookupString(scope, "kernel");
     }
