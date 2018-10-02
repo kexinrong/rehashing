@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include <fstream>
 #include <string.h> // for memset
@@ -88,6 +89,14 @@ void readFile(std::string filename, bool ignoreHeader, int n, int startCol, int 
                 end = line.find(delim, start);
                 j += 1;
             }
+            if (j == endCol && end == std::string::npos) {
+                end = line.length();
+                if (ignoreHeader) {
+                    data[(i-1) * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
+                } else {
+                    data[i * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
+                }
+            }
         }
 
         i += 1;
@@ -119,12 +128,15 @@ void fitCube(double* data, int n, int d) {
 int main()
 {
     // The dimensionality of each sample vector.
-    int d = 9;
-
     // The number of targets (vectors at which gauss transform is evaluated).
-    int M = 43500;
-
     // The number of sources which will be used for the gauss transform.
+//
+//    int d = 10;
+//    int M = 928991;
+//    int N = 928991;
+
+    int d = 9;
+    int M = 43500;
     int N = 43500;
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
@@ -139,22 +151,26 @@ int main()
     // maximum absolute error.
     // The smaller epsilon is, the more accurate the results will be, at the
     // expense of increased computational complexity.
-    double epsilon = 1e-2;
+    double epsilon = 0.01;
 
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
     // For example, below N = 20 and d = 7, so there are 20 rows, each
     // a 7-dimensional sample.
-    double x[N * d];
-    readFile("../../resources/shuttle_normed.csv", true, N, 0, 8, &x[0]);
+    long size = N * d;
+    double *x = new double[size];
+    readFile("../../resources/shuttle_normed.csv", true, N, 1, 9, &x[0]);
+    //readFile("../../resources/home_normed.csv", true, N, 4, 13, &x[0]);
     //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
-    // ( y[j*d], y[j*d+1], ..., y[j*d+d-1] ) is the jth d-dimensional sample.
+    // ( y[j*d], y[j*d+1], ..., y[j*d+d-1]f ) is the jth d-dimensional sample.
     // For example, below M = 10 and d = 7, so there are 10 rows, each
     // a 7-dimensional sample.
-    double y[M * d];
-    for (size_t i = 0; i < M * d; i ++) { y[i] = x[i]; }
+    size = M * d;
+    double *y = new double[size];
+    for (size_t i = 0; i < size; i ++) { y[i] = x[i]; }
+
 
     // The weight array.  The ith weight is associated with the ith source sample.
     // To evaluate the Gauss Transform with the same sources and targets, but
@@ -204,36 +220,36 @@ int main()
     std::cout << "FIGTREE auto: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
     // evaluate gauss transform using direct method with approximate nearest neighbors
-    t1 = clock();
-    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf_tree, FIGTREE_EVAL_DIRECT_TREE );
-    t2 = clock();
-    std::cout << "FIGTREE direct ANN: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-
-
-    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
-    //   the assumption that sources are uniformly distributed
-    t1 = clock();
-    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_u, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_UNIFORM, 1 );
-    t2 = clock();
-    std::cout << "FIGTREE truncated uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-
-    t1 = clock();
-    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_nu, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_NON_UNIFORM, 1 );
-    t2 = clock();
-    std::cout << "FIGTREE truncated nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-
-
-    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
-    //   the assumption that sources are uniformly distributed
-    t1 = clock();
-    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_u, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_UNIFORM, 1 );
-    t2 = clock();
-    std::cout << "FIGTREE truncated tree uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-
-    t1 = clock();
-    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_nu, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_NON_UNIFORM, 1 );
-    t2 = clock();
-    std::cout << "FIGTREE truncated tree nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
+//    t1 = clock();
+//    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf_tree, FIGTREE_EVAL_DIRECT_TREE );
+//    t2 = clock();
+//    std::cout << "FIGTREE direct ANN: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
+//
+//
+//    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
+//    //   the assumption that sources are uniformly distributed
+//    t1 = clock();
+//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_u, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_UNIFORM, 1 );
+//    t2 = clock();
+//    std::cout << "FIGTREE truncated uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
+//
+//    t1 = clock();
+//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_nu, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_NON_UNIFORM, 1 );
+//    t2 = clock();
+//    std::cout << "FIGTREE truncated nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
+//
+//
+//    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
+//    //   the assumption that sources are uniformly distributed
+//    t1 = clock();
+//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_u, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_UNIFORM, 1 );
+//    t2 = clock();
+//    std::cout << "FIGTREE truncated tree uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
+//
+//    t1 = clock();
+//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_nu, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_NON_UNIFORM, 1 );
+//    t2 = clock();
+//    std::cout << "FIGTREE truncated tree nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
 
     //
@@ -244,20 +260,28 @@ int main()
     // is using the automatic method selection, as shown above.
     //
     // evaluate gauss transform using direct (slow) method
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf, FIGTREE_EVAL_DIRECT );
-//    t2 = clock();
-//    std::cout << "Direct: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
+    t1 = clock();
+    //figtree( d, N, M, W, x, h, q, y, epsilon, g_sf, FIGTREE_EVAL_DIRECT );
+    t2 = clock();
+    std::cout << "Direct: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
     readFile("../../resources/shuttle_gaussian.txt", false, M, 0, 0, &g_sf[0]);
+//    readFile("../../resources/home_gaussian.txt", false, M, 0, 0, &g_sf[0]);
+
 
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
     double avg_error = 0;
     double avg_relerror = 0;
+    //std::ofstream myfile("../../resources/shuttle_gaussian.txt");
+   // std::ofstream myfile("../../resources/home_gaussian.txt");
     for( int i = 0; i < W*M; i++) {
+  //      myfile << g_sf[i] / N << "\n";
         g_auto[i] /= N;
         avg_error += fabs(g_auto[i] - g_sf[i]);
         avg_relerror +=  fabs(g_auto[i]  - g_sf[i]) / g_sf[i];
+//        printf("%13.4f %13.4e %13.4e %13.4e %13.4e %13.4e %13.4e\n",
+//           g_sf[i], g_auto[i], g_sf_tree[i], g_ifgt_u[i], g_ifgt_nu[i], g_ifgt_tree_u[i], g_ifgt_tree_nu[i] );
     }
+   // myfile.close();
     avg_error /= W*M;
     avg_relerror /= W*M;
     printf("Average absolute error: %f\n", avg_error);
@@ -273,8 +297,15 @@ int main()
 //    printf("\n");
 
     // deallocate memory
+    delete [] x;
+    delete [] y;
     delete [] q;
     delete [] g_auto;
     delete [] g_sf;
+    delete [] g_sf_tree;
+    delete [] g_ifgt_u;
+    delete [] g_ifgt_nu;
+    delete [] g_ifgt_tree_u;
+    delete [] g_ifgt_tree_nu;
     return 0;
 }
