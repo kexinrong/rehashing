@@ -23,13 +23,6 @@
 #include <boost/math/distributions/normal.hpp>
 #include "parseConfig.h"
 
-const double eps = 0.5;
-const double tau = 0.001;
-const double beta = 0.5;
-const double sample_ratio = 6.5;
-const int samples = 100;
-
-
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cout << "Need config file" << std::endl;
@@ -46,7 +39,7 @@ int main(int argc, char *argv[]) {
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
-    int M = N;
+    int M = 5000;
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
@@ -101,7 +94,6 @@ int main(int argc, char *argv[]) {
         g_r[j] = rs.query(q, tau, int(samples * sample_ratio));
         exact[j] = naive.query(q);
     }
-
     std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
     std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
 
