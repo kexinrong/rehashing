@@ -19,11 +19,13 @@ int main(int argc, char *argv[]) {
     int d = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
-    int M = N;
+    int M = 1000000;
     // The bandwidth.
     double h = cfg.getH();
     if (strcmp(scope, "exp") == 0) {
         h *= pow(N, -1.0/(d+4));
+    } else {
+        h *= sqrt(2);
     }
 
     // Read input
@@ -39,10 +41,9 @@ int main(int argc, char *argv[]) {
     for(int j = 0; j < M; j++) {
         g[j] = 0.0;
         for(int i = 0; i < N; i++) {
-            int idx = rand() % N;
             double norm = 0.0;
             for (int k = 0; k < d; k++) {
-                double temp = x[(d*idx) + k] - y[(d*j) + k];
+                double temp = x[(d*i) + k] - y[(d*j) + k];
                 norm = norm + (temp*temp);
             }
             if (strcmp(scope, "gaussian") == 0) {

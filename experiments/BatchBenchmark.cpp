@@ -40,18 +40,20 @@ int main(int argc, char *argv[]) {
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
-    int M = 5000;
+    int M = N;
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double h = cfg.getH();
+    if (strcmp(scope, "exp") == 0) {
+        h *= pow(N, -1.0/(dim+4));
+    }
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
 
     auto band = make_unique<Bandwidth>(N, dim);
-    //band->getBandwidth(X);
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
     double means = 0;
@@ -79,7 +81,6 @@ int main(int argc, char *argv[]) {
 
     // Algorithms init
     std::cout << "M=" << tables << ",w=" << w << ",k=" << k << std::endl;
-    naiveKDE naive(X_ptr, simpleKernel);
     auto t1 = std::chrono::high_resolution_clock::now();
     BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, 1);
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -88,24 +89,21 @@ int main(int argc, char *argv[]) {
 
     double * g = new double[M];
     double * g_r = new double[M];
-    double exact[M];
     for(int j = 0; j < M; j++) {
         VectorXd q = X.row(j);
         g[j] = hbe.query(q, tau, samples);
         g_r[j] = rs.query(q, tau, int(samples * sample_ratio));
-        exact[j] = naive.query(q);
     }
     std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
     std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
 
-//    double exact[M];
-//    dataUtils::readFile("resources/shuttle_gaussian.txt", false, M, 0, 0, &exact[0]);
+    double exact[M];
+    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
     double hbe_error = 0;
     double rs_error = 0;
     for (int i = 0; i < M; i ++) {
         hbe_error +=  fabs(g[i] - exact[i]) / exact[i];
         rs_error += fabs(g_r[i] - exact[i]) / exact[i];
-//        std::cout << exact[i] << std::endl;
     }
     hbe_error /= M;
     rs_error /= M;

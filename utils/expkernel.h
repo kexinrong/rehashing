@@ -24,8 +24,8 @@ private:
 public:
     Expkernel(int len) : Kernel(len) {}
 
-    double getDimFactor(int d) {
-        return exp(-logSn(d - 1)) / tgamma(d);
+    double getDimFactor() {
+        return exp(-logSn(dim - 1)) / tgamma(dim);
     }
 
     double density(VectorXd d) {

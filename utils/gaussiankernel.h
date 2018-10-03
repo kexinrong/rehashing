@@ -26,8 +26,8 @@ public:
     }
 
 
-    double getDimFactor(int d) {
-        return pow(2 * M_PI, -0.5 * d);
+    double getDimFactor() {
+        return pow(2 * M_PI, -0.5 * dim);
     }
 
     double density(VectorXd d) {

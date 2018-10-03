@@ -37,7 +37,7 @@ public:
         denormalized = flag;
     }
 
-    virtual double getDimFactor(int dim) = 0;
+    virtual double getDimFactor() = 0;
     virtual double density(VectorXd d) = 0;
     virtual double density(double dist) = 0;
     virtual double invDensity(double p) = 0;
@@ -56,7 +56,7 @@ public:
             dimFactor = 1.0;
             bwFactor = 1.0;
         } else {
-            dimFactor = getDimFactor(dim);
+            dimFactor = getDimFactor();
             bwFactor = 1;
             for (int i = 0; i < dim; i++) {
                 bwFactor *= invBandwidth[i];
