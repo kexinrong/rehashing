@@ -48,6 +48,8 @@ int main(int argc, char *argv[]) {
     double h = cfg.getH();
     if (strcmp(scope, "exp") == 0) {
         h *= pow(N, -1.0/(dim+4));
+    } else {
+        h *= sqrt(2);
     }
 
     MatrixXd X = dataUtils::readFile(
@@ -86,6 +88,7 @@ int main(int argc, char *argv[]) {
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
     RS rs(X_ptr, simpleKernel);
+    naiveKDE naive(X_ptr, simpleKernel);
 
     double * g = new double[M];
     double * g_r = new double[M];

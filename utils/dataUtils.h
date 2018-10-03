@@ -117,8 +117,8 @@ public:
                     j += 1;
                     continue; }
                 data(i, j - startCol) = std::stof(field);
-                j += 1;
                 if (j == endCol) { break; }
+                j += 1;
             }
             i += 1;
             if (i == n) { break; }
@@ -162,6 +162,14 @@ public:
                     start = end + delim.length();
                     end = line.find(delim, start);
                     j += 1;
+                }
+                if (j == endCol && end == std::string::npos) {
+                    end = line.length();
+                    if (ignoreHeader) {
+                        data[(i-1) * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
+                    } else {
+                        data[i * dim + j - startCol] = atof(line.substr(start, end - start).c_str());
+                    }
                 }
             }
 
