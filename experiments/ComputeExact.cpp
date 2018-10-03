@@ -13,8 +13,8 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    parseConfig cfg(argv[1], "real-data");
-    const char* kernel = cfg.getKernel();
+    char* scope = argv[2];
+    parseConfig cfg(argv[1], scope);
     // The dimensionality of each sample vector.
     int d = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
@@ -22,6 +22,9 @@ int main(int argc, char *argv[]) {
     int M = N;
     // The bandwidth.
     double h = cfg.getH();
+    if (strcmp(scope, "exp") == 0) {
+        h *= pow(N, -1.0/(d+4));
+    }
 
     // Read input
     double *x = new double[N * d];
@@ -42,7 +45,7 @@ int main(int argc, char *argv[]) {
                 double temp = x[(d*idx) + k] - y[(d*j) + k];
                 norm = norm + (temp*temp);
             }
-            if (strcmp(kernel, "gaussian") == 0) {
+            if (strcmp(scope, "gaussian") == 0) {
                 g[j] = g[j] + exp(-norm/hSquare);
             } else { // exp kernel
                 g[j] = g[j] + exp(-sqrt(norm/hSquare));

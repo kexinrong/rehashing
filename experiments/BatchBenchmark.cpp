@@ -29,7 +29,8 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    parseConfig cfg(argv[1], "real-data");
+    char* scope = argv[2];
+    parseConfig cfg(argv[1], scope);
     const double eps = cfg.getEps();
     const double tau = cfg.getTau();
     const double beta = cfg.getBeta();
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]) {
     shared_ptr<Kernel> kernel;
     double means = 0;
     shared_ptr<Kernel> simpleKernel;
-    if (strcmp(cfg.getKernel(), "gaussian") == 0) {
+    if (strcmp(scope, "gaussian") == 0) {
         kernel = make_shared<Gaussiankernel>(dim);
         simpleKernel = make_shared<Gaussiankernel>(dim);
         means = ceil(6 * mathUtils::gaussRelVar(tau) / eps / eps);
