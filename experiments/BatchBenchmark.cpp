@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     const double tau = cfg.getTau();
     const double beta = cfg.getBeta();
     const double sample_ratio = cfg.getSampleRatio();
-    const int samples = cfg.getSamples();
+    int samples = cfg.getSamples();
     // The dimensionality of each sample vector.
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
         simpleKernel = make_shared<Expkernel>(dim);
         means = ceil(6 * mathUtils::expRelVar(tau) / eps / eps);
     }
+
     kernel->initialize(band->bw);
     dataUtils::checkBandwidthSamples(X, eps, kernel);
     // Normalized by bandwidth
@@ -88,28 +89,35 @@ int main(int argc, char *argv[]) {
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
     RS rs(X_ptr, simpleKernel);
-    naiveKDE naive(X_ptr, simpleKernel);
 
-    double * g = new double[M];
-    double * g_r = new double[M];
-    for(int j = 0; j < M; j++) {
-        VectorXd q = X.row(j);
-        g[j] = hbe.query(q, tau, samples);
-        g_r[j] = rs.query(q, tau, int(samples * sample_ratio));
-    }
-    std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
-    std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
+    for (int i = 0; i < 10; i ++) {
+        samples = 100 * (i + 1);
+        std::cout << "------------------" << std::endl;
+        std::cout << "Sample sizes: " << samples << std::endl;
+        double * g = new double[M];
+        double * g_r = new double[M];
+        hbe.totalTime = 0;
+        rs.totalTime = 0;
+        for(int j = 0; j < M; j++) {
+            VectorXd q = X.row(j);
+            g[j] = hbe.query(q, tau, samples);
+            g_r[j] = rs.query(q, tau, int(samples * sample_ratio));
+        }
+        std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
+        std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
 
-    double exact[M];
-    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
-    double hbe_error = 0;
-    double rs_error = 0;
-    for (int i = 0; i < M; i ++) {
-        hbe_error +=  fabs(g[i] - exact[i]) / exact[i];
-        rs_error += fabs(g_r[i] - exact[i]) / exact[i];
+        double exact[M];
+        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
+        double hbe_error = 0;
+        double rs_error = 0;
+        for (int i = 0; i < M; i ++) {
+            hbe_error +=  fabs(g[i] - exact[i]) / exact[i];
+            rs_error += fabs(g_r[i] - exact[i]) / exact[i];
+        }
+        hbe_error /= M;
+        rs_error /= M;
+        printf("HBE relative error: %f\n", hbe_error);
+        printf("RS relative error: %f\n", rs_error);
     }
-    hbe_error /= M;
-    rs_error /= M;
-    printf("HBE relative error: %f\n", hbe_error);
-    printf("RS relative error: %f\n", rs_error);
+
 }

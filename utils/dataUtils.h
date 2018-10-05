@@ -89,7 +89,11 @@ public:
             }
             int j = 0;
             for (auto& field : row) {
-                data(i, j) = std::stof(field);
+                if (field.length() < 1) {
+                    data(i, j) = 0;
+                } else {
+                    data(i, j) = std::stof(field);
+                }
                 j += 1;
                 if (j == d) { break; }
             }
@@ -115,8 +119,13 @@ public:
             for (auto& field : row) {
                 if (j < startCol) {
                     j += 1;
-                    continue; }
-                data(i, j - startCol) = std::stof(field);
+                    continue;
+                }
+                if (field.length() < 1) {
+                    data(i, j - startCol) = 0;
+                } else {
+                    data(i, j - startCol) = std::stof(field);
+                }
                 if (j == endCol) { break; }
                 j += 1;
             }

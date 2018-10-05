@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     int d = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
-    int M = N;
+    int M = 100000;
     // The bandwidth.
     double h = cfg.getH();
     if (strcmp(scope, "exp") == 0) {
