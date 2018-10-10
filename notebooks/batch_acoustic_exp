@@ -1,0 +1,65 @@
+krong@future4:/lfs/1/krong/hbe$ ./hbe conf/acoustic.cfg exp
+u1=0.21622, u2=0.217714
+diff=-0.00149449, expected=0.00356183
+M=3742,w=17.5535,k=11
+HBE Table Init: 141
+------------------
+Sample sizes: 100
+HBE Sampling total time: 14.4577
+RS Sampling total time: 15.8732
+HBE relative error: 0.048487
+RS relative error: 0.025039
+------------------
+Sample sizes: 200
+HBE Sampling total time: 28.5008
+RS Sampling total time: 30.6245
+HBE relative error: 0.034388
+RS relative error: 0.017832
+------------------
+Sample sizes: 300
+HBE Sampling total time: 42.7705
+RS Sampling total time: 44.326
+HBE relative error: 0.027565
+RS relative error: 0.014468
+------------------
+Sample sizes: 400
+HBE Sampling total time: 57.0302
+RS Sampling total time: 57.9194
+HBE relative error: 0.024143
+RS relative error: 0.012560
+------------------
+Sample sizes: 500
+HBE Sampling total time: 71.6034
+RS Sampling total time: 71.9914
+HBE relative error: 0.021536
+RS relative error: 0.011258
+------------------
+Sample sizes: 600
+HBE Sampling total time: 85.8864
+RS Sampling total time: 85.5242
+HBE relative error: 0.019235
+RS relative error: 0.010315
+------------------
+Sample sizes: 700
+HBE Sampling total time: 100.24
+RS Sampling total time: 99.17
+HBE relative error: 0.017315
+RS relative error: 0.009509
+------------------
+Sample sizes: 800
+HBE Sampling total time: 116.921
+RS Sampling total time: 119.165
+HBE relative error: 0.016191
+RS relative error: 0.008912
+------------------
+Sample sizes: 900
+HBE Sampling total time: 136.063
+RS Sampling total time: 148.182
+HBE relative error: 0.015401
+RS relative error: 0.008391
+------------------
+Sample sizes: 1000
+HBE Sampling total time: 150.793
+RS Sampling total time: 166.086
+HBE relative error: 0.014677
+RS relative error: 0.007964
