@@ -10,7 +10,7 @@
 class SyntheticData {
 public:
     static GenericInstance genMixed(int uN, int cN, int uC, int cC, int dim, double density,
-                                    int numScales, double spread);
+                                    int numScales, double spread, shared_ptr<Kernel> kernel);
 
     static GenericInstance genUncorrelated(int n);
 };

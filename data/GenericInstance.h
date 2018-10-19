@@ -8,6 +8,7 @@
 #include <Eigen/Dense>
 #include <random>
 #include <memory>
+#include "kernel.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -27,9 +28,14 @@ public:
     GenericInstance(int numPoints, int numClusters, int numScales, int dim,
         double density, double spread);
 
+    GenericInstance(int numPoints, int numClusters, int numScales, int dim,
+                    double density, double spread, shared_ptr<Kernel> kernel);
+
     void merge(MatrixXd data);
 
     VectorXd query(double dist, bool correlated);
+
+    void output(std::string fname);
 };
 
 

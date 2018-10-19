@@ -6,11 +6,11 @@
 #include <iostream>
 
 GenericInstance SyntheticData::genMixed(int uN, int cN, int uC, int cC, int dim, double density,
-        int numScales, double spread) {
+        int numScales, double spread, shared_ptr<Kernel> kernel) {
     // Uncorrelated instance
-    GenericInstance uncorrelated(uN, uC, numScales, dim, density, spread);
+    GenericInstance uncorrelated(uN, uC, numScales, dim, density, spread, kernel);
     // Correlated instance
-    GenericInstance correlated(cN, cC, numScales, dim, density, spread);
+    GenericInstance correlated(cN, cC, numScales, dim, density, spread, kernel);
     // Mixed datasets
     uncorrelated.merge(correlated.points);
 

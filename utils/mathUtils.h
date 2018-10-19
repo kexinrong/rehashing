@@ -111,7 +111,5 @@ public:
         return r;
     }
 
-
-
 };
 #endif //HBE_UTILS_H
