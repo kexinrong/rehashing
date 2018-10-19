@@ -6,6 +6,7 @@
 #define HBE_PARSECONFIG_H
 
 #include <config4cpp/Configuration.h>
+#include <exception>
 using namespace config4cpp;
 
 class parseConfig {
@@ -26,8 +27,16 @@ public:
         return cfg->lookupInt(scope, "n");
     }
 
+    int getM() {
+        return cfg->lookupInt(scope, "m");
+    }
+
     double getH() {
         return cfg->lookupFloat(scope, "h");
+    }
+
+    bool isConst() {
+        return cfg->lookupBoolean(scope, "bw_const");
     }
 
     double getEps() {
@@ -64,6 +73,10 @@ public:
 
     const char* getDataFile() {
         return cfg->lookupString(scope, "fpath");
+    }
+
+    const char* getQueryFile() {
+        return cfg->lookupString(scope, "qpath");
     }
 
     const char* getExactPath() {
