@@ -28,13 +28,10 @@ public:
 
     HashTable() {}
 
-    HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch) {
+    HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch, std::mt19937_64 &rng) {
         binWidth = w;
         numHash = k;
         batchSize = batch;
-
-        std::random_device rd;  //Will be used to obtain a seed for the random number engine
-        std::mt19937_64 rng(rd());
 
         int d = X->cols();
         G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;

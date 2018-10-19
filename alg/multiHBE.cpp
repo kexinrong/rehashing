@@ -25,8 +25,10 @@ multiHBE::multiHBE(shared_ptr<MatrixXd> X, shared_ptr<Kernel> ker, int batch,
         double w = dataUtils::getWidth(k, beta);
         // Initialize tables for the current level
         vector<HashTable> level;
+        std::random_device rd;  //Will be used to obtain a seed for the random number engine
+        std::mt19937_64 rng(rd());
         for (int i = 0; i < numTables; i++) {
-            level.push_back(HashTable(X, w, k, batch));
+            level.push_back(HashTable(X, w, k, batch, rng));
         }
         tables.push_back(level);
         numHash.push_back(k);

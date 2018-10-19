@@ -20,6 +20,7 @@ public:
     shared_ptr<Kernel> kernel;
     int batchSize = 1;
     int idx = 0;
+    std::mt19937_64 rng;
 
     BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch, shared_ptr<Kernel> ker, int threads);
 

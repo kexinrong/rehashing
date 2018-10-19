@@ -20,8 +20,14 @@ std::vector<double> RS::MoM(VectorXd q, int L, int m) {
 
     std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
+        std::vector<int> indices(m);
         for (int j = 0; j < m; j ++) {
-            int idx = distribution(rng);
+            indices[j] = distribution(rng);
+        }
+        std::sort(indices.begin(), indices.end());
+        for (int j = 0; j < m; j ++) {
+            int idx = indices[j];
+//            int idx = distribution(rng);
             Z[i] += kernel->density(q, X->row(idx));
         }
     }

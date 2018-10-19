@@ -14,8 +14,10 @@ BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch,
     numPoints = X->rows();
     kernel = ker;
 
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    rng = std::mt19937_64(rd());
     for (int i = 0; i < numTables; i++) {
-        tables.push_back(HashTable(X, w, k, batch));
+        tables.push_back(HashTable(X, w, k, batch, rng));
     }
 }
 
