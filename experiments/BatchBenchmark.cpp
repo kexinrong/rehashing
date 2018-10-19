@@ -40,17 +40,19 @@ int main(int argc, char *argv[]) {
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
-    int M = 100000;
+    int M = cfg.getM();
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double h = cfg.getH();
-//    if (strcmp(scope, "exp") == 0) {
-//        h *= pow(N, -1.0/(dim+4));
-//    } else {
-//        h *= sqrt(2);
-//    }
+    if (!cfg.isConst()) {
+        if (strcmp(scope, "exp") == 0) {
+            h *= pow(N, -1.0/(dim+4));
+        } else {
+            h *= sqrt(2);
+        }
+    }
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());

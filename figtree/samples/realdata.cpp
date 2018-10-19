@@ -142,7 +142,7 @@ int main()
 // covtype
     int d = 54;
     int N = 581012;
-    int M = 100000;
+    int M = 581012;
 // home
 //    int d = 10;
 //    int N = 928991;
@@ -284,7 +284,7 @@ int main()
     std::cout << "Direct: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 //    readFile("../../resources/exact/shuttle_gaussian.txt", false, M, 0, 0, &g_sf[0]);
 //   readFile("../../resources/exact/home_gaussian.txt", false, M, 0, 0, &g_sf[0]);
-    readFile("../../resources/covtype_gaussian.txt", false, M, 0, 0, &g_sf[0]);
+    readFile("../../resources/covtype_gaussian_all.txt", false, M, 0, 0, &g_sf[0]);
 //   readFile("../../resources/tmy_gaussian.txt", false, M, 0, 0, &g_sf[0]);
 
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
