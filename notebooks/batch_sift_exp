@@ -1,0 +1,65 @@
+krong@future4:/lfs/1/krong/hbe$ ./hbe conf/sift.cfg exp
+u1=0.0310084, u2=0.031425
+diff=-0.000416614, expected=0.000299277
+M=1100,w=9.57461,k=6
+HBE Table Init: 13746
+------------------
+HBE samples: 100, RS samples: 700
+HBE Sampling total time: 27.075
+RS Sampling total time: 297.792
+HBE relative error: 0.097038
+RS relative error: 0.013723
+------------------
+HBE samples: 200, RS samples: 1400
+HBE Sampling total time: 52.0365
+RS Sampling total time: 591.431
+HBE relative error: 0.077607
+RS relative error: 0.009689
+------------------
+HBE samples: 300, RS samples: 2100
+HBE Sampling total time: 78.1195
+RS Sampling total time: 922.29
+HBE relative error: 0.070065
+RS relative error: 0.007912
+------------------
+HBE samples: 400, RS samples: 2800
+HBE Sampling total time: 102.809
+RS Sampling total time: 1211.78
+HBE relative error: 0.066417
+RS relative error: 0.006864
+------------------
+HBE samples: 500, RS samples: 3500
+HBE Sampling total time: 128.264
+RS Sampling total time: 1522.97
+HBE relative error: 0.064024
+RS relative error: 0.006109
+------------------
+HBE samples: 600, RS samples: 4200
+HBE Sampling total time: 153.789
+RS Sampling total time: 1834.93
+HBE relative error: 0.062262
+RS relative error: 0.005592
+------------------
+HBE samples: 700, RS samples: 4900
+HBE Sampling total time: 179.751
+RS Sampling total time: 2162.28
+HBE relative error: 0.060747
+RS relative error: 0.005189
+------------------
+HBE samples: 800, RS samples: 5600
+HBE Sampling total time: 205.047
+RS Sampling total time: 2476.34
+HBE relative error: 0.059870
+RS relative error: 0.004829
+------------------
+HBE samples: 900, RS samples: 6300
+HBE Sampling total time: 229.509
+RS Sampling total time: 2768.1
+HBE relative error: 0.059359
+RS relative error: 0.004563
+------------------
+HBE samples: 1000, RS samples: 7000
+HBE Sampling total time: 254.494
+RS Sampling total time: 3070.69
+HBE relative error: 0.058980
+RS relative error: 0.004337

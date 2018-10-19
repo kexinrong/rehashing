@@ -1,27 +1,16 @@
 //
-// Created by Kexin Rong on 9/30/18.
+// Created by Kexin Rong on 10/3/18.
 //
 
-#include <stdio.h>
-#include <stdlib.h>     /* atof */
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <string.h> // for memset
-#include <math.h>   // for abs
-#include <algorithm>    // std::max
-#include <chrono>
+#include "bandwidth.h"
 #include "expkernel.h"
 #include "gaussiankernel.h"
-#include "mathUtils.h"
 #include "dataUtils.h"
-#include "bandwidth.h"
-#include "math.h"
-#include "../alg/RS.h"
-#include "../alg/naiveKDE.h"
-#include "../alg/BaseLSH.h"
-#include <boost/math/distributions/normal.hpp>
 #include "parseConfig.h"
+#include "../alg/BaseLSH.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -34,26 +23,24 @@ int main(int argc, char *argv[]) {
     const double eps = cfg.getEps();
     const double tau = cfg.getTau();
     const double beta = cfg.getBeta();
-    const double sample_ratio = cfg.getSampleRatio();
-    int samples = cfg.getSamples();
     // The dimensionality of each sample vector.
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
-    int M = 100000;
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double h = cfg.getH();
-//    if (strcmp(scope, "exp") == 0) {
-//        h *= pow(N, -1.0/(dim+4));
-//    } else {
-//        h *= sqrt(2);
-//    }
+    if (strcmp(scope, "exp") == 0) {
+        h *= pow(N, -1.0/(dim+4));
+    } else {
+        h *= sqrt(2);
+    }
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
+
     auto band = make_unique<Bandwidth>(N, dim);
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
@@ -68,22 +55,21 @@ int main(int argc, char *argv[]) {
         simpleKernel = make_shared<Expkernel>(dim);
         means = ceil(6 * mathUtils::expRelVar(tau) / eps / eps);
     }
-
     kernel->initialize(band->bw);
     dataUtils::checkBandwidthSamples(X, eps, kernel);
     // Normalized by bandwidth
     X = dataUtils::normalizeBandwidth(X, band->bw);
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
-    // Read exact KDE
-    double exact[M];
-    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
-
     // Estimate parameters
-    int tables = min((int)(means * 1.1), 1100);
-    double diam = dataUtils::estimateDiameter(X, tau);
-    int k = dataUtils::getPower(diam, beta);
-    double w = dataUtils::getWidth(k, beta);
+    int tables = (int)(means * 1.1);
+    tables = 100;
+    double w = 3 * log(1/tau);
+//    double w = 3;
+    int k = dataUtils::getPowerW(w, beta);
+//    double diam = dataUtils::estimateDiameter(X, tau);
+//    int k = dataUtils::getPower(diam, beta);
+//    double w = dataUtils::getWidth(k, beta);
 
     // Algorithms init
     std::cout << "M=" << tables << ",w=" << w << ",k=" << k << std::endl;
@@ -91,34 +77,42 @@ int main(int argc, char *argv[]) {
     BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, 1);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
-    RS rs(X_ptr, simpleKernel);
 
-    for (int i = 0; i < 10; i ++) {
-        samples = 100 * (i + 1);
-        std::cout << "------------------" << std::endl;
-        std::cout << "HBE samples: " << samples << ", RS samples: " << int(samples * sample_ratio) << std::endl;
-        double * g = new double[M];
-        double * g_r = new double[M];
-        hbe.totalTime = 0;
-        rs.totalTime = 0;
-        for(int j = 0; j < M; j++) {
-            VectorXd q = X.row(j);
-            g[j] = hbe.query(q, tau, samples);
-            g_r[j] = rs.query(q, tau, int(samples * sample_ratio));
+    std::ofstream outfile(argv[3]);
+    std::map<int,int> cluster;
+    std::map<int, int>::iterator iter;
+    int count = 0;
+    for (auto &t : hbe.tables) {
+        int max_bucket = 0;
+        for (auto &it : t.table) {
+            max_bucket = std::max(max_bucket, it.second.count);
+            outfile << it.second.count << ",";
         }
-        std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
-        std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
-
-        double hbe_error = 0;
-        double rs_error = 0;
-        for (int i = 0; i < M; i ++) {
-            hbe_error +=  fabs(g[i] - exact[i]) / exact[i];
-            rs_error += fabs(g_r[i] - exact[i]) / exact[i];
-        }
-        hbe_error /= M;
-        rs_error /= M;
-        printf("HBE relative error: %f\n", hbe_error);
-        printf("RS relative error: %f\n", rs_error);
+        outfile << "\n";
+//        for (int i = 0; i < N; i ++) {
+//            vector<HashBucket> buckets = t.sample(X.row(i));
+//            if (buckets[0].count == max_bucket) {
+//                if (count == 0) {
+//                    cluster[i] = 1;
+//                } else {
+//                    iter = cluster.find(i);
+//                    if (iter != cluster.end()) {
+//                        iter->second += 1;
+//                    } else {
+//                        cluster[i] = 1;
+//                    }
+//                }
+//            }
+//        }
+//        count += 1;
     }
+
+//    for (auto &it : cluster) {
+//        if (it.second > 5) {
+//            outfile << it.first << "," << it.second << "\n";
+//        }
+//    }
+
+    outfile.close();
 
 }
