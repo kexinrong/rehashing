@@ -187,8 +187,9 @@ int main (int argc, char* argv[])
   
   
   // The gaussian kernel doesn't normalize, so we'll do that here to get a 
-  // density 
+  // density
   int num_local_potentials = potentials.size();
+  normalization = 1 / sqrt(training_N);
   int onei = 1;
   cblas_dscal(&num_local_potentials, &normalization, potentials.data(), &onei);
   
@@ -199,7 +200,13 @@ int main (int argc, char* argv[])
     alg.tree->shuffle_back(alg.N_test, potentials.data(),
                            alg.tree->inProcTestData->gids.data(),
                            alg.N_test, yest.data(), MPI_COMM_WORLD);
-    knn::mpi_binwrite(output_file, potentials.size(), 1, yest.data(), MPI_COMM_WORLD);
+    //knn::mpi_binwrite(output_file, potentials.size(), 1, yest.data(), MPI_COMM_WORLD);
+    std::ofstream outfile(output_file);
+    for (int i = 0; i < potentials.size(); i++) {
+      outfile << yest[i] << "\n";
+    }
+    outfile.close();
+
   } // save the test potentials
   else {
     // LOO 
@@ -207,7 +214,12 @@ int main (int argc, char* argv[])
     alg.tree->shuffle_back(alg.N, potentials.data(),
                            alg.tree->inProcData->gids.data(),
                            alg.N, yest.data(), MPI_COMM_WORLD);
-    knn::mpi_binwrite(output_file, potentials.size(), 1, yest.data(), MPI_COMM_WORLD);
+    //knn::mpi_binwrite(output_file, potentials.size(), 1, yest.data(), MPI_COMM_WORLD);
+    std::ofstream outfile(output_file);
+    for (int i = 0; i < yest.size(); i++) {
+      outfile << yest[i] << "\n";
+    }
+    outfile.close();
   }
   
 
@@ -225,9 +237,11 @@ int main (int argc, char* argv[])
   std::cout << "Direct Comp. (on evaluation points): " << alg.exact_comp_time << " s.\n";
   std::cout << "Test Interaction List Blocking: " << alg.test_list_blocking_time << " s.\n";
   std::cout << "Update Charges time (average): " << alg.update_charges_time << " s.\n";
-  
+  std::cout << "Total Time: " << alg.tree_build_time + alg.let_traversal_time + alg.skeletonization_time +\
+    alg.list_blocking_time + alg.evaluation_time + alg.test_evaluation_time + alg.exact_comp_time + \
+    alg.test_list_blocking_time +  alg.update_charges_time << "s.\n";
 
-  return 0;
+    return 0;
   
 }
 

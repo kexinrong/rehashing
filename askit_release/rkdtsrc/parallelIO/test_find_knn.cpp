@@ -245,6 +245,7 @@ int main(int argc, char **argv) {
     vector<long> queryIDs_rkdt;
 	vector< pair<double, long> > *kNN_rkdt = new vector< pair<double, long> >();
 
+    clock_t t1 = clock();
     if(bl_all2all) {		// use all to all special case
 		bintree::knnTreeSearch_RandomRotation_a2a(&refData, k,
 								numiters, params, tree_rotation_type, tree_coord_type,
@@ -255,6 +256,8 @@ int main(int argc, char **argv) {
 									numiters, params, tree_rotation_type, tree_coord_type,
 									queryIDs_rkdt, kNN_rkdt);
 	}
+    clock_t t2 = clock();
+    std::cout << "KNN took: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
     if(bl_disp) {
         if(rank == 0) cout<<"knn results by rkdt: "<<endl;

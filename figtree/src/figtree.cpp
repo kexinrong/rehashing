@@ -1090,13 +1090,18 @@ int figtree( int d, int N, int M, int W, double * x, double h,
              int evalMethod, int ifgtParamMethod, int ifgtTruncMethod, int verbose )
 {
   int ret = 0;
+  verbose = 1;
 
   FigtreeData data = figtreeCreateData();
 
   // if the evalMethod is FIGTREE_EVAL_AUTO, choose the method that is estimated to be the fastest
   if( evalMethod == FIGTREE_EVAL_AUTO )
   {
+    clock_t begin = clock();
     ret = figtreeChooseEvaluationMethod( d, N, M, W, x, h, y, epsilon, ifgtParamMethod, verbose, &evalMethod, NULL, &data );
+    clock_t end = clock();
+    double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
+    std::cout << "Optimizer took: " << elapsed_secs << std::endl;
   }
 
   // for FIGTREE_EVAL_DIRECT and FIGTREE_EVAL_DIRECT_TREE, we don't need to compute

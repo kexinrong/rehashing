@@ -1,3 +1,7 @@
+//
+// Created by Kexin Rong on 10/12/18.
+//
+
 //------------------------------------------------------------------------------
 // The code was written by Vlad I. Morariu
 // and is copyrighted under the Lesser GPL:
@@ -131,42 +135,27 @@ int main()
     // The number of targets (vectors at which gauss transform is evaluated).
     // The number of sources which will be used for the gauss transform.
 
-//mnist
-//    int d = 784;
-//    int N = 70000;
-//    int M = 100;
-// tmy
-//    int d = 8;
-//    int N = 1822080;
-//    int M = 100000;
-// covtype
-    int d = 54;
-    int N = 581012;
+//    int d = 50;
+//    int N = 408935;
+    int d = 10;
+    int N = 204467;
     int M = 100000;
-// home
-//    int d = 10;
-//    int N = 928991;
-//    int M = 100000;
-// shuttle
-//    int d = 9;
-//    int N = 43500;
-//    int M = 43500;
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double scaleFactor = pow(N, -1.0/(d+4));
-    double multiplier = 2.5;
-    double h = sqrt(2) * scaleFactor * multiplier;
-    std::cout << "h=" << h << std::endl;
+    //double h = scaleFactor;
+    double h = 1;
 
     // Desired maximum absolute error after normalizing output by sum of weights.
     // If the weights, q_i (see below), add up to 1, then this is will be the
     // maximum absolute error.
     // The smaller epsilon is, the more accurate the results will be, at the
     // expense of increased computational complexity.
-    double epsilon = 0.1;
+    double epsilon = 0.001;
+    std::cout << "h=" << h << ", eps=" << epsilon << ", d=" << d << std::endl;
 
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
@@ -174,11 +163,12 @@ int main()
     // a 7-dimensional sample.
     long size = N * d;
     double *x = new double[size];
-//    readFile("../../resources/data/shuttle_normed.csv", true, N, 1, 9, &x[0]);
-//    readFile("../../resources/data/home_normed.csv", true, N, 4, 13, &x[0]);
-    readFile("../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
-//    readFile("../../resources/data/tmy_normed.csv", true, N, 1, 8, &x[0]);
-//    readFile("../../resources/data/mnist_normed.csv", true, N, 1, 8, &x[0]);
+
+    std::ostringstream stm;
+    stm << d;
+    //std::string fname = "../../resources/data/generic_gaussian" + stm.str() + ".txt";
+    std::string fname = "../../resources/data/generic10_correlated.txt";
+    readFile(fname, false, N, 0, d-1, &x[0]);
     //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
@@ -187,8 +177,8 @@ int main()
     // a 7-dimensional sample.
     size = M * d;
     double *y = new double[size];
-    for (size_t i = 0; i < size; i ++) { y[i] = x[i]; }
-
+    fname = "../../resources/data/query" + stm.str() + ".txt";
+    readFile(fname, false, M, 0, d-1, &y[0]);
 
     // The weight array.  The ith weight is associated with the ith source sample.
     // To evaluate the Gauss Transform with the same sources and targets, but
@@ -282,40 +272,19 @@ int main()
 //    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf, FIGTREE_EVAL_DIRECT );
     t2 = clock();
     std::cout << "Direct: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//    readFile("../../resources/exact/shuttle_gaussian.txt", false, M, 0, 0, &g_sf[0]);
-//   readFile("../../resources/exact/home_gaussian.txt", false, M, 0, 0, &g_sf[0]);
-    readFile("../../resources/covtype_gaussian.txt", false, M, 0, 0, &g_sf[0]);
-//   readFile("../../resources/tmy_gaussian.txt", false, M, 0, 0, &g_sf[0]);
 
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
-    double avg_error = 0;
     double avg_relerror = 0;
-//    std::ofstream myfile("../../resources/shuttle_gaussian.txt");
-//    std::ofstream myfile("../../resources/home_gaussian.txt");
-//    std::ofstream myfile("../../resources/covtype_gaussian.txt");
-//    std::ofstream myfile("../../resources/tmy_gaussian.txt");
-//    std::ofstream myfile("../../resources/mnist_gaussian.txt");
+    fname = "../../resources/exact/generic" + stm.str() + "_query10k.txt";
+    readFile(fname, false, M, 0, 0, &g_sf[0]);
+//    std::ofstream myfile(fname.c_str());
     for( int i = 0; i < M; i++) {
-//        myfile << g_sf[i] / N << "\n";
-        avg_error += fabs(g_auto[i] - g_sf[i]);
+//        myfile << g_sf[i] << "\n";
         avg_relerror +=  fabs(g_auto[i]  - g_sf[i]) / g_sf[i];
-//        printf("%13.4f %13.4e %13.4e %13.4e %13.4e %13.4e %13.4e\n",
-//           g_sf[i], g_auto[i], g_sf_tree[i], g_ifgt_u[i], g_ifgt_nu[i], g_ifgt_tree_u[i], g_ifgt_tree_nu[i] );
     }
 //    myfile.close();
-    avg_error /= M;
     avg_relerror /= M;
-    printf("Average absolute error: %f\n", avg_error);
     printf("Average relative error: %f\n", avg_relerror);
-
-    // print out results for all six ways to evaluate
-//    printf("Results:\n");
-//    printf("Direct result | auto error\n");
-//    for( int i = 0; i < W*M; i++ )
-//        printf("%14.4f %14.4e\n", g_sf[i], g_auto[i]);
-////        printf("%13.4f %13.4e %13.4e %13.4e %13.4e %13.4e %13.4e\n",
-////               g_sf[i], g_auto[i], g_sf_tree[i], g_ifgt_u[i], g_ifgt_nu[i], g_ifgt_tree_u[i], g_ifgt_tree_nu[i] );
-//    printf("\n");
 
     // deallocate memory
     delete [] x;
