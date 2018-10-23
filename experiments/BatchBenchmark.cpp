@@ -78,8 +78,13 @@ int main(int argc, char *argv[]) {
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
     // Read exact KDE
-    double exact[M];
-    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
+    bool sequential = (argc > 2);
+    double exact[M * 2];
+    if (sequential) {
+        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
+    } else {
+        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
+    }
 
     // Estimate parameters
     int tables = min((int)(means * 1.1), 1100);
@@ -103,20 +108,24 @@ int main(int argc, char *argv[]) {
         double * g_r = new double[M];
         hbe.totalTime = 0;
         rs.totalTime = 0;
+        double hbe_error = 0;
+        double rs_error = 0;
         for(int j = 0; j < M; j++) {
-            VectorXd q = X.row(j);
+            int idx = j * 2;
+            VectorXd q;
+            if (sequential) {
+                idx = j;
+                q = X.row(j);
+            } else {
+                q = X.row(exact[idx + 1]);
+            }
             g[j] = hbe.query(q, tau, samples);
             g_r[j] = rs.query(q, tau, int(samples * sample_ratio));
+            hbe_error +=  fabs(g[j] - exact[idx]) / exact[idx];
+            rs_error += fabs(g_r[j] - exact[idx]) / exact[idx];
         }
         std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
         std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
-
-        double hbe_error = 0;
-        double rs_error = 0;
-        for (int i = 0; i < M; i ++) {
-            hbe_error +=  fabs(g[i] - exact[i]) / exact[i];
-            rs_error += fabs(g_r[i] - exact[i]) / exact[i];
-        }
         hbe_error /= M;
         rs_error /= M;
         printf("HBE relative error: %f\n", hbe_error);

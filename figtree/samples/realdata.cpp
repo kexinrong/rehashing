@@ -140,9 +140,9 @@ int main()
 //    int N = 1822080;
 //    int M = 100000;
 // covtype
-    int d = 54;
-    int N = 581012;
-    int M = 581012;
+//    int d = 54;
+//    int N = 581012;
+//    int M = 581012;
 // home
 //    int d = 10;
 //    int N = 928991;
@@ -151,6 +151,10 @@ int main()
 //    int d = 9;
 //    int N = 43500;
 //    int M = 43500;
+// glove100d
+    int d = 100;
+    int N = 400000;
+    int M = 100000;
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
@@ -166,7 +170,7 @@ int main()
     // maximum absolute error.
     // The smaller epsilon is, the more accurate the results will be, at the
     // expense of increased computational complexity.
-    double epsilon = 0.1;
+    double epsilon = 0.01;
 
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
@@ -174,9 +178,10 @@ int main()
     // a 7-dimensional sample.
     long size = N * d;
     double *x = new double[size];
+    readFile("../../resources/data/glove.6B.100d_normed.txt", false, N, 0, 99, &x[0]);
 //    readFile("../../resources/data/shuttle_normed.csv", true, N, 1, 9, &x[0]);
 //    readFile("../../resources/data/home_normed.csv", true, N, 4, 13, &x[0]);
-    readFile("../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
+//    readFile("../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
 //    readFile("../../resources/data/tmy_normed.csv", true, N, 1, 8, &x[0]);
 //    readFile("../../resources/data/mnist_normed.csv", true, N, 1, 8, &x[0]);
     //fitCube(&x[0], N, d);
@@ -270,52 +275,18 @@ int main()
 //    std::cout << "FIGTREE truncated tree nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
 
-    //
-    // MANUAL EVALUATION METHOD and PARAMETER METHOD selection.  If chosen
-    // incorrectly, this could cause run times to be several orders of
-    // magnitudes longer or to require several orders of magnitude more
-    // memory (resulting in crashes).  The recommended way to call figtree
-    // is using the automatic method selection, as shown above.
-    //
-    // evaluate gauss transform using direct (slow) method
-    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf, FIGTREE_EVAL_DIRECT );
-    t2 = clock();
-    std::cout << "Direct: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//    readFile("../../resources/exact/shuttle_gaussian.txt", false, M, 0, 0, &g_sf[0]);
-//   readFile("../../resources/exact/home_gaussian.txt", false, M, 0, 0, &g_sf[0]);
-    readFile("../../resources/covtype_gaussian_all.txt", false, M, 0, 0, &g_sf[0]);
-//   readFile("../../resources/tmy_gaussian.txt", false, M, 0, 0, &g_sf[0]);
-
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
-    double avg_error = 0;
-    double avg_relerror = 0;
 //    std::ofstream myfile("../../resources/shuttle_gaussian.txt");
 //    std::ofstream myfile("../../resources/home_gaussian.txt");
 //    std::ofstream myfile("../../resources/covtype_gaussian.txt");
 //    std::ofstream myfile("../../resources/tmy_gaussian.txt");
 //    std::ofstream myfile("../../resources/mnist_gaussian.txt");
+//    std::ofstream outfile("covtype.txt");
+    std::ofstream outfile("glove.100d.txt");
     for( int i = 0; i < M; i++) {
-//        myfile << g_sf[i] / N << "\n";
-        avg_error += fabs(g_auto[i] - g_sf[i]);
-        avg_relerror +=  fabs(g_auto[i]  - g_sf[i]) / g_sf[i];
-//        printf("%13.4f %13.4e %13.4e %13.4e %13.4e %13.4e %13.4e\n",
-//           g_sf[i], g_auto[i], g_sf_tree[i], g_ifgt_u[i], g_ifgt_nu[i], g_ifgt_tree_u[i], g_ifgt_tree_nu[i] );
+        outfile << g_auto[i] << "\n";
     }
-//    myfile.close();
-    avg_error /= M;
-    avg_relerror /= M;
-    printf("Average absolute error: %f\n", avg_error);
-    printf("Average relative error: %f\n", avg_relerror);
-
-    // print out results for all six ways to evaluate
-//    printf("Results:\n");
-//    printf("Direct result | auto error\n");
-//    for( int i = 0; i < W*M; i++ )
-//        printf("%14.4f %14.4e\n", g_sf[i], g_auto[i]);
-////        printf("%13.4f %13.4e %13.4e %13.4e %13.4e %13.4e %13.4e\n",
-////               g_sf[i], g_auto[i], g_sf_tree[i], g_ifgt_u[i], g_ifgt_nu[i], g_ifgt_tree_u[i], g_ifgt_tree_nu[i] );
-//    printf("\n");
+    outfile.close();
 
     // deallocate memory
     delete [] x;
