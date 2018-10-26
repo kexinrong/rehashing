@@ -17,12 +17,19 @@ public:
     int N;
     int count;
     VectorXd sample;
+    double wSum;
 
-    HashBucket() { count = 0; }
+    HashBucket() {count = 0; }
 
     HashBucket(VectorXd p) {
         sample = p;
         count = 1;
+    }
+
+    HashBucket(VectorXd p, double wi) {
+        sample = p;
+        count = 1;
+        wSum = wi;
     }
 
     void update(VectorXd p) {
@@ -30,6 +37,18 @@ public:
         // Reservoir sampling
         float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
         if (r <= 1.0 / count) {
+            sample = p;
+        }
+    }
+
+    // A-Chao
+    void update(VectorXd p, double wi) {
+        count += 1;
+
+        wSum += wi;
+        double pi = wi / wSum;
+        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        if (r <= pi) {
             sample = p;
         }
     }

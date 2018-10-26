@@ -56,6 +56,43 @@ public:
         }
     }
 
+    HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch,
+            vector<pair<int, double>>& samples, std::mt19937_64 &rng) {
+        binWidth = w;
+        numHash = k;
+        batchSize = batch;
+
+        int d = X->cols();
+        G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
+        b = mathUtils::randUniform(batchSize * k, rng);
+
+        int n = samples.size();
+        MatrixXd project(batchSize * numHash, n);
+        for (int i = 0; i < n; i ++) { project.col(i) = b; }
+
+        // Get samples from matrix
+        MatrixXd X_sample(n, d);
+        sort(samples.begin(), samples.end());
+        for (int i = 0; i < n; i ++) {
+            X_sample.row(i) = X->row(i);
+        }
+
+        project += G * X_sample.transpose();
+        for (int i = 0; i < n; i ++) {
+            VectorXd x = X_sample.row(i);
+            vector<size_t> keys = getkey(project.col(i));
+            for (auto key: keys) {
+                auto it = table.find(key);
+                if (it == table.end()) {
+                    table[key] = HashBucket(x, samples[i].second);
+                } else {
+                    it->second.update(x, samples[i].second);
+                }
+            }
+        }
+    }
+
+
     vector<size_t> hashfunction(VectorXd x) {
         VectorXd v = G * x + b;
         return getkey(v);

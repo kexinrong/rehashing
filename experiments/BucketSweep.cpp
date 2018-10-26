@@ -32,10 +32,12 @@ int main(int argc, char *argv[]) {
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double h = cfg.getH();
-    if (strcmp(scope, "exp") == 0) {
-        h *= pow(N, -1.0/(dim+4));
-    } else {
-        h *= sqrt(2);
+    if (!cfg.isConst()) {
+        if (strcmp(scope, "exp") == 0) {
+            h *= pow(N, -1.0/(dim+4));
+        } else {
+            h *= sqrt(2);
+        }
     }
 
     MatrixXd X = dataUtils::readFile(
@@ -56,14 +58,14 @@ int main(int argc, char *argv[]) {
         means = ceil(6 * mathUtils::expRelVar(tau) / eps / eps);
     }
     kernel->initialize(band->bw);
-    dataUtils::checkBandwidthSamples(X, eps, kernel);
+//    dataUtils::checkBandwidthSamples(X, eps, kernel);
     // Normalized by bandwidth
     X = dataUtils::normalizeBandwidth(X, band->bw);
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
     // Estimate parameters
     int tables = (int)(means * 1.1);
-    tables = 100;
+    tables = 1000;
     double w = 3 * log(1/tau);
 //    double w = 3;
     int k = dataUtils::getPowerW(w, beta);
@@ -74,7 +76,9 @@ int main(int argc, char *argv[]) {
     // Algorithms init
     std::cout << "M=" << tables << ",w=" << w << ",k=" << k << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, 1);
+    int subsample = 10000;
+//    int subsample = 1;
+    BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, subsample);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
