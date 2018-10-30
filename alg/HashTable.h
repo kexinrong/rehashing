@@ -50,7 +50,7 @@ public:
                 if (it == table.end()) {
                     table[key] = HashBucket(x);
                 } else {
-                    it->second.update(x);
+                    it->second.update(x, rng);
                 }
             }
         }
@@ -74,7 +74,7 @@ public:
         MatrixXd X_sample(n, d);
         sort(samples.begin(), samples.end());
         for (int i = 0; i < n; i ++) {
-            X_sample.row(i) = X->row(i);
+            X_sample.row(i) = X->row(samples[i].first);
         }
 
         project += G * X_sample.transpose();
@@ -86,7 +86,7 @@ public:
                 if (it == table.end()) {
                     table[key] = HashBucket(x, samples[i].second);
                 } else {
-                    it->second.update(x, samples[i].second);
+                    it->second.update(x, samples[i].second, rng);
                 }
             }
         }

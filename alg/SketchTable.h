@@ -27,6 +27,7 @@ public:
     MatrixXd G;
     VectorXd b;
     double binWidth;
+    double gamma;
     int numHash;
 
     SketchTable() {}
@@ -58,12 +59,18 @@ public:
             }
         }
 
-        vector<double> sampling_probabilities;
-        double gamma = log(t) / log(n);
-        double sum = 0;
+        size_t max_size = 0;
         for (unordered_map<size_t, vector<int>>::iterator it=table.begin(); it!=table.end(); ++it) {
+            size_t size = it->second.size();
+            max_size = max(size, max_size);
             bucket_keys.push_back(it->first);
-            bucket_size.push_back(it->second.size());
+            bucket_size.push_back(size);
+        }
+        gamma = (log(max_size) - log(t))/ (log(n) - log(t));
+
+        double sum = 0;
+        vector<double> sampling_probabilities;
+        for (unordered_map<size_t, vector<int>>::iterator it=table.begin(); it!=table.end(); ++it) {
             double pi = pow(it->second.size(), gamma);
             sum += pi;
             sampling_probabilities.push_back(pi);

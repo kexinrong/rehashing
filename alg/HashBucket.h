@@ -7,6 +7,7 @@
 
 
 #include <Eigen/Dense>
+#include <random>
 #include "kernel.h"
 
 using Eigen::MatrixXd;
@@ -17,37 +18,42 @@ public:
     int N;
     int count;
     VectorXd sample;
+    double weight = 1;
     double wSum;
+    std::uniform_real_distribution<> unif;
 
-    HashBucket() {count = 0; }
+    HashBucket() { count = 0; }
 
     HashBucket(VectorXd p) {
+        unif = std::uniform_real_distribution<>(0, 1);
         sample = p;
         count = 1;
     }
 
     HashBucket(VectorXd p, double wi) {
+        unif = std::uniform_real_distribution<>(0, 1);
         sample = p;
         count = 1;
+        weight = wi;
         wSum = wi;
     }
 
-    void update(VectorXd p) {
+    void update(VectorXd p, std::mt19937_64 &rng) {
         count += 1;
         // Reservoir sampling
-        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        float r = unif(rng);
         if (r <= 1.0 / count) {
             sample = p;
         }
     }
 
     // A-Chao
-    void update(VectorXd p, double wi) {
+    void update(VectorXd p, double wi, std::mt19937_64 &rng) {
         count += 1;
 
         wSum += wi;
         double pi = wi / wSum;
-        float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+        float r = unif(rng);
         if (r <= pi) {
             sample = p;
         }
