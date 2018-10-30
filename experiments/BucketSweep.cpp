@@ -11,6 +11,7 @@
 #include "dataUtils.h"
 #include "parseConfig.h"
 #include "../alg/BaseLSH.h"
+#include "../alg/SketchLSH.h"
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -76,9 +77,10 @@ int main(int argc, char *argv[]) {
     // Algorithms init
     std::cout << "M=" << tables << ",w=" << w << ",k=" << k << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    int subsample = 10000;
+    int subsample = int(sqrt(N));
 //    int subsample = 1;
-    BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, subsample);
+//    BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, subsample);
+    SketchLSH hbe(X_ptr, tables, w, k, 1, simpleKernel);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
@@ -92,7 +94,7 @@ int main(int argc, char *argv[]) {
             max_bucket = std::max(max_bucket, it.second.count);
             outfile << it.second.count << ",";
         }
-        outfile << "\n";
+        outfile << " \n";
 //        for (int i = 0; i < N; i ++) {
 //            vector<HashBucket> buckets = t.sample(X.row(i));
 //            if (buckets[0].count == max_bucket) {

@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Read exact KDE
-    bool sequential = (argc > 3);
+    bool sequential = (argc > 3 || N == M);
     double *exact = new double[M * 2];
     if (sequential) {
         dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
     double w = dataUtils::getWidth(k, beta);
 
     // Algorithms init
-    int subsample = 10000;
+    int subsample = int(sqrt(N));
     std::cout << "M=" << tables << ",w=" << w << ",k=" << k << ",samples=" << subsample << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
     BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, subsample);
@@ -144,6 +144,8 @@ int main(int argc, char *argv[]) {
             hbe_error +=  fabs(hbe_est - exact[idx]) / exact[idx];
             rs_error += fabs(rs_est - exact[idx]) / exact[idx];
             sketch_error += fabs(sketch_est - exact[idx]) / exact[idx];
+
+//            std::cout << exact[idx] << "," << hbe_est << "," << sketch_est << "," << rs_est << std::endl;
         }
         std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
         std::cout << "Sketch HBE total time: " << sketch.totalTime / 1e9 << std::endl;
