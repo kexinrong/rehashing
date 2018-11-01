@@ -57,7 +57,7 @@ vector<double> SketchLSH::evaluateQuery(VectorXd query, int maxSamples) {
             VectorXd delta = bucket.sample - query;
             double c = delta.norm() / binWidth;
             double p = mathUtils::collisionProb(c, numHash);
-            results[0] += bucket.weight * kernel->density(delta) / p * cnt / numPoints;
+            results[0] += kernel->density(delta) / p * bucket.wSum / numPoints;
         }
     }
     return results;

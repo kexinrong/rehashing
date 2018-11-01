@@ -18,7 +18,6 @@ public:
     int N;
     int count;
     VectorXd sample;
-    double weight = 1;
     double wSum;
     std::uniform_real_distribution<> unif;
 
@@ -34,7 +33,6 @@ public:
         unif = std::uniform_real_distribution<>(0, 1);
         sample = p;
         count = 1;
-        weight = wi;
         wSum = wi;
     }
 
