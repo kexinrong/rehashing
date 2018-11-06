@@ -87,6 +87,10 @@ public:
         return cfg->lookupString(scope, "kernel");
     }
 
+    const char* getName() {
+        return cfg->lookupString(scope, "name");
+    }
+
 };
 
 

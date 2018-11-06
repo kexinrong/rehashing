@@ -21,6 +21,7 @@ public:
     shared_ptr<Kernel> kernel;
 
     RS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k);
+    RS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples);
 
 protected:
     std::vector<double> MoM(VectorXd q, int L, int m);
