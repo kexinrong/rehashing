@@ -14,6 +14,7 @@ class SketchLSH : public MoMEstimator {
 
 public:
     vector<HashTable> tables;
+    vector<HashTable> trunc_tables;
     int numTables;
     double binWidth;
     int numHash;
@@ -25,10 +26,11 @@ public:
     int N_SKETCHES = 5;
 
     SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch, shared_ptr<Kernel> ker);
+    SketchLSH(const SketchLSH& other, int nbuckets);
 
 protected:
     vector<double> evaluateQuery(VectorXd query, int maxSamples);
-    std::vector<double> MoM(VectorXd query, int L, int m);
+    vector<double> MoM(VectorXd query, int L, int m);
 };
 
 

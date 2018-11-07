@@ -36,6 +36,13 @@ public:
         wSum = wi;
     }
 
+    HashBucket(const HashBucket &other) {
+        unif = std::uniform_real_distribution<>(0, 1);
+        sample = other.sample;
+        count = other.count;
+        wSum = other.wSum;
+    }
+
     void update(VectorXd p, std::mt19937_64 &rng) {
         count += 1;
         // Reservoir sampling

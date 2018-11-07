@@ -21,14 +21,27 @@ SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch,
 
     for (int i = 0; i < N_SKETCHES; i++) {
         SketchTable t = SketchTable(X, w, k, batch, rng);
-//        std::cout << t.gamma << std::endl;
         for (int j = 0; j < numTables / N_SKETCHES; j ++) {
             vector<pair<int, double>> samples = t.sample(numPoints, rng);
-            tables.push_back(HashTable(X, w, k, batch, samples, rng, 50));
+            tables.push_back(HashTable(X, w, k, batch, samples, rng));
         }
     }
     // Shuffle to mix data sampled from separate base tables
     std::random_shuffle ( tables.begin(), tables.end() );
+}
+
+
+SketchLSH::SketchLSH(const SketchLSH& other, int nbuckets) {
+    batchSize = other.batchSize;
+    numTables = other.numTables;
+    binWidth = other.binWidth;
+    numHash = other.numHash;
+    numPoints = other.numPoints;
+    kernel = other.kernel;
+
+    for (const auto& t : other.tables) {
+        tables.push_back(HashTable(t, nbuckets));
+    }
 }
 
 vector<double> SketchLSH::MoM(VectorXd query, int L, int m) {

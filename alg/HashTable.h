@@ -20,11 +20,13 @@ using namespace std;
 class HashTable {
 public:
     unordered_map<size_t, HashBucket> table;
+    unordered_set<size_t> used_keys;
     MatrixXd G;
     VectorXd b;
     double binWidth;
     int numHash;
     int batchSize;
+    double used_weights = 1;
 
     HashTable() {}
 
@@ -57,7 +59,7 @@ public:
     }
 
     HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch,
-            vector<pair<int, double>>& samples, std::mt19937_64 &rng, int nbuckets) {
+            vector<pair<int, double>>& samples, std::mt19937_64 &rng) {
         binWidth = w;
         numHash = k;
         batchSize = batch;
@@ -90,17 +92,27 @@ public:
                 }
             }
         }
+    }
 
-        int bucket_cnt = 0;
+    HashTable(const HashTable &other, int nbuckets) {
+        binWidth = other.binWidth;
+        numHash = other.numHash;
+        batchSize = other.batchSize;
+
+        G = other.G;
+        b = other.b;
+
+        for (auto it=other.table.begin(); it!=other.table.end(); it++) {
+            table[it->first] = HashBucket(it->second);
+        }
+
         double wSum = 0;
         vector<double> weights;
         for (auto it=table.begin(); it!=table.end(); it ++) {
             weights.push_back(it->second.wSum);
             wSum += it->second.wSum;
-            bucket_cnt ++;
         }
-        if (bucket_cnt <= nbuckets) { return; }
-//        std::cout << "# buckets: " << weights.size() << std::endl;
+        if (weights.size() <= nbuckets) { return; }
 
 //        double s = 0;
 //        std::uniform_real_distribution<double> uniform(0.0, 1.0);
@@ -118,19 +130,16 @@ public:
         std::sort(weights.begin(), weights.end(), std::greater<double>());
         double thresh = weights[nbuckets];
         double s = 0.0;
-        int cnt = 0;
-        double total = 0.0;
         for (auto it=table.begin(); it!=table.end();) {
             double w = it->second.wSum;
-            total += w;
             if (w > thresh) {
                 s += w;
-                cnt += 1;
                 ++it;
             } else {
                 table.erase(it++);
             }
         }
+        used_weights = s/wSum;
     }
 
 
@@ -160,9 +169,55 @@ public:
                 buckets.push_back(HashBucket());
             } else {
                 buckets.push_back(it->second);
+                used_keys.insert(key);
             }
         }
         return buckets;
+    }
+
+    double countBuckets() {
+        std::cout << used_keys.size() << "," << table.size() << std::endl;
+        return used_keys.size() * 1.0 / table.size();
+    }
+
+    double countWeights() {
+        vector<double> weights;
+        for (auto &kv : table) {
+            weights.push_back(kv.second.wSum);
+        }
+        std::sort(weights.begin(), weights.end(), std::greater<double>());
+        double thresh = weights[50];
+
+        int top = 0;
+        double top_w = 0;
+        int others = 0;
+        double others_w = 0;
+        for (auto &kv : table) {
+            auto s = used_keys.find(kv.first);
+            if (s != used_keys.end()) {
+                if (kv.second.wSum > thresh) {
+                    top += 1;
+                    top_w += kv.second.wSum;
+                } else {
+                    others += 1;
+                    others_w += kv.second.wSum;
+                }
+            }
+        }
+
+        std::cout << top << "," << others << "," << top_w << "," << others_w << std::endl;
+        return 0;
+
+//        double s = 0;
+//        double used = 0;
+//        for (auto &kv : table) {
+//            s += kv.second.wSum;
+//            auto s = used_keys.find(kv.first);
+//            if (s != used_keys.end()) {
+//                used += kv.second.wSum;
+//            }
+//        }
+//        return used / s;
     }
 };
 
