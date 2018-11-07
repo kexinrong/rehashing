@@ -21,10 +21,10 @@ SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch,
 
     for (int i = 0; i < N_SKETCHES; i++) {
         SketchTable t = SketchTable(X, w, k, batch, rng);
-        std::cout << t.gamma << std::endl;
+//        std::cout << t.gamma << std::endl;
         for (int j = 0; j < numTables / N_SKETCHES; j ++) {
             vector<pair<int, double>> samples = t.sample(numPoints, rng);
-            tables.push_back(HashTable(X, w, k, batch, samples, rng));
+            tables.push_back(HashTable(X, w, k, batch, samples, rng, 50));
         }
     }
     // Shuffle to mix data sampled from separate base tables
@@ -52,8 +52,7 @@ vector<double> SketchLSH::evaluateQuery(VectorXd query, int maxSamples) {
     results[1] = n;
     for (size_t i = 0; i < n; i ++) {
         HashBucket bucket = buckets[i];
-        int cnt = bucket.count;
-        if (cnt > 0) {
+        if (bucket.count > 0) {
             VectorXd delta = bucket.sample - query;
             double c = delta.norm() / binWidth;
             double p = mathUtils::collisionProb(c, numHash);

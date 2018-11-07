@@ -114,7 +114,9 @@ int main(int argc, char *argv[]) {
     t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Sketch Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
-    RS rs(X_ptr, simpleKernel);
+    int rs_reservoir =  50 * tables;
+    std::cout << "RS reservoir size: " << min(rs_reservoir, N) << std::endl;
+    RS rs(X_ptr, simpleKernel, rs_reservoir);
 
     for (int i = 0; i < 10; i ++) {
         samples = 100 * (i + 1);
@@ -141,11 +143,11 @@ int main(int argc, char *argv[]) {
             double hbe_est = hbe.query(q, tau, samples);
             double sketch_est = sketch.query(q, tau, samples);
             double rs_est = rs.query(q, tau, int(samples * sample_ratio));
+//            double rs_est = 0;
             hbe_error +=  fabs(hbe_est - exact[idx]) / exact[idx];
             rs_error += fabs(rs_est - exact[idx]) / exact[idx];
             sketch_error += fabs(sketch_est - exact[idx]) / exact[idx];
-
-//            std::cout << exact[idx] << "," << hbe_est << "," << sketch_est << "," << rs_est << std::endl;
+//            std::cout << exact[idx] << "," << hbe_est << "," << rs_est << std::endl;
         }
         std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
         std::cout << "Sketch HBE total time: " << sketch.totalTime / 1e9 << std::endl;

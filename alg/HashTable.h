@@ -57,7 +57,7 @@ public:
     }
 
     HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch,
-            vector<pair<int, double>>& samples, std::mt19937_64 &rng) {
+            vector<pair<int, double>>& samples, std::mt19937_64 &rng, int nbuckets) {
         binWidth = w;
         numHash = k;
         batchSize = batch;
@@ -88,6 +88,47 @@ public:
                 } else {
                     it->second.update(x, samples[i].second, rng);
                 }
+            }
+        }
+
+        int bucket_cnt = 0;
+        double wSum = 0;
+        vector<double> weights;
+        for (auto it=table.begin(); it!=table.end(); it ++) {
+            weights.push_back(it->second.wSum);
+            wSum += it->second.wSum;
+            bucket_cnt ++;
+        }
+        if (bucket_cnt <= nbuckets) { return; }
+//        std::cout << "# buckets: " << weights.size() << std::endl;
+
+//        double s = 0;
+//        std::uniform_real_distribution<double> uniform(0.0, 1.0);
+//        for (auto it=table.begin(); it!=table.end();) {
+//            double w = it->second.wSum;
+//            if (uniform(rng) < (w / wSum * nbuckets)) {
+//                s += w;
+//                ++it;
+//            } else {
+//                table.erase(it++);
+//            }
+//        }
+
+        // Keep top N buckets
+        std::sort(weights.begin(), weights.end(), std::greater<double>());
+        double thresh = weights[nbuckets];
+        double s = 0.0;
+        int cnt = 0;
+        double total = 0.0;
+        for (auto it=table.begin(); it!=table.end();) {
+            double w = it->second.wSum;
+            total += w;
+            if (w > thresh) {
+                s += w;
+                cnt += 1;
+                ++it;
+            } else {
+                table.erase(it++);
             }
         }
     }
