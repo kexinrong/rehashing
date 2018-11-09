@@ -26,7 +26,6 @@ public:
     double binWidth;
     int numHash;
     int batchSize;
-    double used_weights = 1;
     int bucket_count = 0;
 
     HashTable() {}
@@ -117,18 +116,6 @@ public:
         }
         if (weights.size() <= nbuckets) { return; }
 
-//        double s = 0;
-//        std::uniform_real_distribution<double> uniform(0.0, 1.0);
-//        for (auto it=table.begin(); it!=table.end();) {
-//            double w = it->second.wSum;
-//            if (uniform(rng) < (w / wSum * nbuckets)) {
-//                s += w;
-//                ++it;
-//            } else {
-//                table.erase(it++);
-//            }
-//        }
-
         // Keep top N buckets
         std::sort(weights.begin(), weights.end(), std::greater<double>());
         double thresh = weights[nbuckets];
@@ -142,7 +129,6 @@ public:
                 table.erase(it++);
             }
         }
-        used_weights = s/wSum;
     }
 
 
@@ -178,50 +164,6 @@ public:
         return buckets;
     }
 
-    double countBuckets() {
-//        std::cout << used_keys.size() << "," << table.size() << std::endl;
-        return used_keys.size() * 1.0 / table.size();
-    }
-
-    double countWeights() {
-//        vector<double> weights;
-//        for (auto &kv : table) {
-//            weights.push_back(kv.second.wSum);
-//        }
-//        std::sort(weights.begin(), weights.end(), std::greater<double>());
-//        double thresh = weights[50];
-//
-//        int top = 0;
-//        double top_w = 0;
-//        int others = 0;
-//        double others_w = 0;
-//        for (auto &kv : table) {
-//            auto s = used_keys.find(kv.first);
-//            if (s != used_keys.end()) {
-//                if (kv.second.wSum > thresh) {
-//                    top += 1;
-//                    top_w += kv.second.wSum;
-//                } else {
-//                    others += 1;
-//                    others_w += kv.second.wSum;
-//                }
-//            }
-//        }
-//
-//        std::cout << top << "," << others << "," << top_w << "," << others_w << std::endl;
-//        return 0;
-
-        double s = 0;
-        double used = 0;
-        for (auto &kv : table) {
-            s += kv.second.wSum;
-            auto s = used_keys.find(kv.first);
-            if (s != used_keys.end()) {
-                used += kv.second.wSum;
-            }
-        }
-        return used / s;
-    }
 };
 
 

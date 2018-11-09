@@ -42,10 +42,7 @@ int main(int argc, char *argv[]) {
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
     int M = cfg.getM();
-    // The bandwidth.  NOTE: this is not the same as standard deviation since
-    // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
-    // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
-    // bandwidth can be set to h = sqrt(2)*sigma.
+
     double h = cfg.getH();
     if (!cfg.isConst()) {
         if (strcmp(scope, "exp") == 0) {
@@ -120,12 +117,8 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Average table size: " << cnt / tables << std::endl;
 
-    int nbuckets = 50;
-    SketchLSH trunc(sketch, nbuckets);
-
-    int rs_reservoir =  nbuckets * tables;
-    std::cout << "RS reservoir size: " << min(rs_reservoir, N) << std::endl;
-    RS rs(X_ptr, simpleKernel, rs_reservoir);
+    std::cout << "RS reservoir size: " << min(cnt, N) << std::endl;
+    RS rs(X_ptr, simpleKernel, cnt);
 
     for (int i = 0; i < 10; i ++) {
         samples = 100 * (i + 1);
@@ -153,21 +146,11 @@ int main(int argc, char *argv[]) {
 
             double hbe_est = hbe.query(q, tau, samples);
             double sketch_est = sketch.query(q, tau, samples);
-            double trunc_est = trunc.query(q, tau, samples);
             double rs_est = rs.query(q, tau, int(samples * sample_ratio));
             hbe_error +=  fabs(hbe_est - exact[idx]) / exact[idx];
             rs_error += fabs(rs_est - exact[idx]) / exact[idx];
             sketch_error += fabs(sketch_est - exact[idx]) / exact[idx];
-            trunc_error += fabs(trunc_est - exact[idx]) / exact[idx];
         }
-        double count = 0;
-        double weight = 0;
-        for (auto & t : sketch.tables) {
-            count += t.countBuckets();
-            weight += t.countWeights();
-        }
-        std::cout << "Buckets used: " << count / tables << std::endl;
-        std::cout << "Buckets weights: " << weight / tables << std::endl;
 
         std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
         std::cout << "Sketch HBE total time: " << sketch.totalTime / 1e9 << std::endl;
@@ -175,10 +158,8 @@ int main(int argc, char *argv[]) {
         hbe_error /= M;
         rs_error /= M;
         sketch_error /= M;
-        trunc_error /= M;
         printf("HBE relative error: %f\n", hbe_error);
         printf("Sketch HBE relative error: %f\n", sketch_error);
-        printf("Trunc Sketch HBE relative error: %f\n", trunc_error);
         printf("RS relative error: %f\n", rs_error);
     }
 
