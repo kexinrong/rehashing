@@ -27,6 +27,7 @@ public:
     int numHash;
     int batchSize;
     double used_weights = 1;
+    int bucket_count = 0;
 
     HashTable() {}
 
@@ -51,6 +52,7 @@ public:
                 auto it = table.find(key);
                 if (it == table.end()) {
                     table[key] = HashBucket(x);
+                    bucket_count ++;
                 } else {
                     it->second.update(x, rng);
                 }
@@ -87,6 +89,7 @@ public:
                 auto it = table.find(key);
                 if (it == table.end()) {
                     table[key] = HashBucket(x, samples[i].second);
+                    bucket_count ++;
                 } else {
                     it->second.update(x, samples[i].second, rng);
                 }
@@ -176,48 +179,48 @@ public:
     }
 
     double countBuckets() {
-        std::cout << used_keys.size() << "," << table.size() << std::endl;
+//        std::cout << used_keys.size() << "," << table.size() << std::endl;
         return used_keys.size() * 1.0 / table.size();
     }
 
     double countWeights() {
-        vector<double> weights;
-        for (auto &kv : table) {
-            weights.push_back(kv.second.wSum);
-        }
-        std::sort(weights.begin(), weights.end(), std::greater<double>());
-        double thresh = weights[50];
-
-        int top = 0;
-        double top_w = 0;
-        int others = 0;
-        double others_w = 0;
-        for (auto &kv : table) {
-            auto s = used_keys.find(kv.first);
-            if (s != used_keys.end()) {
-                if (kv.second.wSum > thresh) {
-                    top += 1;
-                    top_w += kv.second.wSum;
-                } else {
-                    others += 1;
-                    others_w += kv.second.wSum;
-                }
-            }
-        }
-
-        std::cout << top << "," << others << "," << top_w << "," << others_w << std::endl;
-        return 0;
-
-//        double s = 0;
-//        double used = 0;
+//        vector<double> weights;
 //        for (auto &kv : table) {
-//            s += kv.second.wSum;
+//            weights.push_back(kv.second.wSum);
+//        }
+//        std::sort(weights.begin(), weights.end(), std::greater<double>());
+//        double thresh = weights[50];
+//
+//        int top = 0;
+//        double top_w = 0;
+//        int others = 0;
+//        double others_w = 0;
+//        for (auto &kv : table) {
 //            auto s = used_keys.find(kv.first);
 //            if (s != used_keys.end()) {
-//                used += kv.second.wSum;
+//                if (kv.second.wSum > thresh) {
+//                    top += 1;
+//                    top_w += kv.second.wSum;
+//                } else {
+//                    others += 1;
+//                    others_w += kv.second.wSum;
+//                }
 //            }
 //        }
-//        return used / s;
+//
+//        std::cout << top << "," << others << "," << top_w << "," << others_w << std::endl;
+//        return 0;
+
+        double s = 0;
+        double used = 0;
+        for (auto &kv : table) {
+            s += kv.second.wSum;
+            auto s = used_keys.find(kv.first);
+            if (s != used_keys.end()) {
+                used += kv.second.wSum;
+            }
+        }
+        return used / s;
     }
 };
 

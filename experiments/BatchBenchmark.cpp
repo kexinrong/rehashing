@@ -114,7 +114,16 @@ int main(int argc, char *argv[]) {
     t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Sketch Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
-    int rs_reservoir =  50 * tables;
+    double cnt = 0;
+    for (auto& t : sketch.tables) {
+        cnt += t.bucket_count;
+    }
+    std::cout << "Average table size: " << cnt / tables << std::endl;
+
+    int nbuckets = 50;
+    SketchLSH trunc(sketch, nbuckets);
+
+    int rs_reservoir =  nbuckets * tables;
     std::cout << "RS reservoir size: " << min(rs_reservoir, N) << std::endl;
     RS rs(X_ptr, simpleKernel, rs_reservoir);
 
@@ -128,6 +137,8 @@ int main(int argc, char *argv[]) {
         double hbe_error = 0;
         double sketch_error = 0;
         double rs_error = 0;
+        double trunc_error = 0;
+
         for(int j = 0; j < M; j++) {
             int idx = j;
             VectorXd q = X.row(j);
@@ -142,21 +153,32 @@ int main(int argc, char *argv[]) {
 
             double hbe_est = hbe.query(q, tau, samples);
             double sketch_est = sketch.query(q, tau, samples);
+            double trunc_est = trunc.query(q, tau, samples);
             double rs_est = rs.query(q, tau, int(samples * sample_ratio));
-//            double rs_est = 0;
             hbe_error +=  fabs(hbe_est - exact[idx]) / exact[idx];
             rs_error += fabs(rs_est - exact[idx]) / exact[idx];
             sketch_error += fabs(sketch_est - exact[idx]) / exact[idx];
-//            std::cout << exact[idx] << "," << hbe_est << "," << rs_est << std::endl;
+            trunc_error += fabs(trunc_est - exact[idx]) / exact[idx];
         }
+        double count = 0;
+        double weight = 0;
+        for (auto & t : sketch.tables) {
+            count += t.countBuckets();
+            weight += t.countWeights();
+        }
+        std::cout << "Buckets used: " << count / tables << std::endl;
+        std::cout << "Buckets weights: " << weight / tables << std::endl;
+
         std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
         std::cout << "Sketch HBE total time: " << sketch.totalTime / 1e9 << std::endl;
         std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
         hbe_error /= M;
         rs_error /= M;
         sketch_error /= M;
+        trunc_error /= M;
         printf("HBE relative error: %f\n", hbe_error);
         printf("Sketch HBE relative error: %f\n", sketch_error);
+        printf("Trunc Sketch HBE relative error: %f\n", trunc_error);
         printf("RS relative error: %f\n", rs_error);
     }
 
