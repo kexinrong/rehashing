@@ -15,6 +15,7 @@ class Gaussiankernel : public Kernel {
 private:
     const double LOG_25 = log(0.25);
     const double E1 = exp(1.5);
+    const double E2 = exp(1.854);
 
     double r;
 
@@ -54,6 +55,8 @@ public:
     }
 
     double RelVar(double mu, double delta) { return 4 * E1 * pow(mu, -delta); }
+
+    double RelVar(double mu) { return E2 / sqrt(mu); }
 };
 
 

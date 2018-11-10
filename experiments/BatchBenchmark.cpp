@@ -57,17 +57,15 @@ int main(int argc, char *argv[]) {
     auto band = make_unique<Bandwidth>(N, dim);
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
-    double means = 0;
     shared_ptr<Kernel> simpleKernel;
     if (strcmp(scope, "gaussian") == 0) {
         kernel = make_shared<Gaussiankernel>(dim);
         simpleKernel = make_shared<Gaussiankernel>(dim);
-        means = ceil(6 * mathUtils::gaussRelVar(tau) / eps / eps);
     } else {
         kernel = make_shared<Expkernel>(dim);
         simpleKernel = make_shared<Expkernel>(dim);
-        means = ceil(6 * mathUtils::expRelVar(tau) / eps / eps);
     }
+    double means = ceil(6 * simpleKernel->RelVar(tau) / eps / eps);
 
     kernel->initialize(band->bw);
 //    dataUtils::checkBandwidthSamples(X, eps, kernel);
@@ -163,5 +161,5 @@ int main(int argc, char *argv[]) {
         printf("RS relative error: %f\n", rs_error);
     }
 
-    delete exact;
+    delete[] exact;
 }

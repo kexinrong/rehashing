@@ -16,8 +16,6 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
-const double E1 = exp(1.5);
-const double E2 = exp(1.854);
 const double SQRT_2PI = sqrt(2.0 / M_PI);
 
 const double a1 =  0.254829592;
@@ -30,8 +28,6 @@ const double p  =  0.3275911;
 class mathUtils {
 
 public:
-    static double expRelVar(double mu) { return E1 / sqrt(mu); }
-    static double gaussRelVar(double mu) { return E2 / sqrt(mu); }
     static double randomRelVar(double mu) { return 1 / mu; }
 
     static double expKernel(double x) { return exp(-x); }

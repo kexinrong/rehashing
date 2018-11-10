@@ -8,7 +8,7 @@ find_package( Boost REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 include_directories(../utils)
-add_library (alg multiHBE.cpp multiHBE.h naiveKDE.h naiveKDE.cpp RS.h RS.cpp BaseLSH.cpp BaseLSH.h HashBucket.h HashTable.h MoMEstimator.h SketchLSH.cpp SketchLSH.h SketchTable.h)
+add_library (alg multiHBE.cpp multiHBE.h naiveKDE.h naiveKDE.cpp RS.h RS.cpp BaseLSH.cpp BaseLSH.h HashBucket.h HashTable.h MoMEstimator.h SketchLSH.cpp SketchLSH.h SketchTable.h AdaptiveEstimator.h AdaptiveRS.cpp AdaptiveRS.h)
 
 target_link_libraries(alg Eigen3::Eigen)
 

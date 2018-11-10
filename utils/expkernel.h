@@ -16,6 +16,7 @@ private:
     const double LOG_PI = log(M_PI);
     const double LOG_2PI = log(2 * M_PI);
     const double LOG_25 = log(0.25);
+    const double E1 = exp(1.5);
 
     double logVn(int d) { return 0.5 * d * LOG_PI - lgamma(0.5 * d + 1); }
 
@@ -52,6 +53,8 @@ public:
     }
 
     double RelVar(double mu, double delta) { return pow(mu, -delta); }
+
+    double RelVar(double mu) { return E1 / sqrt(mu); }
 };
 
 
