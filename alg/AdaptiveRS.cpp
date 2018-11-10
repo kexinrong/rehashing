@@ -84,3 +84,27 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level, int maxSamp
     }
     return results;
 }
+
+int AdaptiveRS::findTargetLevel(double est) {
+    int i = 0;
+    while (i < I) {
+        if (est > mui[i]) {
+            return i;
+        }
+        i ++;
+    }
+    return I - 1;
+}
+
+int AdaptiveRS::findActualLevel(VectorXd q, double truth, double eps) {
+    int i = 0;
+    while (i < I) {
+        std::vector<double> results = evaluateQuery(q, i, Mi[i]);
+        double est = results[0] / Mi[i];
+        if (fabs(est - truth) / truth < eps) {
+            return i;
+        }
+        i ++;
+    }
+    return I - 1;
+}

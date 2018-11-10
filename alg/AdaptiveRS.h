@@ -25,6 +25,9 @@ public:
     AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);
     AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples, double lb, double eps);
 
+    int findTargetLevel(double est);
+    int findActualLevel(VectorXd q, double est, double eps);
+
 protected:
     std::vector<double> evaluateQuery(VectorXd q, int level, int maxSamples);
 
