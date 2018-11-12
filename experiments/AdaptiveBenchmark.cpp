@@ -19,8 +19,13 @@
 #include "math.h"
 #include "../alg/RS.h"
 #include "../alg/AdaptiveRS.h"
-#include <boost/math/distributions/normal.hpp>
+#include "../alg/AdaptiveHBE.h"
 #include "parseConfig.h"
+
+void update(vector<double>& results, vector<double> est, double exact) {
+    results[0] += fabs(est[0] - exact) / exact;
+    results[1] += est[1];
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -61,7 +66,6 @@ int main(int argc, char *argv[]) {
         kernel = make_shared<Expkernel>(dim);
         simpleKernel = make_shared<Expkernel>(dim);
     }
-    double means = ceil(6 * simpleKernel->RelVar(tau) / eps / eps);
 
     kernel->initialize(band->bw);
 //    dataUtils::checkBandwidthSamples(X, eps, kernel);
@@ -88,10 +92,17 @@ int main(int argc, char *argv[]) {
 
     AdaptiveRS rs(X_ptr, simpleKernel, tau, eps);
 
+    auto t1 = std::chrono::high_resolution_clock::now();
+    AdaptiveHBE hbe(X_ptr, simpleKernel, tau, eps);
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::cout << "Adaptive Table Init: " <<
+        std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+
     std::cout << "------------------" << std::endl;
     rs.totalTime = 0;
-    double rs_error = 0;
-    double rs_samples = 0;
+    hbe.totalTime = 0;
+    vector<double> rs_results(2,0);
+    vector<double> hbe_results(2,0);
 
     for (int j = 0; j < M; j++) {
         int idx = j;
@@ -105,14 +116,18 @@ int main(int argc, char *argv[]) {
             }
         }
         vector<double> rs_est = rs.query(q);
-        rs_error += fabs(rs_est[0] - exact[idx]) / exact[idx];
-        rs_samples += rs_est[1];
+        vector<double> hbe_est = hbe.query(q);
+        update(rs_results, rs_est, exact[idx]);
+        update(hbe_results, hbe_est, exact[idx]);
     }
 
     std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
-    std::cout << "RS Average Samples: " << rs_samples / M << std::endl;
-    rs_error /= M;
-    printf("RS relative error: %f\n", rs_error);
+    std::cout << "RS Average Samples: " << rs_results[1] / M << std::endl;
+    std::cout << "RS Relative Error: " << rs_results[0] / M << std::endl;
+
+    std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
+    std::cout << "HBE Average Samples: " << hbe_results[1] / M << std::endl;
+    std::cout << "HBE Relative Error: " << hbe_results[0] / M << std::endl;
 
     delete[] exact;
 }

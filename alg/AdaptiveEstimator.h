@@ -19,9 +19,6 @@ public:
     double gamma = 0.5;
     int I;
     std::vector<double> mui;
-    std::vector<double> ti;
-    std::vector<int> ki;
-    std::vector<double> wi;
     std::vector<int> Mi;
 
     std::vector<double> query(VectorXd q) {
@@ -30,13 +27,8 @@ public:
         double est = 0;
         int i = 0;
         while (i < I) {
-            int j = 0;
-            est = 0;
-            while (j < Mi[i]) {
-                std::vector<double> results = evaluateQuery(q, i, Mi[i] - j);
-                est += results[0];
-                j += (int) results[1];
-            }
+            std::vector<double> results = evaluateQuery(q, i, Mi[i]);
+            est = results[0];
             returns[1] += Mi[i];
 
             est /= Mi[i];

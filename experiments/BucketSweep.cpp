@@ -66,21 +66,18 @@ int main(int argc, char *argv[]) {
 
     // Estimate parameters
     int tables = (int)(means * 1.1);
-    tables = 1000;
-    double w = 3 * log(1/tau);
-//    double w = 3;
-    int k = dataUtils::getPowerW(w, beta);
-//    double diam = dataUtils::estimateDiameter(X, tau);
-//    int k = dataUtils::getPower(diam, beta);
-//    double w = dataUtils::getWidth(k, beta);
+    tables = 5;
+    double diam = dataUtils::estimateDiameter(X, tau);
+    int k = dataUtils::getPower(diam, beta);
+    double w = dataUtils::getWidth(k, beta);
 
     // Algorithms init
     std::cout << "M=" << tables << ",w=" << w << ",k=" << k << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    int subsample = int(sqrt(N));
-//    int subsample = 1;
-//    BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, subsample);
-    SketchLSH hbe(X_ptr, tables, w, k, 1, simpleKernel);
+//    int subsample = int(sqrt(N));
+    int subsample = 1;
+    BaseLSH hbe(X_ptr, tables, w, k, 1, simpleKernel, subsample);
+//    SketchLSH hbe(X_ptr, tables, w, k, 1, simpleKernel);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "HBE Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 

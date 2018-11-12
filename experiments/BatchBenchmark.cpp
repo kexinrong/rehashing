@@ -115,8 +115,9 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Average table size: " << cnt / tables << std::endl;
 
-    std::cout << "RS reservoir size: " << min(cnt, N) << std::endl;
-    RS rs(X_ptr, simpleKernel, cnt);
+    int rs_size = min(int(cnt), N);
+    std::cout << "RS reservoir size: " << rs_size << std::endl;
+    RS rs(X_ptr, simpleKernel, rs_size);
 
     for (int i = 0; i < 10; i ++) {
         samples = 100 * (i + 1);
@@ -128,7 +129,6 @@ int main(int argc, char *argv[]) {
         double hbe_error = 0;
         double sketch_error = 0;
         double rs_error = 0;
-        double trunc_error = 0;
 
         for(int j = 0; j < M; j++) {
             int idx = j;

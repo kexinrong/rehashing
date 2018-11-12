@@ -72,12 +72,20 @@ int main(int argc, char *argv[]) {
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> distribution(0, N - 1);
 
-    for (int j = 0; j < 10; j++) {
-        VectorXd q = X.row(distribution(rng));
+    for (int iter = 0; iter < 10; iter ++) {
+        double diff = 0;
+        double level = 0;
+        for (int j = 0; j < 100; j++) {
+            VectorXd q = X.row(distribution(rng));
 
-        vector<double> rs_est = rs.query(q);
-        int target = rs.findTargetLevel(rs_est[0]);
-        int real = rs.findActualLevel(q, rs_est[0], eps);
-        std::cout << target << "," << real << std::endl;
+            vector<double> rs_est = rs.query(q);
+            int target = rs.findTargetLevel(rs_est[0]);
+            int real = rs.findActualLevel(q, rs_est[0], eps);
+            diff += target - real;
+            level += target;
+//            std::cout << target << "," << real << std::endl;
+        }
+        std::cout << "diff:" << diff/100 << ", target: " << level / 100 << std::endl;
     }
+
 }

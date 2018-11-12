@@ -26,6 +26,7 @@ public:
     int N_SKETCHES = 5;
 
     SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch, shared_ptr<Kernel> ker);
+    SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker, int sketches);
     SketchLSH(const SketchLSH& other, int nbuckets);
 
 protected:
