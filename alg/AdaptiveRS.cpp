@@ -3,6 +3,7 @@
 //
 
 #include "AdaptiveRS.h"
+#include "dataUtils.h"
 
 void AdaptiveRS::buildLevels(double tau, double eps) {
     double tmp = log(1/ tau);
@@ -22,10 +23,15 @@ void AdaptiveRS::buildLevels(double tau, double eps) {
         } else {
             mui[i] = (1 - gamma) * mui[i - 1];
         }
-        Mi[i] = (int) (ceil(mathUtils::randomRelVar(mui[i]) / eps / eps));
-        ti[i] = sqrt(log(1 / mui[i]));
-        ki[i] = (int) (3 * ceil(r * ti[i]));
-        wi[i] = ki[i] / ti[i] * SQRT_2PI;
+        if (kernel->getName() == EXP_STR) {
+            ki[i] = dataUtils::getPowerMu(mui[i], 0.5);
+            wi[i] = dataUtils::getWidth(ki[i], 0.5);
+        } else {         // Gaussian Kernel
+            ti[i] = sqrt(log(1 / mui[i]));
+            ki[i] = (int) (3 * ceil(r * ti[i]));
+            wi[i] = ki[i] / ti[i] * SQRT_2PI;
+        }
+        Mi[i] = (int) (ceil(kernel->RelVar(mui[i]) / eps / eps));
 //        std::cout << "Level " << i << ", samples " << Mi[i] <<
 //            ", target: "<< mui[i] << std::endl;
     }
@@ -100,23 +106,26 @@ double AdaptiveRS::findRSRatio() {
     double mmin = contrib[0];
     double mmax = contrib[0];
     for (size_t i = 1; i < contrib.size(); i ++) {
-        mmin = min(contrib[i], mmin);
+        mmin = min(max(contrib[i], 1.0 / numPoints), mmin);
         mmax = max(contrib[i], mmax);
     }
     return mmax / mmin;
 }
 
 double AdaptiveRS::findHBERatio(VectorXd &q, int level) {
-    double mmin = 0;
+    double mmin = 1;
     double mmax = 0;
     for (size_t i = 0; i < samples.size(); i ++) {
+        if (contrib[i] < 1.0 / numPoints) {
+            continue;
+        }
         int idx = samples[i];
         VectorXd delta = X->row(idx) - q.transpose();
         double c = delta.norm() / wi[level];
         double p = mathUtils::collisionProb(c, ki[level]);
         double k_i = contrib[i] / p / p;
         double k_j = contrib[i] / p;
-        if (i == 0) {
+        if (mmax == 0) {
             mmin = k_j;
             mmax = k_i;
         } else {

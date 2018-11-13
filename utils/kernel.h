@@ -67,6 +67,8 @@ public:
     virtual bool shouldReject(double weight, double prob, double prob_mu, double mu, double delta) = 0;
     virtual int findLevel(double mu, int T) = 0;
     virtual double RelVar(double mu, double delta) = 0;
+
+    virtual string getName() = 0;
     virtual double RelVar(double mu) = 0;
 
 };

@@ -119,6 +119,7 @@ int main(int argc, char *argv[]) {
         vector<double> hbe_est = hbe.query(q);
         update(rs_results, rs_est, exact[idx]);
         update(hbe_results, hbe_est, exact[idx]);
+//        std::cout << rs_est[0] << "," << hbe_est[0] << "," << exact[idx] << std::endl;
     }
 
     std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;

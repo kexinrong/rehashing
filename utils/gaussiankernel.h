@@ -56,6 +56,7 @@ public:
 
     double RelVar(double mu, double delta) { return 4 * E1 * pow(mu, -delta); }
 
+    string getName() { return "gaussian"; }
     double RelVar(double mu) { return E2 / sqrt(mu); }
 };
 

@@ -54,6 +54,7 @@ public:
 
     double RelVar(double mu, double delta) { return pow(mu, -delta); }
 
+    string getName() { return "exp"; }
     double RelVar(double mu) { return E1 / sqrt(mu); }
 };
 

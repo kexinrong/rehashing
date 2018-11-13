@@ -25,6 +25,8 @@ public:
     std::vector<int> ki;
     std::vector<double> wi;
 
+    std::string EXP_STR = "exp";
+
     std::vector<double> query(VectorXd q) {
         auto t1 = std::chrono::high_resolution_clock::now();
         std::vector<double> returns(2, 0);

@@ -3,6 +3,7 @@
 //
 
 #include "AdaptiveHBE.h"
+#include "dataUtils.h"
 
 void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, double tau, double eps) {
     double tmp = log(1/ tau);
@@ -23,9 +24,15 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
         } else {
             mui[i] = (1 - gamma) * mui[i - 1];
         }
-        ti[i] = sqrt(log(1 / mui[i]));
-        ki[i] = (int) (3 * ceil(r * ti[i]));
-        wi[i] = ki[i] / ti[i] * SQRT_2PI;
+        // Exponential Kernel
+        if (k->getName() == EXP_STR) {
+            ki[i] = dataUtils::getPowerMu(mui[i], 0.5);
+            wi[i] = dataUtils::getWidth(ki[i], 0.5);
+        } else {         // Gaussian Kernel
+            ti[i] = sqrt(log(1 / mui[i]));
+            ki[i] = (int) (3 * ceil(r * ti[i]));
+            wi[i] = ki[i] / ti[i] * SQRT_2PI;
+        }
         Mi[i] = (int) (ceil(k->RelVar(mui[i]) / eps / eps));
 
         int t = int(Mi[i] * L * 1.1);
