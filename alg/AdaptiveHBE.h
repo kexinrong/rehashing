@@ -7,6 +7,7 @@
 
 #include <Eigen/Dense>
 #include "SketchLSH.h"
+#include "BaseLSH.h"
 #include "AdaptiveEstimator.h"
 #include "kernel.h"
 #include "math.h"
@@ -16,16 +17,12 @@ using Eigen::VectorXd;
 
 class AdaptiveHBE : public AdaptiveEstimator {
 public:
-    vector<SketchLSH> levels;
+    vector<BaseLSH> levels;
     double tau;
 
     AdaptiveHBE(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);
 
 protected:
-    std::vector<double> ti;
-    std::vector<int> ki;
-    std::vector<double> wi;
-
     std::vector<double> evaluateQuery(VectorXd q, int level, int maxSamples);
 
 private:

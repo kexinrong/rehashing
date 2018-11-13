@@ -15,6 +15,7 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
     ti = vector<double>(I);
     ki = vector<int>(I);
     wi = vector<double>(I);
+    int n = int(sqrt(X->rows()));
 
     for (int i = 0; i < I; i ++) {
         if (i == 0) {
@@ -27,10 +28,11 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
         wi[i] = ki[i] / ti[i] * SQRT_2PI;
         Mi[i] = (int) (ceil(k->RelVar(mui[i]) / eps / eps));
 
-        int t = int(Mi[i] * 1.1);
-        levels.push_back(SketchLSH(X, t, wi[i], ki[i], k, max(1, t/200)));
-//        std::cout << "Level " << i << ", samples " << Mi[i] <<
-//                  ", target: "<< mui[i] << ", k:" << ki[i] << ", w:" << wi[i] << std::endl;
+        int t = int(Mi[i] * L * 1.1);
+        levels.push_back(BaseLSH(X, t, wi[i], ki[i], 1, k, n));
+//        levels.push_back(SketchLSH(X, t, wi[i], ki[i], k, max(1, t/200)));
+        std::cout << "Level " << i << ", samples " << Mi[i] <<
+                  ", target: "<< mui[i] << ", k:" << ki[i] << ", w:" << wi[i] << std::endl;
     }
 }
 
@@ -41,9 +43,16 @@ AdaptiveHBE::AdaptiveHBE(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double
 
 
 std::vector<double> AdaptiveHBE::evaluateQuery(VectorXd q, int l, int maxSamples) {
+    // MoM
     std::vector<double> results = std::vector<double>(2, 0);
     results[1] = min(maxSamples, Mi[l]);
-    results[0] = levels[l].query(q, tau, results[1]);
+
+    std::vector<double> Z = std::vector<double>(L, 0);
+    for (int i = 0; i < L; i ++) {
+        Z[i] =  levels[l].query(q, tau, results[1]);
+    }
+
+    results[0] = mathUtils::median(Z);
     return results;
 }
 

@@ -18,8 +18,12 @@ public:
     double r;
     double gamma = 0.5;
     int I;
+    int L = 3;
     std::vector<double> mui;
     std::vector<int> Mi;
+    std::vector<double> ti;
+    std::vector<int> ki;
+    std::vector<double> wi;
 
     std::vector<double> query(VectorXd q) {
         auto t1 = std::chrono::high_resolution_clock::now();
@@ -31,7 +35,7 @@ public:
             est = results[0];
             returns[1] += Mi[i];
 
-            est /= Mi[i];
+//            std::cout << "Level: " << i << ", est: "<< est << std::endl;
             if (est >= mui[i]) {
                 break;
             } else {
@@ -44,6 +48,8 @@ public:
         totalTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
         return returns;
     }
+
+    void setMedians(int l) { L = l; }
 
 protected:
     virtual std::vector<double> evaluateQuery(VectorXd q, int level, int maxSamples) = 0;

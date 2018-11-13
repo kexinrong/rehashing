@@ -96,7 +96,7 @@ public:
         }
     }
 
-    HashTable(const HashTable &other, int nbuckets) {
+    HashTable(const HashTable &other, size_t nbuckets) {
         binWidth = other.binWidth;
         numHash = other.numHash;
         batchSize = other.batchSize;

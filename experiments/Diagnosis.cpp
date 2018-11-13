@@ -67,25 +67,34 @@ int main(int argc, char *argv[]) {
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
     AdaptiveRS rs(X_ptr, simpleKernel, tau, eps);
+    rs.setMedians(7);
 
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> distribution(0, N - 1);
 
     for (int iter = 0; iter < 10; iter ++) {
-        double diff = 0;
+        double reals = 0;
         double level = 0;
+        double rs_cost = 0;
+        double hbe_cost = 0;
         for (int j = 0; j < 100; j++) {
-            VectorXd q = X.row(distribution(rng));
+            VectorXd q = X_ptr->row(distribution(rng));
 
             vector<double> rs_est = rs.query(q);
+
             int target = rs.findTargetLevel(rs_est[0]);
+
             int real = rs.findActualLevel(q, rs_est[0], eps);
-            diff += target - real;
+            reals += real;
             level += target;
-//            std::cout << target << "," << real << std::endl;
+
+            rs_cost += rs.findRSRatio();
+            hbe_cost += rs.findHBERatio(q, target);
         }
-        std::cout << "diff:" << diff/100 << ", target: " << level / 100 << std::endl;
+//        std::cout << "real:" << reals/100 << ", target: " << level/100 << std::endl;
+        std::cout << "rs:" << rs_cost/100 << ", hbe: " << hbe_cost/100 << std::endl;
+
     }
 
 }
