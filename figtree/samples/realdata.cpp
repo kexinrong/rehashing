@@ -134,7 +134,7 @@ int main()
 //mnist
 //    int d = 784;
 //    int N = 70000;
-//    int M = 100;
+//    int M = 70000;
 // tmy
 //    int d = 8;
 //    int N = 1822080;
@@ -151,18 +151,67 @@ int main()
 //    int d = 9;
 //    int N = 43500;
 //    int M = 43500;
-// glove100d
-    int d = 100;
-    int N = 400000;
-    int M = 100000;
+// ijcnn
+//    int d = 22;
+//    int N = 141691;
+//    int M = 100000;
+// skin
+//    int d = 3;
+//    int N = 245057;
+//    int M = 100000;
+// acoustic
+//    int d = 50;
+//    int N = 78823;
+//    int M = 78823;
+// codrna
+//    int d = 8;
+//    int N = 59535;
+//    int M = 59535;
+// corel
+    int d = 32;
+    int N = 68040;
+    int M = 68040;
+// elevator
+//    int d = 18;
+//    int N = 16599;
+//    int M = 16599;
+// hep
+//    int d = 27;
+//    int N = 10500000;
+//    int M = 100000;
+// higgs
+//    int d = 28;
+//    int N = 11000000;
+//    int M = 100000;
+// housing
+//    int d = 8;
+//    int N = 20640;
+//    int M = 20640;
+// msd
+//    int d = 90;
+//    int N = 463715;
+//    int M = 100000;
+// poker
+//    int d = 10;
+//    int N = 25010;
+//    int M = 25010;
+// sensorless
+//    int d = 48;
+//    int N = 58509;
+//    int M = 58509;
+// susy
+//    int d = 18;
+//    int N = 5000000;
+//    int M = 100000;
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double scaleFactor = pow(N, -1.0/(d+4));
-    double multiplier = 2.5;
-    double h = sqrt(2) * scaleFactor * multiplier;
+    double multiplier = 1.5;
+    //double h = sqrt(2) * scaleFactor * multiplier;
+    double h = sqrt(2) * multiplier;
     std::cout << "h=" << h << std::endl;
 
     // Desired maximum absolute error after normalizing output by sum of weights.
@@ -178,23 +227,60 @@ int main()
     // a 7-dimensional sample.
     long size = N * d;
     double *x = new double[size];
-    readFile("../../resources/data/glove.6B.100d_normed.txt", false, N, 0, 99, &x[0]);
 //    readFile("../../resources/data/shuttle_normed.csv", true, N, 1, 9, &x[0]);
 //    readFile("../../resources/data/home_normed.csv", true, N, 4, 13, &x[0]);
+//    readFile("../../resources/data/ijcnn_scaled.csv", false, N, 0, 21, &x[0]);
+//    readFile("../../resources/data/skin_scaled.csv", false, N, 0, 2, &x[0]);
 //    readFile("../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
 //    readFile("../../resources/data/tmy_normed.csv", true, N, 1, 8, &x[0]);
 //    readFile("../../resources/data/mnist_normed.csv", true, N, 1, 8, &x[0]);
+//    readFile("../../resources/data/acoustic_normed.csv", false, N, 0, 49, &x[0]);
+//    readFile("../../resources/data/codrna_normed.csv", false, N, 0, 7, &x[0]);
+    readFile("../../resources/data/corel_normed.csv", true, N, 3, 34, &x[0]);
+//    readFile("../../resources/data/elevator_normed.csv", true, N, 1, 18, &x[0]);
+//    readFile("../../resources/data/hep_normed.csv", true, N, 2, 28, &x[0]);
+//    readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
+//    readFile("../../resources/data/housing_normed.csv", true, N, 1, 8, &x[0]);
+//    readFile("../../resources/data/msd_scaled.csv", false, N, 0, 89, &x[0]);
+//    readFile("../../resources/data/poker_scaled.csv", false, N, 0, 9, &x[0]);
+//    readFile("../../resources/data/sensorless_scaled.csv", false, N, 0, 47, &x[0]);
+//    readFile("../../resources/data/susy_normed.csv", true, N, 1, 18, &x[0]);
+
     //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
     // ( y[j*d], y[j*d+1], ..., y[j*d+d-1]f ) is the jth d-dimensional sample.
     // For example, below M = 10 and d = 7, so there are 10 rows, each
     // a 7-dimensional sample.
+    double *exact = new double[M * 2];
+    //readFile("../../resources/exact/shuttle_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/home_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/ijcnn_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/skin_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/tmy_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/covtype_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/mnist_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/acoustic_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/codrna_gaussian.txt", false, M, 0, 1, &exact[0]);
+    readFile("../../resources/exact/corel_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/elevator_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/hep_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/higgs_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/housing_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/msd_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/poker_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/sensorless_gaussian.txt", false, M, 0, 1, &exact[0]);
+//    readFile("../../resources/exact/susy_gaussian.txt", false, M, 0, 1, &exact[0]);
+
+
     size = M * d;
     double *y = new double[size];
-    for (size_t i = 0; i < size; i ++) { y[i] = x[i]; }
-
-
+    for (size_t j = 0; j < M; j++) {
+        int idx = int(exact[j*2+1]);
+        for (size_t i = 0; i < d; i ++) {
+            y[j*d+i] = x[idx*d +i];
+        }
+    }
     // The weight array.  The ith weight is associated with the ith source sample.
     // To evaluate the Gauss Transform with the same sources and targets, but
     // different sets of weights, add another row of weights and set W = 2.
@@ -210,21 +296,9 @@ int main()
     // with the first set of weights, second M elements will correspond to the G.T. computed
     // with the second set of weights, etc.ha
     double * g_auto = new double[W*M];
-    double * g_sf = new double[W*M];
-    double * g_sf_tree = new double[W*M];
-    double * g_ifgt_u = new double[W*M];
-    double * g_ifgt_tree_u = new double[W*M];
-    double * g_ifgt_nu = new double[W*M];
-    double * g_ifgt_tree_nu = new double[W*M];
 
     // initialize all output arrays to zero
     memset( g_auto        , 0, sizeof(double)*W*M );
-    memset( g_sf          , 0, sizeof(double)*W*M );
-    memset( g_sf_tree     , 0, sizeof(double)*W*M );
-    memset( g_ifgt_u      , 0, sizeof(double)*W*M );
-    memset( g_ifgt_tree_u , 0, sizeof(double)*W*M );
-    memset( g_ifgt_nu     , 0, sizeof(double)*W*M );
-    memset( g_ifgt_tree_nu, 0, sizeof(double)*W*M );
 
     //
     // RECOMMENDED way to call figtree().
@@ -242,39 +316,6 @@ int main()
     clock_t t2 = clock();
     std::cout << "FIGTREE auto: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
-    // evaluate gauss transform using direct method with approximate nearest neighbors
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf_tree, FIGTREE_EVAL_DIRECT_TREE );
-//    t2 = clock();
-//    std::cout << "FIGTREE direct ANN: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//
-//    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
-//    //   the assumption that sources are uniformly distributed
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_u, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_nu, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_NON_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//
-//    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
-//    //   the assumption that sources are uniformly distributed
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_u, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated tree uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_nu, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_NON_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated tree nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-
-
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
 //    std::ofstream myfile("../../resources/shuttle_gaussian.txt");
 //    std::ofstream myfile("../../resources/home_gaussian.txt");
@@ -282,22 +323,21 @@ int main()
 //    std::ofstream myfile("../../resources/tmy_gaussian.txt");
 //    std::ofstream myfile("../../resources/mnist_gaussian.txt");
 //    std::ofstream outfile("covtype.txt");
-    std::ofstream outfile("glove.100d.txt");
+    double err = 0;
     for( int i = 0; i < M; i++) {
-        outfile << g_auto[i] << "\n";
+        err += fabs(g_auto[i] - exact[i*2]) / exact[i*2];
+//        if (i < 10) {
+//            std::cout << g_auto[i] << "," << exact[i*2] << std::endl;
+//        }
+//        outfile << g_auto[i] << "\n";
     }
-    outfile.close();
+    std::cout << "Relative Error: " << err / M << std::endl;
+//    outfile.close();
 
     // deallocate memory
     delete [] x;
     delete [] y;
     delete [] q;
     delete [] g_auto;
-    delete [] g_sf;
-    delete [] g_sf_tree;
-    delete [] g_ifgt_u;
-    delete [] g_ifgt_nu;
-    delete [] g_ifgt_tree_u;
-    delete [] g_ifgt_tree_nu;
     return 0;
 }
