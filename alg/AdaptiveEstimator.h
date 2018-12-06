@@ -35,7 +35,7 @@ public:
         while (i < I) {
             std::vector<double> results = evaluateQuery(q, i, Mi[i]);
             est = results[0];
-            returns[1] += Mi[i];
+            returns[1] += L * Mi[i];
 
 //            std::cout << "Level: " << i << ", est: "<< est << std::endl;
             if (est >= mui[i]) {

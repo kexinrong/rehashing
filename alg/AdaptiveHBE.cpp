@@ -38,8 +38,8 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
         int t = int(Mi[i] * L * 1.1);
         levels.push_back(BaseLSH(X, t, wi[i], ki[i], 1, k, n));
 //        levels.push_back(SketchLSH(X, t, wi[i], ki[i], k, max(1, t/200)));
-        std::cout << "Level " << i << ", samples " << Mi[i] <<
-                  ", target: "<< mui[i] << ", k:" << ki[i] << ", w:" << wi[i] << std::endl;
+//        std::cout << "Level " << i << ", samples " << Mi[i] <<
+//                  ", target: "<< mui[i] << ", k:" << ki[i] << ", w:" << wi[i] << std::endl;
     }
 }
 

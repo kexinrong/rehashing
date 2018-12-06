@@ -4,6 +4,7 @@
 
 #include "AdaptiveRS.h"
 #include "dataUtils.h"
+#include "mathUtils.h"
 
 void AdaptiveRS::buildLevels(double tau, double eps) {
     double tmp = log(1/ tau);
@@ -23,15 +24,7 @@ void AdaptiveRS::buildLevels(double tau, double eps) {
         } else {
             mui[i] = (1 - gamma) * mui[i - 1];
         }
-        if (kernel->getName() == EXP_STR) {
-            ki[i] = dataUtils::getPowerMu(mui[i], 0.5);
-            wi[i] = dataUtils::getWidth(ki[i], 0.5);
-        } else {         // Gaussian Kernel
-            ti[i] = sqrt(log(1 / mui[i]));
-            ki[i] = (int) (3 * ceil(r * ti[i]));
-            wi[i] = ki[i] / ti[i] * SQRT_2PI;
-        }
-        Mi[i] = (int) (ceil(kernel->RelVar(mui[i]) / eps / eps));
+        Mi[i] = (int) (ceil(mathUtils::randomRelVar(mui[i]) / eps / eps));
 //        std::cout << "Level " << i << ", samples " << Mi[i] <<
 //            ", target: "<< mui[i] << std::endl;
     }
@@ -41,6 +34,12 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double t
     X = data;
     kernel = k;
     numPoints = data->rows();
+    if (kernel->getName() == EXP_STR) {
+        double diam = dataUtils::estimateDiameter(data, tau);
+        exp_k = dataUtils::getPower(diam, 0.5);
+        exp_w = dataUtils::getWidth(exp_k, 0.5);
+    }
+
     buildLevels(tau, eps);
 }
 
@@ -67,6 +66,12 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samp
     }
     kernel = k;
     numPoints = samples;
+
+    if (kernel->getName() == EXP_STR) {
+        double diam = dataUtils::estimateDiameter(data, tau);
+        exp_k = dataUtils::getPower(diam, 0.5);
+        exp_w = dataUtils::getWidth(exp_k, 0.5);
+    }
     buildLevels(tau, eps);
 }
 
@@ -102,27 +107,30 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level, int maxSamp
     return results;
 }
 
-double AdaptiveRS::findRSRatio() {
+double AdaptiveRS::findRSRatio(double est, double eps) {
+    double thresh = min(est * eps / 10, 1.0 /numPoints);
+  //  std::cout << "thresh: " << thresh << std::endl;
     double mmin = contrib[0];
     double mmax = contrib[0];
     for (size_t i = 1; i < contrib.size(); i ++) {
-        mmin = min(max(contrib[i], 1.0 / numPoints), mmin);
+        mmin = min(max(contrib[i], thresh), mmin);
         mmax = max(contrib[i], mmax);
     }
     return mmax / mmin;
 }
 
-double AdaptiveRS::findHBERatio(VectorXd &q, int level) {
+double AdaptiveRS::findHBERatio(VectorXd &q, int level, double est, double eps) {
+    double thresh = min(est * eps / 10, 1.0 /numPoints);
     double mmin = 1;
     double mmax = 0;
     for (size_t i = 0; i < samples.size(); i ++) {
-        if (contrib[i] < 1.0 / numPoints) {
+        if (contrib[i] < thresh) {
             continue;
         }
         int idx = samples[i];
         VectorXd delta = X->row(idx) - q.transpose();
-        double c = delta.norm() / wi[level];
-        double p = mathUtils::collisionProb(c, ki[level]);
+        double c = delta.norm() / exp_w;
+        double p = mathUtils::collisionProb(c, exp_k);
         double k_i = contrib[i] / p / p;
         double k_j = contrib[i] / p;
         if (mmax == 0) {
