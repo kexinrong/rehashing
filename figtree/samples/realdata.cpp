@@ -42,6 +42,8 @@
 #include "figtree.h"
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
 #include <algorithm>    // std::max
+#include <map>
+#include <vector>
 
 // This file only shows examples of how the figtree() function can be used.
 //
@@ -125,56 +127,97 @@ void fitCube(double* data, int n, int d) {
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
     // The dimensionality of each sample vector.
     // The number of targets (vectors at which gauss transform is evaluated).
     // The number of sources which will be used for the gauss transform.
 
-//mnist
-//    int d = 784;
-//    int N = 70000;
-//    int M = 70000;
-// tmy
-//    int d = 8;
-//    int N = 1822080;
-//    int M = 100000;
-// covtype
-//    int d = 54;
-//    int N = 581012;
-//    int M = 581012;
-// home
-//    int d = 10;
-//    int N = 928991;
-//    int M = 100000;
-// shuttle
-//    int d = 9;
-//    int N = 43500;
-//    int M = 43500;
-// ijcnn
-//    int d = 22;
-//    int N = 141691;
-//    int M = 100000;
-// skin
-//    int d = 3;
-//    int N = 245057;
-//    int M = 100000;
-// acoustic
-//    int d = 50;
-//    int N = 78823;
-//    int M = 78823;
-// codrna
-//    int d = 8;
-//    int N = 59535;
-//    int M = 59535;
-// corel
-    int d = 32;
-    int N = 68040;
-    int M = 68040;
-// elevator
-//    int d = 18;
-//    int N = 16599;
-//    int M = 16599;
+    int d, N, M;
+    double multiplier = 1;
+    double h = 0;
+    std::string ds(argv[1]);
+    if (strcmp(argv[1], "mnist") == 0) {
+        d = 784;
+        N = 70000;
+        M = 70000;
+        multiplier = 10;
+    } else if (strcmp(argv[1], "tmy") == 0) {
+        d = 8;
+        N = 1822080;
+        M = 100000;
+        multiplier = 2;
+    } else if (strcmp(argv[1], "covtype") == 0) {
+        d = 54;
+        N = 581012;
+        M = 581012;
+        h = 2.81237;
+    } else if (strcmp(argv[1], "home") == 0) {
+        d = 10;
+        N = 928991;
+        M = 100000;
+        multiplier = 0.6;
+    } else if (strcmp(argv[1], "shuttle") == 0) {
+        d = 9;
+        N = 43500;
+        M = 43500;
+    } else if (strcmp(argv[1], "ijcnn") == 0) {
+        d = 22;
+        N = 141691;
+        M = 100000;
+        multiplier = 1.5;
+    } else if (strcmp(argv[1], "skin") == 0) {
+        d = 3;
+        N = 245057;
+        M = 100000;
+        multiplier = .2;
+    } else if (strcmp(argv[1], "acoustic") == 0) {
+        d = 50;
+        N = 78823;
+        M = 78823;
+    } else if (strcmp(argv[1], "codrna") == 0) {
+        d = 8;
+        N = 59535;
+        M = 59535;
+        multiplier = 0.5;
+    } else if (strcmp(argv[1], "corel") == 0) {
+        d = 32;
+        N = 68040;
+        M = 68040;
+        multiplier = 1.5;
+    } else if (strcmp(argv[1], "elevator") == 0) {
+        d = 18;
+        N = 16599;
+        M = 16599;
+        multiplier = 1.5;
+    } else if (strcmp(argv[1], "housing") == 0) {
+        d = 8;
+        N = 20640;
+        M = 20640;
+    } else if (strcmp(argv[1], "msd") == 0) {
+        d = 90;
+        N = 463715;
+        M = 100000;
+        multiplier = 3;
+    } else if (strcmp(argv[1], "poker") == 0) {
+        d = 10;
+        N = 25010;
+        M = 25010;
+        multiplier = 2;
+    } else if (strcmp(argv[1], "sensorless") == 0) {
+        d = 48;
+        N = 58509;
+        M = 58509;
+        multiplier = 2;
+    } else if (strcmp(argv[1], "susy") == 0) {
+        d = 18;
+        N = 5000000;
+        M = 100000;
+        multiplier = 4;
+    }
+
+
+
 // hep
 //    int d = 27;
 //    int N = 10500000;
@@ -183,43 +226,30 @@ int main()
 //    int d = 28;
 //    int N = 11000000;
 //    int M = 100000;
-// housing
-//    int d = 8;
-//    int N = 20640;
-//    int M = 20640;
-// msd
-//    int d = 90;
-//    int N = 463715;
-//    int M = 100000;
-// poker
-//    int d = 10;
-//    int N = 25010;
-//    int M = 25010;
-// sensorless
-//    int d = 48;
-//    int N = 58509;
-//    int M = 58509;
-// susy
-//    int d = 18;
-//    int N = 5000000;
-//    int M = 100000;
+
+
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double scaleFactor = pow(N, -1.0/(d+4));
-    double multiplier = 1.5;
     //double h = sqrt(2) * scaleFactor * multiplier;
-    double h = sqrt(2) * multiplier;
-    std::cout << "h=" << h << std::endl;
+    if (h == 0) {
+        h = sqrt(2) * multiplier;
+    }
 
     // Desired maximum absolute error after normalizing output by sum of weights.
     // If the weights, q_i (see below), add up to 1, then this is will be the
     // maximum absolute error.
     // The smaller epsilon is, the more accurate the results will be, at the
     // expense of increased computational complexity.
-    double epsilon = 0.01;
+    double epsilon = atof(argv[2]);
+
+    std::cout << "dataset=" << ds << std::endl;
+    std::cout << "epsilon=" << epsilon << std::endl;
+    std::cout << "h=" << h << std::endl;
+
 
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
@@ -227,25 +257,42 @@ int main()
     // a 7-dimensional sample.
     long size = N * d;
     double *x = new double[size];
-//    readFile("../../resources/data/shuttle_normed.csv", true, N, 1, 9, &x[0]);
-//    readFile("../../resources/data/home_normed.csv", true, N, 4, 13, &x[0]);
-//    readFile("../../resources/data/ijcnn_scaled.csv", false, N, 0, 21, &x[0]);
-//    readFile("../../resources/data/skin_scaled.csv", false, N, 0, 2, &x[0]);
-//    readFile("../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
-//    readFile("../../resources/data/tmy_normed.csv", true, N, 1, 8, &x[0]);
-//    readFile("../../resources/data/mnist_normed.csv", true, N, 1, 8, &x[0]);
-//    readFile("../../resources/data/acoustic_normed.csv", false, N, 0, 49, &x[0]);
-//    readFile("../../resources/data/codrna_normed.csv", false, N, 0, 7, &x[0]);
-    readFile("../../resources/data/corel_normed.csv", true, N, 3, 34, &x[0]);
-//    readFile("../../resources/data/elevator_normed.csv", true, N, 1, 18, &x[0]);
+
+    if (strcmp(argv[1], "shuttle") == 0) {
+        readFile("../../resources/data/shuttle_normed.csv", true, N, 1, 9, &x[0]);
+    } else if (strcmp(argv[1], "home") == 0) {
+        readFile("../../resources/data/home_normed.csv", true, N, 4, 13, &x[0]);
+    } else if (strcmp(argv[1], "ijcnn") == 0) {
+        readFile("../../resources/data/ijcnn_scaled.csv", false, N, 0, 21, &x[0]);
+    } else if (strcmp(argv[1], "skin") == 0) {
+        readFile("../../resources/data/skin_scaled.csv", false, N, 0, 2, &x[0]);
+    } else if (strcmp(argv[1], "covtype") == 0) {
+        readFile("../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
+    } else if (strcmp(argv[1], "tmy") == 0) {
+        readFile("../../resources/data/tmy_normed.csv", true, N, 1, 8, &x[0]);
+    } else if (strcmp(argv[1], "mnist") == 0) {
+        readFile("../../resources/data/mnist_normed.csv", true, N, 3, 786, &x[0]);
+    } else if (strcmp(argv[1], "acoustic") == 0) {
+        readFile("../../resources/data/acoustic_normed.csv", false, N, 0, 49, &x[0]);
+    } else if (strcmp(argv[1], "codrna") == 0) {
+        readFile("../../resources/data/codrna_normed.csv", false, N, 0, 7, &x[0]);
+    } else if (strcmp(argv[1], "corel") == 0) {
+        readFile("../../resources/data/corel_normed.csv", true, N, 3, 34, &x[0]);
+    } else if (strcmp(argv[1], "elevator") == 0) {
+        readFile("../../resources/data/elevator_normed.csv", true, N, 1, 18, &x[0]);
+    } else if (strcmp(argv[1], "housing") == 0) {
+        readFile("../../resources/data/housing_normed.csv", true, N, 1, 8, &x[0]);
+    } else if (strcmp(argv[1], "msd") == 0) {
+        readFile("../../resources/data/msd_scaled.csv", false, N, 0, 89, &x[0]);
+    } else if (strcmp(argv[1], "poker") == 0) {
+        readFile("../../resources/data/poker_scaled.csv", false, N, 0, 9, &x[0]);
+    } else if (strcmp(argv[1], "sensorless") == 0) {
+        readFile("../../resources/data/sensorless_scaled.csv", false, N, 0, 47, &x[0]);
+    } else if (strcmp(argv[1], "susy") == 0) {
+        readFile("../../resources/data/susy_normed.csv", true, N, 1, 18, &x[0]);
+    }
 //    readFile("../../resources/data/hep_normed.csv", true, N, 2, 28, &x[0]);
 //    readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
-//    readFile("../../resources/data/housing_normed.csv", true, N, 1, 8, &x[0]);
-//    readFile("../../resources/data/msd_scaled.csv", false, N, 0, 89, &x[0]);
-//    readFile("../../resources/data/poker_scaled.csv", false, N, 0, 9, &x[0]);
-//    readFile("../../resources/data/sensorless_scaled.csv", false, N, 0, 47, &x[0]);
-//    readFile("../../resources/data/susy_normed.csv", true, N, 1, 18, &x[0]);
-
     //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
@@ -253,25 +300,8 @@ int main()
     // For example, below M = 10 and d = 7, so there are 10 rows, each
     // a 7-dimensional sample.
     double *exact = new double[M * 2];
-    //readFile("../../resources/exact/shuttle_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/home_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/ijcnn_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/skin_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/tmy_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/covtype_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/mnist_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/acoustic_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/codrna_gaussian.txt", false, M, 0, 1, &exact[0]);
-    readFile("../../resources/exact/corel_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/elevator_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/hep_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/higgs_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/housing_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/msd_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/poker_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/sensorless_gaussian.txt", false, M, 0, 1, &exact[0]);
-//    readFile("../../resources/exact/susy_gaussian.txt", false, M, 0, 1, &exact[0]);
-
+    std::string fname = "../../resources/exact/" + ds + "_gaussian.txt";
+    readFile(fname, false, M, 0, 1, &exact[0]);
 
     size = M * d;
     double *y = new double[size];
@@ -317,11 +347,6 @@ int main()
     std::cout << "FIGTREE auto: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
-//    std::ofstream myfile("../../resources/shuttle_gaussian.txt");
-//    std::ofstream myfile("../../resources/home_gaussian.txt");
-//    std::ofstream myfile("../../resources/covtype_gaussian.txt");
-//    std::ofstream myfile("../../resources/tmy_gaussian.txt");
-//    std::ofstream myfile("../../resources/mnist_gaussian.txt");
 //    std::ofstream outfile("covtype.txt");
     double err = 0;
     for( int i = 0; i < M; i++) {
@@ -332,6 +357,8 @@ int main()
 //        outfile << g_auto[i] << "\n";
     }
     std::cout << "Relative Error: " << err / M << std::endl;
+    std::cout << "-----------------------------" << std::endl;
+
 //    outfile.close();
 
     // deallocate memory
