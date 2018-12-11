@@ -6,7 +6,30 @@
 #include <fstream>
 #include "dataUtils.h"
 #include "parseConfig.h"
+#include "expkernel.h"
+#include "gaussiankernel.h"
+#include "mathUtils.h"
+#include "dataUtils.h"
+#include "bandwidth.h"
 #include <chrono>
+
+void checkBandwidth(parseConfig &cfg, char* scope, double h) {
+    int N = cfg.getN();
+    int dim = cfg.getDim();
+    MatrixXd X = dataUtils::readFile(
+            cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
+    auto band = make_unique<Bandwidth>(N, dim);
+    band->useConstant(h);
+    shared_ptr<Kernel> kernel;
+    if (strcmp(scope, "gaussian") == 0) {
+        kernel = make_shared<Gaussiankernel>(dim);
+    } else {
+        kernel = make_shared<Expkernel>(dim);
+    }
+    kernel->initialize(band->bw);
+    const double eps = cfg.getEps();
+    dataUtils::checkBandwidthSamples(X, eps, kernel);
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -37,6 +60,8 @@ int main(int argc, char *argv[]) {
     double *x = new double[N * d];
     dataUtils::readFile(cfg.getDataFile(), cfg.ignoreHeader(), N,
             cfg.getStartCol(), cfg.getEndCol(), &x[0]);
+    // Check bandwidth
+    checkBandwidth(cfg, scope, h);
 
     int hasQuery = strcmp(cfg.getDataFile(), cfg.getQueryFile());
 
