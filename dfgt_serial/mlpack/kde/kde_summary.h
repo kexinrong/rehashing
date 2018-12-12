@@ -17,7 +17,7 @@ class KdeSummary {
   private:
 
     // For Boost serialization.
-    friend class boost::serialization::access;
+    friend class ::boost::serialization::access;
 
     /** @brief Determines whether the contribution of the reference
      *         node can be approximated using series expansion.

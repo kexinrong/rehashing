@@ -101,7 +101,7 @@ class KdeGlobal {
 
     /** @brief The normal distribution object.
      */
-    boost::math::normal normal_dist_;
+    ::boost::math::normal normal_dist_;
 
     /** @brief The scratch space for doing a Monte Carlo sum.
      */
@@ -184,7 +184,7 @@ class KdeGlobal {
         return 3;
       }
       else {
-        return boost::math::quantile(normal_dist_, mass);
+        return ::boost::math::quantile(normal_dist_, mass);
       }
     }
 

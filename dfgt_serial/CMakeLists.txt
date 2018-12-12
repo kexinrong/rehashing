@@ -15,14 +15,16 @@ find_package(LAPACK REQUIRED)  # LAPACK finds BLAS as a dependency
 find_package(Pthreads REQUIRED)
 
 # Set the directory for looking for local installations.
-set(Local_ROOT "$ENV{HOME}/local")
+#set(Local_ROOT "$ENV{HOME}/local")
+set(Local_ROOT "/usr/local")
 
 # include boost.
-set(Boost_ROOT "${Local_ROOT}/boost")
-set(Boost_LIB_DIR "${Boost_ROOT}/stage/lib")
-set(Boost_INCLUDE_DIRS "${Boost_ROOT}")
+#set(Boost_ROOT "${Local_ROOT}/boost")
+#set(Boost_LIB_DIR "${Boost_ROOT}/stage/lib")
+set(Boost_LIB_DIR "/lfs/1/krong/local_lib")
+#set(Boost_INCLUDE_DIRS "${Boost_ROOT}")
 set(Boost_LIBRARIES "${Boost_LIB_DIR}/libboost_program_options.a;${Boost_LIB_DIR}/libboost_mpi.a;${Boost_LIB_DIR}/libboost_serialization.a;${Boost_LIB_DIR}/libboost_system.a;${Boost_LIB_DIR}/libboost_thread.a;${Boost_LIB_DIR}/libboost_unit_test_framework.a")
-#set(Boost_USE_STATIC_LIBS   ON)
+set(Boost_USE_STATIC_LIBS   ON)
 #find_package(Boost COMPONENTS program_options mpi serialization system thread unit_test_framework REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 
@@ -57,12 +59,10 @@ include_directories(${TRILINOS_INCLUDE_DIR})
 include_directories(${MPI_INCLUDE_DIR})
 
 # for a local installation of armadillo
-include_directories(${Local_ROOT}/armadillo/include)
-link_directories(${Local_ROOT}/armadillo/lib)
+include_directories(${Local_ROOT}/include/armadillo)
 
 # for a local installation of gsl
-include_directories(${Local_ROOT}/gsl/include)
-link_directories(${Local_ROOT}/gsl/lib)
+include_directories(${Local_ROOT}/include/gsl)
 
 # distclean option because cmake doesn't support it
 include(CMake/TargetDistclean.cmake OPTIONAL)

@@ -211,7 +211,7 @@ class TestKde {
 
       // Parse the KDE arguments.
       mlpack::kde::KdeArguments<TableType> kde_arguments;
-      boost::program_options::variables_map vm;
+      ::boost::program_options::variables_map vm;
       mlpack::kde::KdeArgumentParser::ConstructBoostVariableMap(args, &vm);
       mlpack::kde::KdeArgumentParser::ParseArguments(vm, &kde_arguments);
 

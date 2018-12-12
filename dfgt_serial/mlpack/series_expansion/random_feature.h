@@ -26,7 +26,7 @@ class RandomFeature {
       const TableType *table_;
       bool do_centering_;
       const core::monte_carlo::MeanVariancePairMatrix *global_mean_;
-      const boost::scoped_array< arma::vec > *random_variates_;
+      const ::boost::scoped_array< arma::vec > *random_variates_;
       core::monte_carlo::MeanVariancePairMatrix *covariance_transformation_;
       core::monte_carlo::MeanVariancePairMatrix *average_transformation_;
       arma::mat *table_projections_;
@@ -49,7 +49,7 @@ class RandomFeature {
         int begin,
         int end,
         const TableType &table_in,
-        const boost::scoped_array<arma::vec> &random_variates,
+        const ::boost::scoped_array<arma::vec> &random_variates,
         int num_random_fourier_features,
         core::monte_carlo::MeanVariancePairMatrix *average_transformation) {
 
@@ -67,7 +67,7 @@ class RandomFeature {
         const TableType &table_in,
         bool do_centering,
         const core::monte_carlo::MeanVariancePairMatrix &global_mean,
-        const boost::scoped_array< arma::vec > &random_variates,
+        const ::boost::scoped_array< arma::vec > &random_variates,
         int num_random_fourier_features,
         core::monte_carlo::MeanVariancePairMatrix *covariance_transformation,
         arma::mat *table_projections) {
@@ -168,7 +168,7 @@ class RandomFeature {
     static void ThreadedNormalizedAverageTransform(
       int num_threads,
       const TableType &table_in,
-      const boost::scoped_array< arma::vec > &random_variates,
+      const ::boost::scoped_array< arma::vec > &random_variates,
       int num_random_fourier_features,
       core::monte_carlo::MeanVariancePairMatrix *average_transformation_in) {
 
@@ -179,7 +179,7 @@ class RandomFeature {
       // Basically, store sub-results and combine them later after all
       // threads are joined.
       std::vector < RandomFeatureArgument > tmp_arguments(num_threads);
-      boost::scoped_array<core::monte_carlo::MeanVariancePairMatrix>
+      ::boost::scoped_array<core::monte_carlo::MeanVariancePairMatrix>
       sub_average_transformations(
         new core::monte_carlo::MeanVariancePairMatrix[num_threads]);
 
@@ -214,7 +214,7 @@ class RandomFeature {
       const TableType &table_in,
       bool do_centering,
       const core::monte_carlo::MeanVariancePairMatrix &global_mean,
-      const boost::scoped_array< arma::vec > &random_variates,
+      const ::boost::scoped_array< arma::vec > &random_variates,
       int num_random_fourier_features,
       core::monte_carlo::MeanVariancePairMatrix *covariance_transformation,
       arma::mat *table_projections) {
@@ -226,7 +226,7 @@ class RandomFeature {
       // Basically, store sub-results and combine them later after all
       // threads are joined.
       std::vector <RandomFeatureArgument > tmp_arguments(num_threads);
-      boost::scoped_array<core::monte_carlo::MeanVariancePairMatrix>
+      ::boost::scoped_array<core::monte_carlo::MeanVariancePairMatrix>
       sub_covariance_transformations(
         new core::monte_carlo::MeanVariancePairMatrix[num_threads]);
 
@@ -317,7 +317,7 @@ class RandomFeature {
     static void AccumulateRotationTransform(
       const TableType &table_in,
       const arma::mat &covariance_eigenvectors,
-      const boost::scoped_array< arma::vec > &random_variates,
+      const ::boost::scoped_array< arma::vec > &random_variates,
       int num_random_fourier_features,
       core::monte_carlo::MeanVariancePairMatrix *accumulants) {
 
@@ -355,7 +355,7 @@ class RandomFeature {
       const TableType &table_in,
       const arma::mat &weights_in,
       int num_reference_samples,
-      const boost::scoped_array< arma::vec > &random_variates,
+      const ::boost::scoped_array< arma::vec > &random_variates,
       int num_random_fourier_features,
       const core::monte_carlo::MeanVariancePairMatrix &global_mean,
       std::vector<int> *random_combination,
@@ -392,7 +392,7 @@ class RandomFeature {
 
     static void SumTransform(
       const TableType &table_in,
-      const boost::scoped_array< arma::vec > &random_variates,
+      const ::boost::scoped_array< arma::vec > &random_variates,
       int num_random_fourier_features,
       arma::vec *sum_transformations) {
 
@@ -412,7 +412,7 @@ class RandomFeature {
 
     static void Transform(
       const arma::vec &point_in,
-      const boost::scoped_array< arma::vec > &random_variates,
+      const ::boost::scoped_array< arma::vec > &random_variates,
       int num_random_fourier_features,
       arma::vec *point_out) {
 
@@ -427,7 +427,7 @@ class RandomFeature {
     template<typename PointType>
     static void Transform(
       const TableType &table_in,
-      const boost::scoped_array< PointType > &random_variates,
+      const ::boost::scoped_array< PointType > &random_variates,
       int num_random_fourier_features,
       bool normalize,
       TableType *table_out) {

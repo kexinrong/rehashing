@@ -15,7 +15,7 @@
 #include "mlpack/series_expansion/kernel_aux.h"
 
 template<typename KernelAuxType>
-void StartComputation(boost::program_options::variables_map &vm) {
+void StartComputation(::boost::program_options::variables_map &vm) {
 
   // Tree type: hard-coded for a metric tree.
   typedef core::table::Table <
@@ -58,7 +58,7 @@ void StartComputation(boost::program_options::variables_map &vm) {
 
 int main(int argc, char *argv[]) {
 
-  boost::program_options::variables_map vm;
+  ::boost::program_options::variables_map vm;
   if(mlpack::kde::KdeArgumentParser::ConstructBoostVariableMap(
         argc, argv, &vm)) {
     return 0;

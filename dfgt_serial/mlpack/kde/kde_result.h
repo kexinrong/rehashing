@@ -17,7 +17,7 @@ class KdeResult {
   private:
 
     // For BOOST serialization.
-    friend class boost::serialization::access;
+    friend class ::boost::serialization::access;
 
     typedef std::vector<double> ContainerType;
 

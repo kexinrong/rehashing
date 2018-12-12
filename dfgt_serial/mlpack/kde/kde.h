@@ -27,17 +27,17 @@ class KdeArgumentParser {
   public:
     template<typename TableType>
     static bool ParseArguments(
-      boost::program_options::variables_map &vm,
+      ::boost::program_options::variables_map &vm,
       mlpack::kde::KdeArguments<TableType> *arguments_out);
 
     static bool ConstructBoostVariableMap(
       const std::vector<std::string> &args,
-      boost::program_options::variables_map *vm);
+      ::boost::program_options::variables_map *vm);
 
     static bool ConstructBoostVariableMap(
       int argc,
       char *argv[],
-      boost::program_options::variables_map *vm);
+      ::boost::program_options::variables_map *vm);
 };
 
 /** @brief The main entry point of the KDE that manages the

@@ -18,7 +18,7 @@ class KdeStatistic {
   private:
 
     // For Boost serialization.
-    friend class boost::serialization::access;
+    friend class ::boost::serialization::access;
 
   public:
 
@@ -144,7 +144,7 @@ template<enum mlpack::series_expansion::CartesianExpansionType ExpansionType >
 struct tracking_level <
     mlpack::kde::KdeStatistic<ExpansionType> > {
   typedef mpl::integral_c_tag tag;
-  typedef mpl::int_< boost::serialization::track_never > type;
+  typedef mpl::int_< ::boost::serialization::track_never > type;
   BOOST_STATIC_CONSTANT(
     int,
     value = tracking_level::type::value

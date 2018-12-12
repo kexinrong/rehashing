@@ -27,7 +27,7 @@ class ReducedSetFarField {
   private:
 
     // For Boost serialization.
-    friend class boost::serialization::access;
+    friend class ::boost::serialization::access;
 
     /** @brief The current kernel matrix.
      */

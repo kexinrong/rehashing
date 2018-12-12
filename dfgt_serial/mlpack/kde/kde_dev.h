@@ -121,7 +121,7 @@ void Kde<TableType, KernelAuxType>::set_bandwidth(double bandwidth_in) {
 bool KdeArgumentParser::ConstructBoostVariableMap(
   int argc,
   char *argv[],
-  boost::program_options::variables_map *vm) {
+  ::boost::program_options::variables_map *vm) {
 
   // Convert C input to C++; skip executable name for Boost.
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -132,83 +132,83 @@ bool KdeArgumentParser::ConstructBoostVariableMap(
 
 bool KdeArgumentParser::ConstructBoostVariableMap(
   const std::vector<std::string> &args,
-  boost::program_options::variables_map *vm) {
+  ::boost::program_options::variables_map *vm) {
 
-  boost::program_options::options_description desc("Available options");
+  ::boost::program_options::options_description desc("Available options");
   desc.add_options()(
     "help", "Print this information."
   )(
     "absolute_error",
-    boost::program_options::value<double>()->default_value(0.0),
+    ::boost::program_options::value<double>()->default_value(0.0),
     "Absolute error for the approximation of KDE per each query point."
   )(
     "bandwidth",
-    boost::program_options::value<double>(),
+    ::boost::program_options::value<double>(),
     "OPTIONAL kernel bandwidth, if you set --bandwidth_selection flag, "
     "then the --bandwidth will be ignored."
   )(
     "densities_out",
-    boost::program_options::value<std::string>()->default_value(
+    ::boost::program_options::value<std::string>()->default_value(
       "densities_out.csv"),
     "OPTIONAL file to store computed densities."
   )(
     "kernel",
-    boost::program_options::value<std::string>()->default_value("gaussian"),
+    ::boost::program_options::value<std::string>()->default_value("gaussian"),
     "Kernel function used by KDE.  One of:\n"
     "  epan, gaussian"
   )(
     "queries_in",
-    boost::program_options::value<std::string>(),
+    ::boost::program_options::value<std::string>(),
     "OPTIONAL file containing query positions.  If omitted, KDE computes "
     "the leave-one-out density at each reference point."
   )(
     "references_in",
-    boost::program_options::value<std::string>(),
+    ::boost::program_options::value<std::string>(),
     "REQUIRED file containing reference data."
   )(
     "series_expansion_type",
-    boost::program_options::value<std::string>()->default_value("multivariate"),
+    ::boost::program_options::value<std::string>()->default_value("multivariate"),
     "Series expansion type used to compress the kernel interaction. One of:\n"
     "  hypercube, multivariate"
   )(
     "probability",
-    boost::program_options::value<double>()->default_value(1.0),
+    ::boost::program_options::value<double>()->default_value(1.0),
     "Probability guarantee for the approximation of KDE."
   )(
     "relative_error",
-    boost::program_options::value<double>()->default_value(0.1),
+    ::boost::program_options::value<double>()->default_value(0.1),
     "Relative error for the approximation of KDE."
   )(
     "leaf_size",
-    boost::program_options::value<int>()->default_value(20),
+    ::boost::program_options::value<int>()->default_value(20),
     "Maximum number of points at a leaf of the tree."
   )(
     "prescale",
-    boost::program_options::value<std::string>()->default_value("none"),
+    ::boost::program_options::value<std::string>()->default_value("none"),
     "OPTIONAL scaling option. One of:\n"
     "  none, hypercube, standardize"
   );
 
-  boost::program_options::command_line_parser clp(args);
-  clp.style(boost::program_options::command_line_style::default_style
-            ^ boost::program_options::command_line_style::allow_guessing);
+  ::boost::program_options::command_line_parser clp(args);
+  clp.style(::boost::program_options::command_line_style::default_style
+            ^ ::boost::program_options::command_line_style::allow_guessing);
   try {
-    boost::program_options::store(clp.options(desc).run(), *vm);
+    ::boost::program_options::store(clp.options(desc).run(), *vm);
   }
-  catch(const boost::program_options::invalid_option_value &e) {
+  catch(const ::boost::program_options::invalid_option_value &e) {
     std::cerr << "Invalid Argument: " << e.what() << "\n";
     exit(0);
   }
-  catch(const boost::program_options::invalid_command_line_syntax &e) {
+  catch(const ::boost::program_options::invalid_command_line_syntax &e) {
     std::cerr << "Invalid command line syntax: " << e.what() << "\n";
     exit(0);
   }
-  catch(const boost::program_options::unknown_option &e) {
+  catch(const ::boost::program_options::unknown_option &e) {
     std::cerr << "Unknown option: " << e.what() << "\n";
     exit(0);
   }
 
-  boost::program_options::notify(*vm);
+  ::boost::program_options::notify(*vm);
   if(vm->count("help")) {
     std::cout << desc << "\n";
     return true;
@@ -266,7 +266,7 @@ bool KdeArgumentParser::ConstructBoostVariableMap(
 
 template<typename TableType>
 bool KdeArgumentParser::ParseArguments(
-  boost::program_options::variables_map &vm,
+  ::boost::program_options::variables_map &vm,
   KdeArguments<TableType> *arguments_out) {
 
   // A L2 metric to index the table to use.

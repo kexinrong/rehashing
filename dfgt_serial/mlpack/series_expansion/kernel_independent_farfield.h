@@ -25,7 +25,7 @@ class KernelIndependentFarField {
   private:
 
     // For Boost serialization.
-    friend class boost::serialization::access;
+    friend class ::boost::serialization::access;
 
     /** @brief The lower bound on the upward equivalent surface.
      */

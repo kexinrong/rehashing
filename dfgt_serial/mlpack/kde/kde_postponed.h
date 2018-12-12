@@ -19,7 +19,7 @@ class KdePostponed {
   private:
 
     // For boost serialization.
-    friend class boost::serialization::access;
+    friend class ::boost::serialization::access;
 
   public:
 

@@ -28,7 +28,7 @@ class CartesianLocal {
   private:
 
     // For Boost serialization.
-    friend class boost::serialization::access;
+    friend class ::boost::serialization::access;
 
     /** @brief The center of the expansion. */
     arma::vec center_;
@@ -217,7 +217,7 @@ template<enum mlpack::series_expansion::CartesianExpansionType ExpansionType>
 struct tracking_level <
     mlpack::series_expansion::CartesianLocal<ExpansionType> > {
   typedef mpl::integral_c_tag tag;
-  typedef mpl::int_< boost::serialization::track_never > type;
+  typedef mpl::int_< ::boost::serialization::track_never > type;
   BOOST_STATIC_CONSTANT(
     int,
     value = tracking_level::type::value
