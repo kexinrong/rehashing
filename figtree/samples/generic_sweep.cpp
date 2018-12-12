@@ -1,5 +1,5 @@
 //
-// Created by Kexin Rong on 10/12/18.
+// Created by Kexin Rong on 12/11/18.
 //
 
 //------------------------------------------------------------------------------
@@ -46,6 +46,8 @@
 #include "figtree.h"
 #include <time.h>       /* clock_t, clock, CLOCKS_PER_SEC */
 #include <algorithm>    // std::max
+#include <map>
+#include <vector>
 
 // This file only shows examples of how the figtree() function can be used.
 //
@@ -129,33 +131,40 @@ void fitCube(double* data, int n, int d) {
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
     // The dimensionality of each sample vector.
     // The number of targets (vectors at which gauss transform is evaluated).
     // The number of sources which will be used for the gauss transform.
 
-//    int d = 50;
-//    int N = 408935;
-    int d = 10;
-    int N = 204467;
-    int M = 100000;
-
-    // The bandwidth.  NOTE: this is not the same as standard deviation since
-    // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
-    // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
-    // bandwidth can be set to h = sqrt(2)*sigma.
-    double scaleFactor = pow(N, -1.0/(d+4));
-    //double h = scaleFactor;
+    int d, N, M;
     double h = 1;
+    N = 500000;
+    M = 100000;
+    d = 10;
+    std::string ds(argv[1]);
+    if (strcmp(argv[1], "1") == 0) {
+        N = 512349;
+    } else if (strcmp(argv[1], "10") == 0) {
+        N = 512340;
+    } else if (strcmp(argv[1], "100") == 0) {
+        N = 512200;
+    } else if (strcmp(argv[1], "1000") == 0) {
+        N = 511000;
+    } else if (strcmp(argv[1], "10000") == 0) {
+        N = 510000;
+    }
 
     // Desired maximum absolute error after normalizing output by sum of weights.
     // If the weights, q_i (see below), add up to 1, then this is will be the
     // maximum absolute error.
     // The smaller epsilon is, the more accurate the results will be, at the
     // expense of increased computational complexity.
-    double epsilon = 0.001;
-    std::cout << "h=" << h << ", eps=" << epsilon << ", d=" << d << std::endl;
+    double epsilon = atof(argv[2]);
+
+    std::cout << "dataset=" << ds << std::endl;
+    std::cout << "epsilon=" << epsilon << std::endl;
+
 
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
@@ -164,21 +173,61 @@ int main()
     long size = N * d;
     double *x = new double[size];
 
-    std::ostringstream stm;
-    stm << d;
-    //std::string fname = "../../resources/data/generic_gaussian" + stm.str() + ".txt";
-    std::string fname = "../../resources/data/generic10_correlated.txt";
-    readFile(fname, false, N, 0, d-1, &x[0]);
+    if (strcmp(argv[1], "1") == 0) {
+        readFile("../../resources/generic_gaussian/data_1,500000.txt", false, N, 0, 9, &x[0]);
+    } else if (strcmp(argv[1], "10") == 0) {
+        readFile("../../resources/generic_gaussian/data_10,50000.txt", false, N, 0, 9, &x[0]);
+    } else if (strcmp(argv[1], "100") == 0) {
+        readFile("../../resources/generic_gaussian/data_100,5000.txt", false, N, 0, 9, &x[0]);
+    } else if (strcmp(argv[1], "1000") == 0) {
+        readFile("../../resources/generic_gaussian/data_1000,500.txt", false, N, 0, 9, &x[0]);
+    } else if (strcmp(argv[1], "10000") == 0) {
+        readFile("../../resources/generic_gaussian/data_10000,50.txt", false, N, 0, 9, &x[0]);
+    } else if (strcmp(argv[1], "100000") == 0) {
+        readFile("../../resources/generic_gaussian/data_100000,5.txt", false, N, 0, 9, &x[0]);
+    } else if (strcmp(argv[1], "500000") == 0) {
+        readFile("../../resources/generic_gaussian/data_500000,1.txt", false, N, 0, 9, &x[0]);
+    }
     //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
     // ( y[j*d], y[j*d+1], ..., y[j*d+d-1]f ) is the jth d-dimensional sample.
     // For example, below M = 10 and d = 7, so there are 10 rows, each
     // a 7-dimensional sample.
+    double *exact = new double[M * 2];
+    if (strcmp(argv[1], "1") == 0) {
+        readFile("../../resources/generic_gaussian/exact_1,500000.txt", false, M, 0, 1, &exact[0]);
+    } else if (strcmp(argv[1], "10") == 0) {
+        readFile("../../resources/generic_gaussian/exact_10,50000.txt", false, M, 0, 1, &exact[0]);
+    } else if (strcmp(argv[1], "100") == 0) {
+        readFile("../../resources/generic_gaussian/exact_100,5000.txt", false, M, 0, 1, &exact[0]);
+    } else if (strcmp(argv[1], "1000") == 0) {
+        readFile("../../resources/generic_gaussian/exact_1000,500.txt", false, M, 0, 1, &exact[0]);
+    } else if (strcmp(argv[1], "10000") == 0) {
+        readFile("../../resources/generic_gaussian/exact_10000,50.txt", false, M, 0, 1, &exact[0]);
+    } else if (strcmp(argv[1], "100000") == 0) {
+        readFile("../../resources/generic_gaussian/exact_100000,5.txt", false, M, 0, 1, &exact[0]);
+    } else if (strcmp(argv[1], "500000") == 0) {
+        readFile("../../resources/generic_gaussian/exact_500000,1.txt", false, M, 0, 1, &exact[0]);
+    }
+
     size = M * d;
     double *y = new double[size];
-    fname = "../../resources/data/query" + stm.str() + ".txt";
-    readFile(fname, false, M, 0, d-1, &y[0]);
+    if (strcmp(argv[1], "1") == 0) {
+        readFile("../../resources/generic_gaussian/query1,500000.txt", false, M, 0, 9, &y[0]);
+    } else if (strcmp(argv[1], "10") == 0) {
+        readFile("../../resources/generic_gaussian/query10,50000.txt", false, M, 0, 9, &y[0]);
+    } else if (strcmp(argv[1], "100") == 0) {
+        readFile("../../resources/generic_gaussian/query100,5000.txt", false, M, 0, 9, &y[0]);
+    } else if (strcmp(argv[1], "1000") == 0) {
+        readFile("../../resources/generic_gaussian/query1000,500.txt", false, M, 0, 9, &y[0]);
+    } else if (strcmp(argv[1], "10000") == 0) {
+        readFile("../../resources/generic_gaussian/query10000,50.txt", false, M, 0, 9, &y[0]);
+    } else if (strcmp(argv[1], "100000") == 0) {
+        readFile("../../resources/generic_gaussian/query100000,5.txt", false, M, 0, 9, &y[0]);
+    } else if (strcmp(argv[1], "500000") == 0) {
+        readFile("../../resources/generic_gaussian/query500000,1.txt", false, M, 0, 9, &y[0]);
+    }
 
     // The weight array.  The ith weight is associated with the ith source sample.
     // To evaluate the Gauss Transform with the same sources and targets, but
@@ -195,21 +244,9 @@ int main()
     // with the first set of weights, second M elements will correspond to the G.T. computed
     // with the second set of weights, etc.ha
     double * g_auto = new double[W*M];
-    double * g_sf = new double[W*M];
-    double * g_sf_tree = new double[W*M];
-    double * g_ifgt_u = new double[W*M];
-    double * g_ifgt_tree_u = new double[W*M];
-    double * g_ifgt_nu = new double[W*M];
-    double * g_ifgt_tree_nu = new double[W*M];
 
     // initialize all output arrays to zero
     memset( g_auto        , 0, sizeof(double)*W*M );
-    memset( g_sf          , 0, sizeof(double)*W*M );
-    memset( g_sf_tree     , 0, sizeof(double)*W*M );
-    memset( g_ifgt_u      , 0, sizeof(double)*W*M );
-    memset( g_ifgt_tree_u , 0, sizeof(double)*W*M );
-    memset( g_ifgt_nu     , 0, sizeof(double)*W*M );
-    memset( g_ifgt_tree_nu, 0, sizeof(double)*W*M );
 
     //
     // RECOMMENDED way to call figtree().
@@ -227,75 +264,25 @@ int main()
     clock_t t2 = clock();
     std::cout << "FIGTREE auto: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
-    // evaluate gauss transform using direct method with approximate nearest neighbors
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf_tree, FIGTREE_EVAL_DIRECT_TREE );
-//    t2 = clock();
-//    std::cout << "FIGTREE direct ANN: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//
-//    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
-//    //   the assumption that sources are uniformly distributed
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_u, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_nu, FIGTREE_EVAL_IFGT, FIGTREE_PARAM_NON_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//
-//    // evaluate gauss transform using FIGTREE (truncated series), estimating parameters with and without
-//    //   the assumption that sources are uniformly distributed
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_u, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated tree uniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-//
-//    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_ifgt_tree_nu, FIGTREE_EVAL_IFGT_TREE, FIGTREE_PARAM_NON_UNIFORM, 1 );
-//    t2 = clock();
-//    std::cout << "FIGTREE truncated tree nonuniform: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-
-
-    //
-    // MANUAL EVALUATION METHOD and PARAMETER METHOD selection.  If chosen
-    // incorrectly, this could cause run times to be several orders of
-    // magnitudes longer or to require several orders of magnitude more
-    // memory (resulting in crashes).  The recommended way to call figtree
-    // is using the automatic method selection, as shown above.
-    //
-    // evaluate gauss transform using direct (slow) method
-    t1 = clock();
-//    figtree( d, N, M, W, x, h, q, y, epsilon, g_sf, FIGTREE_EVAL_DIRECT );
-    t2 = clock();
-    std::cout << "Direct: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
-
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
-    double avg_relerror = 0;
-    fname = "../../resources/exact/generic" + stm.str() + "_query10k.txt";
-    readFile(fname, false, M, 0, 0, &g_sf[0]);
-//    std::ofstream myfile(fname.c_str());
+//    std::ofstream outfile("covtype.txt");
+    double err = 0;
     for( int i = 0; i < M; i++) {
-//        myfile << g_sf[i] << "\n";
-        avg_relerror +=  fabs(g_auto[i]  - g_sf[i]) / g_sf[i];
+        err += fabs(g_auto[i] - exact[i*2]) / exact[i*2];
+//        if (i < 10) {
+//            std::cout << g_auto[i] << "," << exact[i*2] << std::endl;
+//        }
+//        outfile << g_auto[i] << "\n";
     }
-//    myfile.close();
-    avg_relerror /= M;
-    printf("Average relative error: %f\n", avg_relerror);
+    std::cout << "Relative Error: " << err / M << std::endl;
+    std::cout << "-----------------------------" << std::endl;
+
+//    outfile.close();
 
     // deallocate memory
     delete [] x;
     delete [] y;
     delete [] q;
     delete [] g_auto;
-    delete [] g_sf;
-    delete [] g_sf_tree;
-    delete [] g_ifgt_u;
-    delete [] g_ifgt_nu;
-    delete [] g_ifgt_tree_u;
-    delete [] g_ifgt_tree_nu;
     return 0;
 }
