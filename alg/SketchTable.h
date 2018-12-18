@@ -58,13 +58,15 @@ public:
                 it->second.push_back(i);
             }
         }
-
+        size_t max_bucket = 0;
         for (unordered_map<size_t, vector<int>>::iterator it=table.begin(); it!=table.end(); ++it) {
             size_t size = it->second.size();
+            max_bucket = max(max_bucket, size);
             bucket_keys.push_back(it->first);
             bucket_size.push_back(size);
         }
-
+        size_t nbuckets = bucket_keys.size();
+        gamma = (log(max_bucket) - log(nbuckets)) / (log(n) - log(nbuckets));
         double sum = 0;
         vector<double> sampling_probabilities;
         for (unordered_map<size_t, vector<int>>::iterator it=table.begin(); it!=table.end(); ++it) {

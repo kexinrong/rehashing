@@ -31,6 +31,15 @@ public:
         return min(2 * radius, log(n / tau));
     }
 
+    static double estimateDiameter(shared_ptr<MatrixXd> X, double tau) {
+        int n = X->rows();
+        double radius = 0;
+        for (int i = 0; i < n; i ++) {
+            radius = max(radius, X->row(i).norm());
+        }
+        return min(2 * radius, log(n / tau));
+    }
+
     static int getPowerMu(double mu, double beta) {
         return ceil(SQRT_2_PI * beta * log(1 / mu));
     }

@@ -140,8 +140,8 @@ int main(int argc, char* argv[])
     int d, N, M;
     double h = 1;
     N = 500000;
-    M = 100000;
-    d = 10;
+    M = 10000;
+    d = atoi(argv[4]);
     std::string ds(argv[1]);
     if (strcmp(argv[1], "1") == 0) {
         N = 512349;
@@ -162,7 +162,7 @@ int main(int argc, char* argv[])
     // expense of increased computational complexity.
     double epsilon = atof(argv[2]);
 
-    std::cout << "dataset=" << ds << std::endl;
+    std::cout << "dataset=gen" << ds << std::endl;
     std::cout << "epsilon=" << epsilon << std::endl;
 
 
@@ -173,20 +173,23 @@ int main(int argc, char* argv[])
     long size = N * d;
     double *x = new double[size];
 
+    std::string path = "../../resources/generic_gaussian/";
+    path += argv[3];
+
     if (strcmp(argv[1], "1") == 0) {
-        readFile("../../resources/generic_gaussian/data_1,500000.txt", false, N, 0, 9, &x[0]);
+        readFile(path + "/data_1,500000.txt", false, N, 0, d-1, &x[0]);
     } else if (strcmp(argv[1], "10") == 0) {
-        readFile("../../resources/generic_gaussian/data_10,50000.txt", false, N, 0, 9, &x[0]);
+        readFile(path + "/data_10,50000.txt", false, N, 0, d-1, &x[0]);
     } else if (strcmp(argv[1], "100") == 0) {
-        readFile("../../resources/generic_gaussian/data_100,5000.txt", false, N, 0, 9, &x[0]);
+        readFile(path + "/data_100,5000.txt", false, N, 0, d-1, &x[0]);
     } else if (strcmp(argv[1], "1000") == 0) {
-        readFile("../../resources/generic_gaussian/data_1000,500.txt", false, N, 0, 9, &x[0]);
+        readFile(path + "/data_1000,500.txt", false, N, 0, d-1, &x[0]);
     } else if (strcmp(argv[1], "10000") == 0) {
-        readFile("../../resources/generic_gaussian/data_10000,50.txt", false, N, 0, 9, &x[0]);
+        readFile(path + "/data_10000,50.txt", false, N, 0, d-1, &x[0]);
     } else if (strcmp(argv[1], "100000") == 0) {
-        readFile("../../resources/generic_gaussian/data_100000,5.txt", false, N, 0, 9, &x[0]);
+        readFile(path + "/data_100000,5.txt", false, N, 0, d-1, &x[0]);
     } else if (strcmp(argv[1], "500000") == 0) {
-        readFile("../../resources/generic_gaussian/data_500000,1.txt", false, N, 0, 9, &x[0]);
+        readFile(path + "/data_500000,1.txt", false, N, 0, d-1, &x[0]);
     }
     //fitCube(&x[0], N, d);
 
@@ -196,37 +199,37 @@ int main(int argc, char* argv[])
     // a 7-dimensional sample.
     double *exact = new double[M * 2];
     if (strcmp(argv[1], "1") == 0) {
-        readFile("../../resources/generic_gaussian/exact_1,500000.txt", false, M, 0, 1, &exact[0]);
+        readFile(path + "/exact_1,500000.txt", false, M, 0, 1, &exact[0]);
     } else if (strcmp(argv[1], "10") == 0) {
-        readFile("../../resources/generic_gaussian/exact_10,50000.txt", false, M, 0, 1, &exact[0]);
+        readFile(path + "/exact_10,50000.txt", false, M, 0, 1, &exact[0]);
     } else if (strcmp(argv[1], "100") == 0) {
-        readFile("../../resources/generic_gaussian/exact_100,5000.txt", false, M, 0, 1, &exact[0]);
+        readFile(path + "/exact_100,5000.txt", false, M, 0, 1, &exact[0]);
     } else if (strcmp(argv[1], "1000") == 0) {
-        readFile("../../resources/generic_gaussian/exact_1000,500.txt", false, M, 0, 1, &exact[0]);
+        readFile(path + "/exact_1000,500.txt", false, M, 0, 1, &exact[0]);
     } else if (strcmp(argv[1], "10000") == 0) {
-        readFile("../../resources/generic_gaussian/exact_10000,50.txt", false, M, 0, 1, &exact[0]);
+        readFile(path + "/exact_10000,50.txt", false, M, 0, 1, &exact[0]);
     } else if (strcmp(argv[1], "100000") == 0) {
-        readFile("../../resources/generic_gaussian/exact_100000,5.txt", false, M, 0, 1, &exact[0]);
+        readFile(path + "/exact_100000,5.txt", false, M, 0, 1, &exact[0]);
     } else if (strcmp(argv[1], "500000") == 0) {
-        readFile("../../resources/generic_gaussian/exact_500000,1.txt", false, M, 0, 1, &exact[0]);
+        readFile(path + "/exact_500000,1.txt", false, M, 0, 1, &exact[0]);
     }
 
     size = M * d;
     double *y = new double[size];
     if (strcmp(argv[1], "1") == 0) {
-        readFile("../../resources/generic_gaussian/query1,500000.txt", false, M, 0, 9, &y[0]);
+        readFile(path + "/query1,500000.txt", false, M, 0, d-1, &y[0]);
     } else if (strcmp(argv[1], "10") == 0) {
-        readFile("../../resources/generic_gaussian/query10,50000.txt", false, M, 0, 9, &y[0]);
+        readFile(path + "/query10,50000.txt", false, M, 0, d-1, &y[0]);
     } else if (strcmp(argv[1], "100") == 0) {
-        readFile("../../resources/generic_gaussian/query100,5000.txt", false, M, 0, 9, &y[0]);
+        readFile(path + "/query100,5000.txt", false, M, 0, d-1, &y[0]);
     } else if (strcmp(argv[1], "1000") == 0) {
-        readFile("../../resources/generic_gaussian/query1000,500.txt", false, M, 0, 9, &y[0]);
+        readFile(path + "/query1000,500.txt", false, M, 0, d-1, &y[0]);
     } else if (strcmp(argv[1], "10000") == 0) {
-        readFile("../../resources/generic_gaussian/query10000,50.txt", false, M, 0, 9, &y[0]);
+        readFile(path + "/query10000,50.txt", false, M, 0, d-1, &y[0]);
     } else if (strcmp(argv[1], "100000") == 0) {
-        readFile("../../resources/generic_gaussian/query100000,5.txt", false, M, 0, 9, &y[0]);
+        readFile(path + "/query100000,5.txt", false, M, 0, d-1, &y[0]);
     } else if (strcmp(argv[1], "500000") == 0) {
-        readFile("../../resources/generic_gaussian/query500000,1.txt", false, M, 0, 9, &y[0]);
+        readFile(path + "/query500000,1.txt", false, M, 0, d-1, &y[0]);
     }
 
     // The weight array.  The ith weight is associated with the ith source sample.

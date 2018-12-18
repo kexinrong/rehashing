@@ -130,7 +130,7 @@ VectorXd GenericInstance::query(double dist, bool correlated) {
     std::uniform_int_distribution<int> distribution(0, numClusters - 1);
     if (correlated) {
         int idx = distribution(rng);
-        return directions.at(idx) * dist;;
+        return directions.at(idx) * dist;
     } else {
         return mathUtils::randNormal(dim, rng) * dist / sqrt(dim);
     }

@@ -56,6 +56,7 @@ int main(int argc, char *argv[]) {
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
     auto band = make_unique<Bandwidth>(N, dim);
+    std::cout << "bw: " << h << std::endl;
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
     shared_ptr<Kernel> simpleKernel;
@@ -82,7 +83,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Read exact KDE
-    bool sequential = (argc > 3 || N == M);
+    bool sequential = (N == M);
     double *exact = new double[M * 2];
     if (sequential) {
         dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
@@ -111,15 +112,17 @@ int main(int argc, char *argv[]) {
             q = Y.row(j);
         } else {
             if (!sequential) {
-                idx = j * 2;
-                q = X.row(exact[idx + 1]);
+                q = X.row(exact[j*2+1]);
             }
         }
+        if (!sequential) { idx = j * 2;}
         vector<double> rs_est = rs.query(q);
         vector<double> hbe_est = hbe.query(q);
         update(rs_results, rs_est, exact[idx]);
         update(hbe_results, hbe_est, exact[idx]);
-//        std::cout << rs_est[0] << "," << hbe_est[0] << "," << exact[idx] << std::endl;
+        if ((fabs(rs_est[0] - exact[idx]) / exact[idx]) > 1) {
+            std::cout << j << "," << rs_est[0] << "," << hbe_est[0] << "," << exact[idx] << std::endl;
+        }
     }
 
     std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;

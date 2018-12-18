@@ -17,6 +17,14 @@ GenericInstance SyntheticData::genMixed(int uN, int cN, int uC, int cC, int dim,
     return uncorrelated;
 }
 
+GenericInstance SyntheticData::genSingle(int pts, int clusters, int dim, double density,
+                                        int numScales, double spread, shared_ptr<Kernel> kernel) {
+    // instance
+    GenericInstance inst(pts, clusters, numScales, dim, density, spread, kernel);
+
+    return inst;
+}
+
 GenericInstance SyntheticData::genUncorrelated(int n) {
     // Uncorrelated instance
     int numClusters = (int)ceil(sqrt(n));
