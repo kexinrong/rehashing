@@ -17,6 +17,9 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
     ki = vector<int>(I);
     wi = vector<double>(I);
     int n = int(sqrt(X->rows()));
+    double diam = dataUtils::estimateDiameter(X, tau);
+    double exp_k = dataUtils::getPower(diam, 0.5);
+    double exp_w = dataUtils::getWidth(exp_k, 0.5);
 
     for (int i = 0; i < I; i ++) {
         if (i == 0) {
@@ -24,10 +27,11 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
         } else {
             mui[i] = (1 - gamma) * mui[i - 1];
         }
+
         // Exponential Kernel
         if (k->getName() == EXP_STR) {
-            ki[i] = dataUtils::getPowerMu(mui[i], 0.5);
-            wi[i] = dataUtils::getWidth(ki[i], 0.5);
+            ki[i] = exp_k;
+            wi[i] = exp_w;
         } else {         // Gaussian Kernel
             ti[i] = sqrt(log(1 / mui[i]));
             ki[i] = (int) (3 * ceil(r * ti[i]));

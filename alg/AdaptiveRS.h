@@ -34,6 +34,7 @@ public:
     double findHBERatio(VectorXd &q, int level, double est, double eps);
 
 protected:
+    std::mt19937_64 rng;
     int exp_k;
     double exp_w;
     std::vector<double> evaluateQuery(VectorXd q, int level, int maxSamples);

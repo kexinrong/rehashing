@@ -5,6 +5,7 @@
 #include "AdaptiveRS.h"
 #include "dataUtils.h"
 #include "mathUtils.h"
+#include <math.h>
 
 void AdaptiveRS::buildLevels(double tau, double eps) {
     double tmp = log(1/ tau);
@@ -25,12 +26,20 @@ void AdaptiveRS::buildLevels(double tau, double eps) {
             mui[i] = (1 - gamma) * mui[i - 1];
         }
         Mi[i] = (int) (ceil(mathUtils::randomRelVar(mui[i]) / eps / eps));
+
+        // Gaussian Kernel
+        ti[i] = sqrt(log(1 / mui[i]));
+        ki[i] = (int) (3 * ceil(r * ti[i]));
+        wi[i] = ki[i] / ti[i] * SQRT_2PI;
 //        std::cout << "Level " << i << ", samples " << Mi[i] <<
 //            ", target: "<< mui[i] << std::endl;
     }
 }
 
 AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double tau, double eps) {
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    rng = std::mt19937_64(rd());
+
     X = data;
     kernel = k;
     numPoints = data->rows();
@@ -46,6 +55,9 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double t
 
 AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples,
         double tau, double eps) {
+    std::random_device rd;  //Will be used to obtain a seed for the random number engine
+    rng = std::mt19937_64(rd());
+
     int n = data->rows();
     if (samples >= n) {
         X = data;
@@ -55,7 +67,6 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samp
         return;
     }
     // Sample input matrix
-    std::random_device rd;
     std::mt19937 gen(rd());
     auto indices = mathUtils::pickSet(n, samples, gen);
     X = make_shared<MatrixXd>(samples, data->cols());
@@ -77,11 +88,9 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samp
 
 
 std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level, int maxSamples) {
-   contrib.clear();
-   samples.clear();
+    contrib.clear();
+    samples.clear();
 
-    std::random_device rd;  //Will be used to obtain a seed for the random number engine
-    std::mt19937_64 rng = std::mt19937_64(rd());
     std::uniform_int_distribution<int> distribution(0, numPoints - 1);
 
     std::vector<double> results = std::vector<double>(2, 0);
@@ -113,13 +122,22 @@ double AdaptiveRS::findRSRatio(double est, double eps) {
     double mmin = contrib[0];
     double mmax = contrib[0];
     for (size_t i = 1; i < contrib.size(); i ++) {
-        mmin = min(max(contrib[i], thresh), mmin);
+        if (contrib[i] < thresh) {
+            continue;
+        }
+        mmin = min(contrib[i], mmin);
         mmax = max(contrib[i], mmax);
     }
     return mmax / mmin;
 }
 
 double AdaptiveRS::findHBERatio(VectorXd &q, int level, double est, double eps) {
+    // Gaussian Kernel
+    if (kernel->getName() != EXP_STR) {
+        exp_w = wi[level];
+        exp_k = ki[level];
+    }
+
     double thresh = min(est * eps / 10, 1.0 /numPoints);
     double mmin = 1;
     double mmax = 0;
@@ -133,6 +151,7 @@ double AdaptiveRS::findHBERatio(VectorXd &q, int level, double est, double eps) 
         double p = mathUtils::collisionProb(c, exp_k);
         double k_i = contrib[i] / p / p;
         double k_j = contrib[i] / p;
+
         if (mmax == 0) {
             mmin = k_j;
             mmax = k_i;

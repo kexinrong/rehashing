@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
     int N = cfg.getN();
+    int M = cfg.getM();
 
     double h = cfg.getH();
     if (!cfg.isConst()) {
@@ -66,33 +67,37 @@ int main(int argc, char *argv[]) {
     X = dataUtils::normalizeBandwidth(X, band->bw);
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
+    MatrixXd Y = dataUtils::readFile(cfg.getQueryFile(),
+            cfg.ignoreHeader(), M, cfg.getStartCol(), cfg.getEndCol());
+
     AdaptiveRS rs(X_ptr, simpleKernel, tau, eps);
     rs.setMedians(7);
 
     std::random_device rd;
     std::mt19937 rng(rd());
-    std::uniform_int_distribution<int> distribution(0, N - 1);
+    std::uniform_int_distribution<int> distribution(0, M - 1);
 
-    for (int iter = 0; iter < 10; iter ++) {
+    for (int iter = 0; iter < 3; iter ++) {
         double reals = 0;
         double level = 0;
         double rs_cost = 0;
         double hbe_cost = 0;
         for (int j = 0; j < 100; j++) {
-            VectorXd q = X_ptr->row(distribution(rng));
+            VectorXd q = Y.row(distribution(rng));
 
             vector<double> rs_est = rs.query(q);
 
+//            std::cout << rs_est[0] << "," << rs_est[1] << std::endl;
             int target = rs.findTargetLevel(rs_est[0]);
 
-            int real = rs.findActualLevel(q, rs_est[0], eps);
-            reals += real;
+            int actual = rs.findActualLevel(q, rs_est[0], eps);
+            reals += actual;
             level += target;
 
-            rs_cost += rs.findRSRatio();
-            hbe_cost += rs.findHBERatio(q, target);
+            rs_cost += rs.findRSRatio(rs_est[0], eps);
+            hbe_cost += rs.findHBERatio(q, actual, rs_est[0], eps);
         }
-//        std::cout << "real:" << reals/100 << ", target: " << level/100 << std::endl;
+        std::cout << "actual:" << reals/100 << ", target: " << level/100 << std::endl;
         std::cout << "rs:" << rs_cost/100 << ", hbe: " << hbe_cost/100 << std::endl;
 
     }
