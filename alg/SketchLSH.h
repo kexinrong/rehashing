@@ -20,14 +20,13 @@ public:
     int numHash;
     int numPoints;
     shared_ptr<Kernel> kernel;
-    int batchSize = 1;
     int idx = 0;
     std::mt19937_64 rng;
     int N_SKETCHES = 5;
 
-    SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch, shared_ptr<Kernel> ker);
+    SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker);
     SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker, int sketches);
-    SketchLSH(const SketchLSH& other, int nbuckets);
+//    SketchLSH(const SketchLSH& other, int nbuckets);
 
 protected:
     vector<double> evaluateQuery(VectorXd query, int maxSamples);

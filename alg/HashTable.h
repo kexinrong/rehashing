@@ -28,6 +28,11 @@ public:
     int batchSize;
     int bucket_count = 0;
 
+    int W_SCALE = 4;
+    double min_weight;
+    double max_weight;
+    double weight_step;
+
     HashTable() {}
 
     HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch, std::mt19937_64 &rng) {
@@ -96,40 +101,58 @@ public:
         }
     }
 
-    HashTable(const HashTable &other, size_t nbuckets) {
-        binWidth = other.binWidth;
-        numHash = other.numHash;
-        batchSize = other.batchSize;
+    int getWeightBucket(double weight) {
+        return int(ceil(log(weight/min_weight) / log(weight_step)));
+    }
 
-        G = other.G;
-        b = other.b;
+    HashTable(shared_ptr<MatrixXd> X, double w, int k, vector<pair<int, double>>& samples,
+            std::mt19937_64 &rng, bool split) {
+        binWidth = w;
+        numHash = k;
+        batchSize = 1;
 
-        for (auto it=other.table.begin(); it!=other.table.end(); it++) {
-            table[it->first] = HashBucket(it->second);
+        int d = X->cols();
+        G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
+        b = mathUtils::randUniform(batchSize * k, rng);
+
+        int n = samples.size();
+        MatrixXd project(batchSize * numHash, n);
+        for (int i = 0; i < n; i ++) { project.col(i) = b; }
+
+        // Get samples from matrix
+        MatrixXd X_sample(n, d);
+        sort(samples.begin(), samples.end());
+        for (int i = 0; i < n; i ++) {
+            X_sample.row(i) = X->row(samples[i].first);
         }
 
-        double wSum = 0;
-        vector<double> weights;
-        for (auto it=table.begin(); it!=table.end(); it ++) {
-            weights.push_back(it->second.wSum);
-            wSum += it->second.wSum;
+        min_weight = n;
+        max_weight = 0;
+        for (int i = 0; i < n; i ++) {
+            min_weight = min(min_weight, samples[i].second);
+            max_weight = max(max_weight, samples[i].second);
         }
-        if (weights.size() <= nbuckets) { return; }
+        weight_step = pow(max_weight/min_weight, 1.0/W_SCALE);
 
-        // Keep top N buckets
-        std::sort(weights.begin(), weights.end(), std::greater<double>());
-        double thresh = weights[nbuckets];
-        double s = 0.0;
-        for (auto it=table.begin(); it!=table.end();) {
-            double w = it->second.wSum;
-            if (w > thresh) {
-                s += w;
-                ++it;
-            } else {
-                table.erase(it++);
+        project += G * X_sample.transpose();
+        for (int i = 0; i < n; i ++) {
+            VectorXd x = X_sample.row(i);
+            vector<size_t> keys = getkey(project.col(i));
+            for (auto key: keys) {
+                auto it = table.find(key);
+                double weight = samples[i].second;
+                int idx = getWeightBucket(weight);
+                std::cout << idx << ", ";
+                if (it == table.end()) {
+                    table[key] = HashBucket(x, weight, idx, W_SCALE);
+                    bucket_count ++;
+                } else {
+                    it->second.update(x, weight, idx, rng);
+                }
             }
         }
     }
+
 
 
     vector<size_t> hashfunction(VectorXd x) {

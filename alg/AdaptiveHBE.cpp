@@ -16,7 +16,6 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
     ti = vector<double>(I);
     ki = vector<int>(I);
     wi = vector<double>(I);
-    int n = int(sqrt(X->rows()));
     double diam = dataUtils::estimateDiameter(X, tau);
     double exp_k = dataUtils::getPower(diam, 0.5);
     double exp_w = dataUtils::getWidth(exp_k, 0.5);
@@ -40,8 +39,8 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
         Mi[i] = (int) (ceil(k->RelVar(mui[i]) / eps / eps));
 
         int t = int(Mi[i] * L * 1.1);
-        levels.push_back(BaseLSH(X, t, wi[i], ki[i], 1, k, n));
-//        levels.push_back(SketchLSH(X, t, wi[i], ki[i], k, max(1, t/200)));
+//        levels.push_back(BaseLSH(X, t, wi[i], ki[i], 1, k, n));
+        levels.push_back(SketchLSH(X, t, wi[i], ki[i], k, max(1, t/200)));
 //        std::cout << "Level " << i << ", samples " << Mi[i] <<
 //                  ", target: "<< mui[i] << ", k:" << ki[i] << ", w:" << wi[i] << std::endl;
     }

@@ -32,7 +32,7 @@ public:
 
     SketchTable() {}
 
-    SketchTable(shared_ptr<MatrixXd> X, double w, int k, int batch, std::mt19937_64 &rng) {
+    SketchTable(shared_ptr<MatrixXd> X, double w, int k, std::mt19937_64 &rng) {
         binWidth = w;
         numHash = k;
 

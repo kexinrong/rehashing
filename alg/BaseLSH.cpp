@@ -64,12 +64,14 @@ vector<double> BaseLSH::evaluateQuery(VectorXd query, int maxSamples) {
     results[1] = n;
     for (size_t i = 0; i < n; i ++) {
         HashBucket bucket = buckets[i];
-        int cnt = bucket.count;
-        if (cnt > 0) {
-            VectorXd delta = bucket.sample - query;
-            double c = delta.norm() / binWidth;
-            double p = mathUtils::collisionProb(c, numHash);
-            results[0] += kernel->density(delta) / p * cnt / numPoints;
+        for (int j = 0; j < bucket.SCALES; j ++) {
+            int cnt = bucket.count[j];
+            if (cnt > 0) {
+                VectorXd delta = bucket.sample[j] - query;
+                double c = delta.norm() / binWidth;
+                double p = mathUtils::collisionProb(c, numHash);
+                results[0] += kernel->density(delta) / p * cnt / numPoints / bucket.SCALES;
+            }
         }
     }
     return results;

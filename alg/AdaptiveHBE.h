@@ -17,7 +17,8 @@ using Eigen::VectorXd;
 
 class AdaptiveHBE : public AdaptiveEstimator {
 public:
-    vector<BaseLSH> levels;
+    //vector<BaseLSH> levels;
+    vector<SketchLSH> levels;
     double tau;
 
     AdaptiveHBE(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);

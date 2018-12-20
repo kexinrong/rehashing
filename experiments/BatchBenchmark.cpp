@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Uniform Sample Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
     t1 = std::chrono::high_resolution_clock::now();
-    SketchLSH sketch(X_ptr, tables, w, k, 1, simpleKernel);
+    SketchLSH sketch(X_ptr, tables, w, k, simpleKernel);
     t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Sketch Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
