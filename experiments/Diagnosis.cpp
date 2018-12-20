@@ -67,8 +67,12 @@ int main(int argc, char *argv[]) {
     X = dataUtils::normalizeBandwidth(X, band->bw);
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
-    MatrixXd Y = dataUtils::readFile(cfg.getQueryFile(),
-            cfg.ignoreHeader(), M, cfg.getStartCol(), cfg.getEndCol());
+    int hasQuery = strcmp(cfg.getDataFile(), cfg.getQueryFile());
+    MatrixXd Y;
+    if (hasQuery != 0) {
+        Y = dataUtils::readFile(cfg.getQueryFile(),
+                                cfg.ignoreHeader(), M, cfg.getStartCol(), cfg.getEndCol());
+    }
 
     AdaptiveRS rs(X_ptr, simpleKernel, tau, eps);
     rs.setMedians(7);
@@ -83,11 +87,13 @@ int main(int argc, char *argv[]) {
         double rs_cost = 0;
         double hbe_cost = 0;
         for (int j = 0; j < 100; j++) {
-            VectorXd q = Y.row(distribution(rng));
-
+            int idx = distribution(rng);
+            VectorXd q = X.row(idx);
+            if (hasQuery != 0) {
+                q = Y.row(j);
+            }
             vector<double> rs_est = rs.query(q);
 
-//            std::cout << rs_est[0] << "," << rs_est[1] << std::endl;
             int target = rs.findTargetLevel(rs_est[0]);
 
             int actual = rs.findActualLevel(q, rs_est[0], eps);
@@ -97,7 +103,7 @@ int main(int argc, char *argv[]) {
             rs_cost += rs.findRSRatio(rs_est[0], eps);
             hbe_cost += rs.findHBERatio(q, actual, rs_est[0], eps);
         }
-        std::cout << "actual:" << reals/100 << ", target: " << level/100 << std::endl;
+        //std::cout << "actual:" << reals/100 << ", target: " << level/100 << std::endl;
         std::cout << "rs:" << rs_cost/100 << ", hbe: " << hbe_cost/100 << std::endl;
 
     }

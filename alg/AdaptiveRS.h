@@ -34,6 +34,7 @@ public:
     double findHBERatio(VectorXd &q, int level, double est, double eps);
 
 protected:
+    double lb;
     std::mt19937_64 rng;
     int exp_k;
     double exp_w;

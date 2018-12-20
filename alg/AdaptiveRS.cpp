@@ -49,6 +49,7 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double t
         exp_w = dataUtils::getWidth(exp_k, 0.5);
     }
 
+    lb = tau;
     buildLevels(tau, eps);
 }
 
@@ -83,6 +84,7 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samp
         exp_k = dataUtils::getPower(diam, 0.5);
         exp_w = dataUtils::getWidth(exp_k, 0.5);
     }
+    lb = tau;
     buildLevels(tau, eps);
 }
 
@@ -117,11 +119,10 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level, int maxSamp
 }
 
 double AdaptiveRS::findRSRatio(double est, double eps) {
-    double thresh = min(est * eps / 10, 1.0 /numPoints);
-  //  std::cout << "thresh: " << thresh << std::endl;
-    double mmin = contrib[0];
-    double mmax = contrib[0];
-    for (size_t i = 1; i < contrib.size(); i ++) {
+    double thresh = lb * eps / 10;
+    double mmin = 1;
+    double mmax = 0;
+    for (size_t i = 0; i < contrib.size(); i ++) {
         if (contrib[i] < thresh) {
             continue;
         }
@@ -138,7 +139,7 @@ double AdaptiveRS::findHBERatio(VectorXd &q, int level, double est, double eps) 
         exp_k = ki[level];
     }
 
-    double thresh = min(est * eps / 10, 1.0 /numPoints);
+    double thresh = lb * eps / 10;
     double mmin = 1;
     double mmax = 0;
     for (size_t i = 0; i < samples.size(); i ++) {
