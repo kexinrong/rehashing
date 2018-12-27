@@ -46,34 +46,27 @@ BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k,
 vector<double> BaseLSH::MoM(VectorXd query, int L, int m) {
     std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
-        int j = 0;
-        while (j < m) {
-            vector<double> results = evaluateQuery(query, m - j);
-            Z[i] += results[0];
-            j += (int)results[1];
+        for (int j = 0; j < m; j ++){
+            Z[i] += evaluateQuery(query);
         }
     }
     return Z;
 }
 
-vector<double> BaseLSH::evaluateQuery(VectorXd query, int maxSamples) {
+double BaseLSH::evaluateQuery(VectorXd query) {
     idx = (idx + 1) % numTables;
     auto buckets = tables[idx].sample(query);
-    vector<double> results = vector<double>(2, 0);
-    size_t n = min(maxSamples, batchSize);
-    results[1] = n;
-    for (size_t i = 0; i < n; i ++) {
-        auto& bucket = buckets[i];
-        for (int j = 0; j < bucket.SCALES; j ++) {
-            int cnt = bucket.count[j];
-            if (cnt > 0) {
-                VectorXd delta = bucket.sample[j] - query;
-                double c = delta.norm() / binWidth;
-                double p = mathUtils::collisionProb(c, numHash);
-                results[0] += kernel->density(delta) / p * cnt;
-            }
+    double results = 0;
+    auto& bucket = buckets[0];
+    for (int j = 0; j < bucket.SCALES; j ++) {
+        int cnt = bucket.count[j];
+        if (cnt > 0) {
+            VectorXd delta = bucket.sample[j] - query;
+            double c = delta.norm() / binWidth;
+            double p = mathUtils::collisionProb(c, numHash);
+            results += kernel->density(delta) / p * cnt;
         }
     }
-    results[0] /= numPoints;
+    results /= numPoints;
     return results;
 }

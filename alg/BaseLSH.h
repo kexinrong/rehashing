@@ -25,7 +25,7 @@ public:
     BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker, int subsample);
 
 protected:
-    vector<double> evaluateQuery(VectorXd query, int maxSamples);
+    double evaluateQuery(VectorXd query);
     std::vector<double> MoM(VectorXd query, int L, int m);
 
 };

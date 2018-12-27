@@ -20,8 +20,7 @@ public:
         int L = 1;
         auto t1 = std::chrono::high_resolution_clock::now();
         std::vector<double> Z = MoM(q, L, m);
-        //double est = mathUtils::median(Z) / m;
-        double est = Z[0] / m;
+        double est = mathUtils::median(Z) / m;
         auto t2 = std::chrono::high_resolution_clock::now();
         totalTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
         if (est < lb) {

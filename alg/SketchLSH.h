@@ -29,7 +29,7 @@ public:
     SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker, int sketches);
 
 protected:
-    vector<double> evaluateQuery(VectorXd query, int maxSamples);
+    double evaluateQuery(VectorXd query);
     vector<double> MoM(VectorXd query, int L, int m);
 };
 
