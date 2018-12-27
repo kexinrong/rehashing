@@ -20,7 +20,6 @@ using namespace std;
 class HashTable {
 public:
     unordered_map<size_t, HashBucket> table;
-    unordered_set<size_t> used_keys;
     MatrixXd G;
     VectorXd b;
     double binWidth;
@@ -28,17 +27,17 @@ public:
     int batchSize;
     int bucket_count = 0;
 
-    int W_SCALE = 4;
+    int W_SCALE = 3;
     double min_weight;
     double max_weight;
     double weight_step;
 
     HashTable() {}
 
-    HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch, std::mt19937_64 &rng) {
+    HashTable(shared_ptr<MatrixXd> X, double w, int k, std::mt19937_64 &rng) {
         binWidth = w;
         numHash = k;
-        batchSize = batch;
+        batchSize = 1;
 
         int d = X->cols();
         G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
@@ -64,11 +63,11 @@ public:
         }
     }
 
-    HashTable(shared_ptr<MatrixXd> X, double w, int k, int batch,
+    HashTable(shared_ptr<MatrixXd> X, double w, int k,
             vector<pair<int, double>>& samples, std::mt19937_64 &rng) {
         binWidth = w;
         numHash = k;
-        batchSize = batch;
+        batchSize = 1;
 
         int d = X->cols();
         G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
@@ -102,14 +101,15 @@ public:
     }
 
     int getWeightBucket(double weight) {
-        return int(ceil(log(weight/min_weight) / log(weight_step)));
+        return int(floor(log(weight/min_weight) / log(weight_step)));
     }
 
     HashTable(shared_ptr<MatrixXd> X, double w, int k, vector<pair<int, double>>& samples,
-            std::mt19937_64 &rng, bool split) {
+            std::mt19937_64 &rng, int scales) {
         binWidth = w;
         numHash = k;
         batchSize = 1;
+        W_SCALE = scales;
 
         int d = X->cols();
         G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
@@ -132,7 +132,7 @@ public:
             min_weight = min(min_weight, samples[i].second);
             max_weight = max(max_weight, samples[i].second);
         }
-        weight_step = pow(max_weight/min_weight, 1.0/W_SCALE);
+        weight_step = pow(max_weight/min_weight, 1.0/W_SCALE) * 1.1;
 
         project += G * X_sample.transpose();
         for (int i = 0; i < n; i ++) {
@@ -142,7 +142,6 @@ public:
                 auto it = table.find(key);
                 double weight = samples[i].second;
                 int idx = getWeightBucket(weight);
-                std::cout << idx << ", ";
                 if (it == table.end()) {
                     table[key] = HashBucket(x, weight, idx, W_SCALE);
                     bucket_count ++;
@@ -181,7 +180,6 @@ public:
                 buckets.push_back(HashBucket());
             } else {
                 buckets.push_back(it->second);
-                used_keys.insert(key);
             }
         }
         return buckets;

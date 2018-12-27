@@ -28,6 +28,7 @@ public:
     VectorXd b;
     double binWidth;
     double gamma = 1;
+    int samples;
     int numHash;
 
     SketchTable() {}
@@ -59,14 +60,32 @@ public:
             }
         }
         size_t max_bucket = 0;
+        size_t min_bucket = n;
         for (unordered_map<size_t, vector<int>>::iterator it=table.begin(); it!=table.end(); ++it) {
             size_t size = it->second.size();
             max_bucket = max(max_bucket, size);
+            min_bucket = min(min_bucket, size);
             bucket_keys.push_back(it->first);
             bucket_size.push_back(size);
         }
         size_t nbuckets = bucket_keys.size();
-        gamma = (log(max_bucket) - log(nbuckets)) / (log(n) - log(nbuckets));
+
+        // Set sketch parameters
+        double eps = 0.5;
+        double tau = 0.001;
+        double cst = 0.8908987;  // (1/2)^(1/6)
+        double eps_cst = eps * eps / 6;
+        double nn = max_bucket / tau / n;
+        double log_delta = 1 / eps_cst * 1.1;
+        if (nbuckets <= cst / tau) {
+            gamma = 1 - log(eps_cst * log_delta) / log(nn);
+            std::cout << "gamma: " << gamma << "\n";
+        }
+        samples = int(sqrt(n));
+//        samples = 1/ eps_cst / tau * pow(max_bucket * nbuckets * 1.0 / n, 1-gamma);
+//        double bound = log_delta / tau;
+//        std::cout <<"samples: " <<  samples << "," << bound << std::endl;
+
         double sum = 0;
         vector<double> sampling_probabilities;
         for (unordered_map<size_t, vector<int>>::iterator it=table.begin(); it!=table.end(); ++it) {

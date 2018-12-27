@@ -22,6 +22,7 @@ public:
     std::uniform_real_distribution<> unif;
 
     HashBucket() {
+        SCALES = 1;
         count.push_back(0);
     }
 
@@ -40,6 +41,7 @@ public:
 
     HashBucket(VectorXd p, double wi, int idx, int scales) {
         unif = std::uniform_real_distribution<>(0, 1);
+        SCALES = scales;
         count = vector<int>(scales, 0);
         sample = vector<VectorXd>(scales);
         wSum = vector<double>(scales, 0);
@@ -49,13 +51,13 @@ public:
         wSum[idx] = wi;
     }
 
-    HashBucket(const HashBucket &other) {
-        unif = std::uniform_real_distribution<>(0, 1);
-        SCALES = other.SCALES;
-        sample = other.sample;
-        count = other.count;
-        wSum = other.wSum;
-    }
+//    HashBucket(const HashBucket &other) {
+//        unif = std::uniform_real_distribution<>(0, 1);
+//        SCALES = other.SCALES;
+//        sample = other.sample;
+//        count = other.count;
+//        wSum = other.wSum;
+//    }
 
     void update(VectorXd p, std::mt19937_64 &rng) {
         count[0] += 1;

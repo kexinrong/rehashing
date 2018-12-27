@@ -18,15 +18,15 @@ public:
     int numTables;
     double binWidth;
     int numHash;
-    int numPoints;
+    vector<int> numPoints;
     shared_ptr<Kernel> kernel;
     int idx = 0;
     std::mt19937_64 rng;
     int N_SKETCHES = 5;
 
     SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker);
+    SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int scales, shared_ptr<Kernel> ker);
     SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker, int sketches);
-//    SketchLSH(const SketchLSH& other, int nbuckets);
 
 protected:
     vector<double> evaluateQuery(VectorXd query, int maxSamples);

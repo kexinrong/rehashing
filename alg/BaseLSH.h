@@ -22,7 +22,7 @@ public:
     int idx = 0;
     std::mt19937_64 rng;
 
-    BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int batch, shared_ptr<Kernel> ker, int subsample);
+    BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker, int subsample);
 
 protected:
     vector<double> evaluateQuery(VectorXd query, int maxSamples);
