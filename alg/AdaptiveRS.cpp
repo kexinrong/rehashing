@@ -89,14 +89,14 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samp
 }
 
 
-std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level, int maxSamples) {
+std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level) {
     contrib.clear();
     samples.clear();
 
     std::uniform_int_distribution<int> distribution(0, numPoints - 1);
 
     std::vector<double> results = std::vector<double>(2, 0);
-    results[1] = min(maxSamples, Mi[level]);
+    results[1] =  Mi[level];
 
     std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
@@ -118,7 +118,7 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level, int maxSamp
     return results;
 }
 
-double AdaptiveRS::findRSRatio(double est, double eps) {
+double AdaptiveRS::findRSRatio(double eps) {
     double thresh = lb * eps / 10;
     double mmin = 1;
     double mmax = 0;
@@ -132,7 +132,7 @@ double AdaptiveRS::findRSRatio(double est, double eps) {
     return mmax / mmin;
 }
 
-double AdaptiveRS::findHBERatio(VectorXd &q, int level, double est, double eps) {
+double AdaptiveRS::findHBERatio(VectorXd &q, int level, double eps) {
     // Gaussian Kernel
     if (kernel->getName() != EXP_STR) {
         exp_w = wi[level];
@@ -179,7 +179,7 @@ int AdaptiveRS::findTargetLevel(double est) {
 int AdaptiveRS::findActualLevel(VectorXd &q, double truth, double eps) {
     int i = 0;
     while (i < I) {
-        std::vector<double> results = evaluateQuery(q, i, Mi[i]);
+        std::vector<double> results = evaluateQuery(q, i);
         if (fabs(results[0] - truth) / truth < eps) {
             return i;
         }

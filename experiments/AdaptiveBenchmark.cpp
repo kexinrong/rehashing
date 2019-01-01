@@ -20,6 +20,7 @@
 #include "../alg/RS.h"
 #include "../alg/AdaptiveRS.h"
 #include "../alg/AdaptiveHBE.h"
+#include "../alg/HybridAdaptive.h"
 #include "parseConfig.h"
 
 void update(vector<double>& results, vector<double> est, double exact) {
@@ -45,10 +46,9 @@ int main(int argc, char *argv[]) {
     int M = cfg.getM();
 
     double h = cfg.getH();
+    h *= pow(N, -1.0 / (dim + 4));
     if (!cfg.isConst()) {
-        if (strcmp(scope, "exp") == 0) {
-            h *= pow(N, -1.0 / (dim + 4));
-        } else {
+        if (strcmp(scope, "exp") != 0) {
             h *= sqrt(2);
         }
     }
@@ -99,11 +99,20 @@ int main(int argc, char *argv[]) {
     std::cout << "Adaptive Table Init: " <<
         std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
+
+    t1 = std::chrono::high_resolution_clock::now();
+    HybridAdaptive hybrid(X_ptr, simpleKernel, tau, eps);
+    t2 = std::chrono::high_resolution_clock::now();
+    std::cout << "Hybrid Adaptive Table Init: " <<
+              std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+
     std::cout << "------------------" << std::endl;
     rs.totalTime = 0;
     hbe.totalTime = 0;
+    hybrid.totalTime = 0;
     vector<double> rs_results(2,0);
     vector<double> hbe_results(2,0);
+    vector<double> hybrid_results(2,0);
 
     for (int j = 0; j < M; j++) {
         int idx = j;
@@ -118,11 +127,10 @@ int main(int argc, char *argv[]) {
         if (!sequential) { idx = j * 2;}
         vector<double> rs_est = rs.query(q);
         vector<double> hbe_est = hbe.query(q);
+        vector<double> hybrid_est = hybrid.query(q);
         update(rs_results, rs_est, exact[idx]);
         update(hbe_results, hbe_est, exact[idx]);
-        if ((fabs(rs_est[0] - exact[idx]) / exact[idx]) > 1) {
-            std::cout << j << "," << rs_est[0] << "," << hbe_est[0] << "," << exact[idx] << std::endl;
-        }
+        update(hybrid_results, hybrid_est, exact[idx]);
     }
 
     std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
@@ -132,6 +140,10 @@ int main(int argc, char *argv[]) {
     std::cout << "HBE Sampling total time: " << hbe.totalTime / 1e9 << std::endl;
     std::cout << "HBE Average Samples: " << hbe_results[1] / M << std::endl;
     std::cout << "HBE Relative Error: " << hbe_results[0] / M << std::endl;
+
+    std::cout << "Hybrid Sampling total time: " << hybrid.totalTime / 1e9 << std::endl;
+    std::cout << "Hybrid Average Samples: " << hybrid_results[1] / M << std::endl;
+    std::cout << "Hybrid Relative Error: " << hybrid_results[0] / M << std::endl;
 
     delete[] exact;
 }

@@ -7,10 +7,12 @@
 using Eigen::PermutationMatrix;
 using Eigen::Dynamic;
 
+BaseLSH::BaseLSH() {}
+
 BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k,
                  shared_ptr<Kernel> ker, int subsample) {
     batchSize = 1;
-    numTables = round(M / batchSize);
+    numTables = M;
     binWidth = w;
     numHash = k;
     numPoints = X->rows();
@@ -20,7 +22,7 @@ BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k,
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     rng = std::mt19937_64(rd());
 
-    if (subsample > 1) {
+    if (subsample > 1 && subsample < numPoints) {
         // Shuffle Matrix
         PermutationMatrix<Dynamic,Dynamic> perm(numPoints);
         perm.setIdentity();

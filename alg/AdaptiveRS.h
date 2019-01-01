@@ -30,15 +30,15 @@ public:
     int findTargetLevel(double est);
     int findActualLevel(VectorXd &q, double est, double eps);
 
-    double findRSRatio(double est, double eps);
-    double findHBERatio(VectorXd &q, int level, double est, double eps);
+    double findRSRatio(double eps);
+    double findHBERatio(VectorXd &q, int level, double eps);
 
 protected:
     double lb;
     std::mt19937_64 rng;
     int exp_k;
     double exp_w;
-    std::vector<double> evaluateQuery(VectorXd q, int level, int maxSamples);
+    std::vector<double> evaluateQuery(VectorXd q, int level);
 
 private:
     const double LOG2 = log(2);

@@ -33,28 +33,32 @@ public:
         double est = 0;
         int i = 0;
         while (i < I) {
-            std::vector<double> results = evaluateQuery(q, i, Mi[i]);
+            std::vector<double> results = evaluateQuery(q, i);
             est = results[0];
             returns[1] += L * Mi[i];
 
-//            std::cout << "Level: " << i << ", est: "<< est << std::endl;
+//            std::cout << "Level: " << i << ", est: "<< est << ", target: "<< mui[i] << std::endl;
             if (est >= mui[i]) {
                 break;
             } else {
                 int k = (int) floor(log(est) / log(1 - gamma));
+//                if (i == 0 && k >= I) {
+//                    k = I - 1;
+//                }
                 i = std::max(k, i + 1);
             }
         }
         returns[0] = est;
         auto t2 = std::chrono::high_resolution_clock::now();
         totalTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
+//        std::cout << "==========================\n";
         return returns;
     }
 
     void setMedians(int l) { L = l; }
 
 protected:
-    virtual std::vector<double> evaluateQuery(VectorXd q, int level, int maxSamples) = 0;
+    virtual std::vector<double> evaluateQuery(VectorXd q, int level) = 0;
 
 };
 

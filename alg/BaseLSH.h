@@ -22,6 +22,7 @@ public:
     int idx = 0;
     std::mt19937_64 rng;
 
+    BaseLSH();
     BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker, int subsample);
 
 protected:
