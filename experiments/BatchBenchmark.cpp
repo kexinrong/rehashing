@@ -24,6 +24,29 @@
 #include <boost/math/distributions/normal.hpp>
 #include "parseConfig.h"
 
+double relErr(double est, double exact) {
+    return fabs(est - exact) / exact;
+}
+
+double getMax(vector<double>& results) {
+    return *max_element(std::begin(results), std::end(results));;
+}
+
+double getAvg(vector<double>& results) {
+    double sum = 0;
+    for (auto& n : results) { sum += n; }
+    return sum / results.size();
+}
+
+double getStd(vector<double>& results) {
+    double avg = getAvg(results);
+    double var = 0;
+    for (auto& n : results) {
+        var += (n - avg) * (n - avg);
+    }
+    return var / results.size();
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cout << "Need config file" << std::endl;
@@ -45,12 +68,12 @@ int main(int argc, char *argv[]) {
 
     double h = cfg.getH();
     if (!cfg.isConst()) {
-        if (strcmp(scope, "exp") == 0) {
-            h *= pow(N, -1.0/(dim+4));
-        } else {
+        h *= pow(N, -1.0/(dim+4));
+        if (strcmp(scope, "exp") != 0) {
             h *= sqrt(2);
         }
     }
+    std::cout << "Bandwidth: " << h << std::endl;
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -133,10 +156,11 @@ int main(int argc, char *argv[]) {
         rs.totalTime = 0;
         sketch.totalTime = 0;
         sketch4.totalTime = 0;
-        double hbe_error = 0;
-        double sketch_error = 0;
-        double rs_error = 0;
-        double sketch_scale_error = 0;
+        vector<double> hbe_error;
+        vector<double> sketch_error;
+        vector<double> rs_error;
+        vector<double> sketch_scale_error;
+        int cnt = 0;
 
         for(int j = 0; j < M; j++) {
             int idx = j;
@@ -149,30 +173,30 @@ int main(int argc, char *argv[]) {
                     q = X.row(exact[idx + 1]);
                 }
             }
+            if (exact[idx] < tau) { continue; }
 
             double hbe_est = hbe.query(q, tau, samples);
             double sketch_est = sketch.query(q, tau, samples);
             double sketch_scale_est = sketch4.query(q, tau, samples);
             double rs_est = rs.query(q, tau, int(samples * sample_ratio));
-            hbe_error +=  fabs(hbe_est - exact[idx]) / exact[idx];
-            rs_error += fabs(rs_est - exact[idx]) / exact[idx];
-            sketch_error += fabs(sketch_est - exact[idx]) / exact[idx];
-            sketch_scale_error += fabs(sketch_scale_est - exact[idx]) / exact[idx];
-
+            hbe_error.push_back(relErr(hbe_est, exact[idx]));
+            rs_error.push_back(relErr(rs_est, exact[idx]));
+            sketch_error.push_back(relErr(sketch_est, exact[idx]));
+            sketch_scale_error.push_back(relErr(sketch_scale_est, exact[idx]));
         }
 
         std::cout << "Uniform HBE total time: " << hbe.totalTime / 1e9 << std::endl;
         std::cout << "Sketch HBE total time: " << sketch.totalTime / 1e9 << std::endl;
         std::cout << "Sketch (3 scales) HBE total time: " << sketch4.totalTime / 1e9 << std::endl;
         std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
-        hbe_error /= M;
-        rs_error /= M;
-        sketch_error /= M;
-        sketch_scale_error /= M;
-        printf("Uniform HBE relative error: %f\n", hbe_error);
-        printf("Sketch HBE relative error: %f\n", sketch_error);
-        printf("Sketch (3 scales)  HBE relative error: %f\n", sketch_scale_error);
-        printf("RS relative error: %f\n", rs_error);
+        printf("Uniform HBE relative error: %f, %f, %f\n",
+                getAvg(hbe_error), getStd(hbe_error), getMax(hbe_error));
+        printf("Sketch HBE relative error:  %f, %f, %f\n",
+                getAvg(sketch_error), getStd(sketch_error), getMax(sketch_error));
+        printf("Sketch (3 scales)  HBE relative error:  %f, %f, %f\n",
+                getAvg(sketch_scale_error), getStd(sketch_scale_error), getMax(sketch_scale_error));
+        printf("RS relative error:  %f, %f, %f\n",
+               getAvg(rs_error), getStd(rs_error), getMax(rs_error));
     }
 
     delete[] exact;

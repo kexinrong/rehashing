@@ -48,13 +48,12 @@ int main(int argc, char *argv[]) {
     // The bandwidth.
     double h = cfg.getH();
     if (!cfg.isConst()) {
-        if (strcmp(scope, "exp") == 0) {
-            h *= pow(N, -1.0/(d+4));
-        } else {
+        h *= pow(N, -1.0/(d+4));
+        if (strcmp(scope, "exp") != 0) {
             h *= sqrt(2);
         }
     }
-
+    std::cout << "Bandwidth: " << h << std::endl;
 
     // Read input
     double *x = new double[N * d];

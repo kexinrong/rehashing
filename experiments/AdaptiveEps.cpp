@@ -33,7 +33,8 @@ void update(vector<double>& results, vector<double> est, double exact) {
     results[1] += est[1];
 }
 
-void findEps(bool isRandom, shared_ptr<MatrixXd> X, double *exact, parseConfig cfg, bool sequential) {
+void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, parseConfig cfg,
+        bool sequential, bool hasQuery) {
     double eps = 0.4;
     bool stop = false;
     bool times = false;
@@ -67,12 +68,16 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, double *exact, parseConfig c
         vector<double> results(2,0);
 
         for (int j = 0; j < M; j++) {
-            int idx = j;
+            int idx = j * 2;
             VectorXd q = X->row(j);
-            if (!sequential) {
-                q = X->row(exact[j*2+1]);
+            if (hasQuery != 0) {
+                q = Y.row(j);
+            } else {
+                if (!sequential) {
+                    q = X->row(exact[idx + 1]);
+                }
             }
-            if (!sequential) { idx = j * 2;}
+
             vector<double> vals = est->query(q);
             update(results, vals, exact[idx]);
         }
@@ -129,12 +134,15 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, double *exact, parseConfig c
         vector<double> results(2,0);
 
         for (int j = 0; j < M; j++) {
-            int idx = j;
+            int idx = j * 2;
             VectorXd q = X->row(j);
-            if (!sequential) {
-                q = X->row(exact[j*2+1]);
+            if (hasQuery != 0) {
+                q = Y.row(j);
+            } else {
+                if (!sequential) {
+                    q = X->row(exact[idx + 1]);
+                }
             }
-            if (!sequential) { idx = j * 2;}
             vector<double> vals = est->query(q);
             update(results, vals, exact[idx]);
         }
@@ -170,8 +178,8 @@ int main(int argc, char *argv[]) {
     int M = cfg.getM();
 
     double h = cfg.getH();
-    h *= pow(N, -1.0 / (dim + 4));
     if (!cfg.isConst()) {
+        h *= pow(N, -1.0 / (dim + 4));
         if (strcmp(scope, "exp") != 0) {
             h *= sqrt(2);
         }
@@ -212,12 +220,14 @@ int main(int argc, char *argv[]) {
         dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
     }
 
-    std::cout << "HBE\n";
-    findEps(false, X_ptr, exact, cfg, sequential);
+
+
+    std::cout << "RS\n";
+    findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
 
     std::cout << "======================================\n";
-    std::cout << "RS\n";
-    findEps(true, X_ptr, exact, cfg, sequential);
+    std::cout << "HBE\n";
+    findEps(false, X_ptr, Y, exact, cfg, sequential, hasQuery);
 
 
 

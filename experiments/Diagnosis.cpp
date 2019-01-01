@@ -40,9 +40,8 @@ int main(int argc, char *argv[]) {
 
     double h = cfg.getH();
     if (!cfg.isConst()) {
-        if (strcmp(scope, "exp") == 0) {
-            h *= pow(N, -1.0 / (dim + 4));
-        } else {
+        h *= pow(N, -1.0 / (dim + 4));
+        if (strcmp(scope, "exp") != 0) {
             h *= sqrt(2);
         }
     }
@@ -81,11 +80,13 @@ int main(int argc, char *argv[]) {
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> distribution(0, M - 1);
 
+    auto t1 = std::chrono::high_resolution_clock::now();
     for (int iter = 0; iter < 3; iter ++) {
         double reals = 0;
         double level = 0;
         double rs_cost = 0;
         double hbe_cost = 0;
+        int sparse = 0;
         for (int j = 0; j < 100; j++) {
             int idx = distribution(rng);
             VectorXd q = X.row(idx);
@@ -94,18 +95,27 @@ int main(int argc, char *argv[]) {
             }
             vector<double> rs_est = rs.query(q);
 
+            if (rs_est[0] < tau) {
+                sparse += 1;
+                continue;
+            }
+
             int target = rs.findTargetLevel(rs_est[0]);
 
             int actual = rs.findActualLevel(q, rs_est[0], eps);
             reals += actual;
             level += target;
 
-            rs_cost += rs.findRSRatio(rs_est[0], eps);
-            hbe_cost += rs.findHBERatio(q, actual, rs_est[0], eps);
+            rs_cost += rs.findRSRatio(eps);
+            hbe_cost += rs.findHBERatio(q, actual, eps);
+
         }
         //std::cout << "actual:" << reals/100 << ", target: " << level/100 << std::endl;
-        std::cout << "rs:" << rs_cost/100 << ", hbe: " << hbe_cost/100 << std::endl;
-
+//        std::cout << "sparse: " << sparse << std::endl;
+        std::cout << "rs:" << rs_cost/(100 - sparse) << ", hbe: " << hbe_cost/(100 - sparse) << std::endl;
     }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::cout << "Diagnosis took: " <<
+              std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count() << "ms" << std::endl;
 
 }
