@@ -35,7 +35,7 @@ void update(vector<double>& results, vector<double> est, double exact) {
 
 void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, parseConfig cfg,
         bool sequential, bool hasQuery) {
-    double eps = 0.4;
+    double eps = 0.6;
     bool stop = false;
     bool times = false;
 
@@ -45,10 +45,10 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
     shared_ptr<Kernel> simpleKernel;
     double head = 0;
     double tail = 1;
-    if (strcmp(cfg.scope, "gaussian") == 0) {
-        simpleKernel = make_shared<Gaussiankernel>(dim);
-    } else {
+    if (strcmp(cfg.scope, "exp") == 0) {
         simpleKernel = make_shared<Expkernel>(dim);
+    } else {
+        simpleKernel = make_shared<Gaussiankernel>(dim);
     }
 
     shared_ptr<AdaptiveEstimator> est;
@@ -74,7 +74,7 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
                 q = Y.row(j);
             } else {
                 if (!sequential) {
-                    q = X->row(exact[idx + 1]);
+                    q = X->row(int(exact[idx + 1]));
                 }
             }
 
@@ -87,7 +87,7 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
         std::cout << "Relative Error: " << results[0] / M << std::endl;
 
         double err = results[0] / M;
-        if (eps == 0.4) {
+        if (eps == 0.6) {
             if (err < 0.1) {
                 times = true;
                 eps *= 2;
@@ -140,7 +140,7 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
                 q = Y.row(j);
             } else {
                 if (!sequential) {
-                    q = X->row(exact[idx + 1]);
+                    q = X->row(int(exact[idx + 1]));
                 }
             }
             vector<double> vals = est->query(q);
@@ -191,10 +191,10 @@ int main(int argc, char *argv[]) {
     std::cout << "bw: " << h << std::endl;
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
-    if (strcmp(scope, "gaussian") == 0) {
-        kernel = make_shared<Gaussiankernel>(dim);
-    } else {
+    if (strcmp(scope, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
+    } else {
+        kernel = make_shared<Gaussiankernel>(dim);
     }
 
     kernel->initialize(band->bw);
@@ -214,22 +214,15 @@ int main(int argc, char *argv[]) {
     // Read exact KDE
     bool sequential = (N == M);
     double *exact = new double[M * 2];
-    if (sequential) {
-        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
-    } else {
-        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
-    }
+    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
 
-
-
-    std::cout << "RS\n";
-    findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
-
-    std::cout << "======================================\n";
     std::cout << "HBE\n";
     findEps(false, X_ptr, Y, exact, cfg, sequential, hasQuery);
 
+    std::cout << "======================================\n";
 
+    std::cout << "RS\n";
+    findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
 
     delete[] exact;
 }

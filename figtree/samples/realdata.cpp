@@ -141,22 +141,18 @@ int main(int argc, char* argv[])
         d = 784;
         N = 70000;
         M = 70000;
-        multiplier = 10;
     } else if (strcmp(argv[1], "tmy") == 0) {
         d = 8;
         N = 1822080;
         M = 100000;
-        multiplier = 2;
     } else if (strcmp(argv[1], "covtype") == 0) {
         d = 54;
         N = 581012;
-        M = 581012;
-        h = 2.81237;
+        M = 100000;
     } else if (strcmp(argv[1], "home") == 0) {
         d = 10;
         N = 928991;
         M = 100000;
-        multiplier = 0.6;
     } else if (strcmp(argv[1], "shuttle") == 0) {
         d = 9;
         N = 43500;
@@ -164,13 +160,11 @@ int main(int argc, char* argv[])
     } else if (strcmp(argv[1], "ijcnn") == 0) {
         d = 22;
         N = 141691;
-        M = 100000;
-        multiplier = 1.5;
+        M = 93067;
     } else if (strcmp(argv[1], "skin") == 0) {
         d = 3;
         N = 245057;
         M = 100000;
-        multiplier = .2;
     } else if (strcmp(argv[1], "acoustic") == 0) {
         d = 50;
         N = 78823;
@@ -179,17 +173,14 @@ int main(int argc, char* argv[])
         d = 8;
         N = 59535;
         M = 59535;
-        multiplier = 0.5;
     } else if (strcmp(argv[1], "corel") == 0) {
         d = 32;
         N = 68040;
         M = 68040;
-        multiplier = 1.5;
     } else if (strcmp(argv[1], "elevator") == 0) {
         d = 18;
         N = 16599;
         M = 16599;
-        multiplier = 1.5;
     } else if (strcmp(argv[1], "housing") == 0) {
         d = 8;
         N = 20640;
@@ -197,26 +188,45 @@ int main(int argc, char* argv[])
     } else if (strcmp(argv[1], "msd") == 0) {
         d = 90;
         N = 463715;
-        M = 100000;
-        multiplier = 3;
+        M = 90969;
+        //M = 100000;
     } else if (strcmp(argv[1], "poker") == 0) {
         d = 10;
         N = 25010;
         M = 25010;
-        multiplier = 2;
     } else if (strcmp(argv[1], "sensorless") == 0) {
         d = 48;
         N = 58509;
         M = 58509;
-        multiplier = 2;
     } else if (strcmp(argv[1], "susy") == 0) {
         d = 18;
         N = 5000000;
         M = 100000;
-        multiplier = 4;
+    } else if (strcmp(argv[1], "glove.6b.100d") == 0) {
+        d = 100;
+        N = 400000;
+        M = 100000;
+    } else if (strcmp(argv[1], "cifar10") == 0) {
+        d = 3072;
+        N = 50000;
+        M = 50000;
+    } else if (strcmp(argv[1], "aloi") == 0) {
+        d = 128;
+        N = 108000;
+        M = 9121;
+    } else if (strcmp(argv[1], "timit") == 0) {
+        d = 440;
+        N = 1000000;
+        M = 9812;
+    } else if (strcmp(argv[1], "glove") == 0) {
+        d = 100;
+        N = 400000;
+        M = 10000;
+    } else if (strcmp(argv[1], "census") == 0) {
+        d = 68;
+        N = 2458285;
+        M = 9546;
     }
-
-
 
 // hep
 //    int d = 27;
@@ -234,10 +244,8 @@ int main(int argc, char* argv[])
     // to  exp( -||x_i - y_j||^2 / (2*sigma^2) ).  Thus, if sigma is known,
     // bandwidth can be set to h = sqrt(2)*sigma.
     double scaleFactor = pow(N, -1.0/(d+4));
-    //double h = sqrt(2) * scaleFactor * multiplier;
-    if (h == 0) {
-        h = sqrt(2) * multiplier;
-    }
+    multiplier = atof(argv[3]);
+    h = sqrt(2) * multiplier * scaleFactor;
 
     // Desired maximum absolute error after normalizing output by sum of weights.
     // If the weights, q_i (see below), add up to 1, then this is will be the
@@ -249,7 +257,6 @@ int main(int argc, char* argv[])
     std::cout << "dataset=" << ds << std::endl;
     std::cout << "epsilon=" << epsilon << std::endl;
     std::cout << "h=" << h << std::endl;
-
 
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
@@ -290,6 +297,14 @@ int main(int argc, char* argv[])
         readFile("../../resources/data/sensorless_scaled.csv", false, N, 0, 47, &x[0]);
     } else if (strcmp(argv[1], "susy") == 0) {
         readFile("../../resources/data/susy_normed.csv", true, N, 1, 18, &x[0]);
+    } else if (strcmp(argv[1], "aloi") == 0) {
+        readFile("../../resources/data/aloi_scaled.csv", false, N, 0, 127, &x[0]);
+    } else if (strcmp(argv[1], "timit") == 0) {
+        readFile("../../resources/data/timit_normed.txt", false, N, 0, 439, &x[0]);
+    } else if (strcmp(argv[1], "glove") == 0) {
+        readFile("../../resources/data/glove.6B.100d_normed.txt", false, N, 0, 99, &x[0]);
+    } else if (strcmp(argv[1], "census") == 0) {
+        readFile("../../resources/data/census_normed.txt", false, N, 0, 67, &x[0]);
     }
 //    readFile("../../resources/data/hep_normed.csv", true, N, 2, 28, &x[0]);
 //    readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
@@ -300,7 +315,8 @@ int main(int argc, char* argv[])
     // For example, below M = 10 and d = 7, so there are 10 rows, each
     // a 7-dimensional sample.
     double *exact = new double[M * 2];
-    std::string fname = "../../resources/exact/" + ds + "_gaussian.txt";
+    std::string exact_file(argv[4]);
+    std::string fname = "../../resources/exact/" + exact_file;
     readFile(fname, false, M, 0, 1, &exact[0]);
 
     size = M * d;
@@ -350,10 +366,8 @@ int main(int argc, char* argv[])
 //    std::ofstream outfile("covtype.txt");
     double err = 0;
     for( int i = 0; i < M; i++) {
-        err += fabs(g_auto[i] - exact[i*2]) / exact[i*2];
-//        if (i < 10) {
-//            std::cout << g_auto[i] << "," << exact[i*2] << std::endl;
-//        }
+        double tmp = fabs(g_auto[i] - exact[i*2]) / exact[i*2];
+        err += tmp;
 //        outfile << g_auto[i] << "\n";
     }
     std::cout << "Relative Error: " << err / M << std::endl;

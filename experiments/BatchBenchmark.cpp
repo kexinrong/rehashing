@@ -81,12 +81,12 @@ int main(int argc, char *argv[]) {
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
     shared_ptr<Kernel> simpleKernel;
-    if (strcmp(scope, "gaussian") == 0) {
-        kernel = make_shared<Gaussiankernel>(dim);
-        simpleKernel = make_shared<Gaussiankernel>(dim);
-    } else {
+    if (strcmp(scope, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
         simpleKernel = make_shared<Expkernel>(dim);
+    } else {
+        kernel = make_shared<Gaussiankernel>(dim);
+        simpleKernel = make_shared<Gaussiankernel>(dim);
     }
     double means = ceil(6 * simpleKernel->RelVar(tau) / eps / eps);
 
@@ -160,16 +160,14 @@ int main(int argc, char *argv[]) {
         vector<double> sketch_error;
         vector<double> rs_error;
         vector<double> sketch_scale_error;
-        int cnt = 0;
 
         for(int j = 0; j < M; j++) {
-            int idx = j;
+            int idx = j * 2;
             VectorXd q = X.row(j);
             if (hasQuery != 0) {
                 q = Y.row(j);
             } else {
                 if (!sequential) {
-                    idx = j * 2;
                     q = X.row(exact[idx + 1]);
                 }
             }

@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
                             cfg.getStartCol(), cfg.getEndCol(), &y[0]);
     }
 
-    double * g = new double[M];
+    double *g = new double[M];
 
     // Random init
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
