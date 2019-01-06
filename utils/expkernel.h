@@ -29,7 +29,7 @@ public:
         return exp(-logSn(dim - 1)) / tgamma(dim);
     }
 
-    double density(VectorXd d) {
+    double density(const VectorXd& d) {
         double dist = 0;
         for (int i = 0; i < dim; i ++) {
             dist += d(i) * d(i) * invBandwidth[i] * invBandwidth[i];

@@ -38,11 +38,11 @@ public:
     }
 
     virtual double getDimFactor() = 0;
-    virtual double density(VectorXd d) = 0;
+    virtual double density(const VectorXd& d) = 0;
     virtual double density(double dist) = 0;
     virtual double invDensity(double p) = 0;
 
-    double density(VectorXd p, VectorXd q) {
+    double density(const VectorXd& p, const VectorXd& q) {
         return density(p - q);
     }
 

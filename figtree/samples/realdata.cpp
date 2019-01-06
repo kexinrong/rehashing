@@ -226,6 +226,10 @@ int main(int argc, char* argv[])
         d = 68;
         N = 2458285;
         M = 9546;
+    } else if (strcmp(argv[1], "svhn") == 0) {
+        d = 3072;
+        N = 630420;
+        M = 9820;
     }
 
 // hep
@@ -305,6 +309,8 @@ int main(int argc, char* argv[])
         readFile("../../resources/data/glove.6B.100d_normed.txt", false, N, 0, 99, &x[0]);
     } else if (strcmp(argv[1], "census") == 0) {
         readFile("../../resources/data/census_normed.txt", false, N, 0, 67, &x[0]);
+    } else if (strcmp(argv[1], "svhn") == 0) {
+        readFile("../../resources/data/svhn_normed.txt", false, N, 0, 3071, &x[0]);
     }
 //    readFile("../../resources/data/hep_normed.csv", true, N, 2, 28, &x[0]);
 //    readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
