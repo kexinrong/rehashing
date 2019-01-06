@@ -126,66 +126,116 @@ void AdaptiveRSDiag::clearSamples() {
     samples.clear();
 }
 
-void AdaptiveRSDiag::getConstants(double est, double eps) {
-//    thresh = eps * lb / 10;
+template <typename T>
+vector<size_t> sort_indexes(const vector<T> &v) {
+
+    // initialize original index locations
+    vector<size_t> idx(v.size());
+    iota(idx.begin(), idx.end(), 0);
+
+    // sort indexes based on comparing values in v
+    sort(idx.begin(), idx.end(),
+         [&v](size_t i1, size_t i2) {return v[i1] < v[i2];});
+
+    return idx;
+}
+
+void AdaptiveRSDiag::getConstants() {
+    // Sort samples by contribution
+    vector<int> tmp_samples;
+    vector<double> tmp_weights;
+    for (auto i: sort_indexes(contrib)) {
+        tmp_samples.push_back(samples[i]);
+        tmp_weights.push_back(contrib[i]);
+    }
+    samples = tmp_samples;
+    contrib = tmp_weights;
+
     thresh = 1e-10;
     u = vector<double>(4, 0);
-    s = vector<int>(4, 0);
+    s4 = 0;
+    set_mins = vector<double>(4, 1);
+    set_maxs = vector<double>(4, 0);
+    set_start.clear();
     u_global = 0;
     sample_count = 0;
-    for (size_t i = 0; i < contrib.size(); i ++) {
-        if (contrib[i] < thresh) {
-            continue;
-        }
+    size_t idx = 0;
+    while (contrib[idx] < thresh) {idx ++; }
+    // Start of S4
+    set_start.push_back(idx);
+
+    for (size_t i = idx; i < contrib.size(); i ++) {
         sample_count += 1;
         u_global += contrib[i];
     }
     u_global /= sample_count;
 
-    w1Max = 0;
-    w1Min = 1;
-    for (size_t i = 0; i < contrib.size(); i ++) {
-        if (contrib[i] < thresh) {
-            continue;
-        }
-        if (contrib[i] >= u_global) { // S1
-            u[0] += contrib[i];
-            s[0] += 1;
-            w1Min = min(contrib[i], w1Min);
-            w1Max = max(contrib[i], w1Max);
-        } else {
+    // Calcuate S4 stats
+    size_t i = idx;
+    while (set_start.size() == 1) {
+        if (contrib[i] < u_global) {
             u[3] += contrib[i];
-            s[3] += 1;
+            s4 += 1;
+            set_maxs[3] = max(contrib[i], set_maxs[3]);
+        } else if (contrib[i - 1] < u_global) {
+            // End of S4
+            set_start.push_back(i);
         }
+        i ++;
     }
-    u[0] /= s[0];
-    u[3] /= s[3];
+    u[3] /= sample_count;
 }
 
-//double getAvg(double lower, double upper) {
-//    int cnt = 0;
-//    int s = 0;
-//    for (size_t i = 0; i < contrib.size(); i ++) {
-//        if (contrib[i] >= lower && contrib[i] <= upper) {
-//            s += contrib[i];
-//            cnt += 1;
-//        }
-//    }
-//    return s / cnt;
-//}
-//
-//void findRings(int strategy, double eps) {
-//    if (strategy == 0) { // Trivial
-//        lambda = u_global;
-//        l = u_global;
-//    } else if (strategy == 1)  {
-//
-//    }
-//}
+
+void AdaptiveRSDiag::findRings(int strategy, double eps) {
+    if (strategy == 0 || sample_count < 3) { // Trivial
+        lambda = u_global;
+        l = u_global;
+        set_start.push_back(set_start[1]);
+        set_start.push_back(set_start[1]);
+    } else if (strategy == 1)  { // Direct
+        //double min_u = (1 - eps / 2) * u_global;
+        double min_u = (eps * u_global - u[3]) / 2;
+
+        // Find lambda (S3)
+        double s = 0;
+        size_t i = set_start[1];
+        while (s < min_u && i < contrib.size()) {
+            s += contrib[i] / sample_count;
+            i ++;
+        }
+        lambda = contrib[i-1];
+        set_start.push_back(i);
+
+        // Find L (S1)
+        s = 0;
+        i = contrib.size() - 1;
+        while (s < min_u && i >= set_start[2]) {
+            s += contrib[i] / sample_count;
+            i --;
+        }
+        i = min(contrib.size()-2, i);
+        l = contrib[i+1];
+        set_start.push_back(i+1);
+    }
+    set_start.push_back(contrib.size());
+
+    std::cout << lambda << ", " << l << std::endl;
+
+    // Calculate set stats
+    for (size_t i = 0; i < 3; i ++) {
+        for (int j = set_start[3-i]; j < set_start[4-i]; j ++) {
+            u[i] += contrib[j];
+            set_maxs[i] = max(contrib[j], set_maxs[i]);
+            set_mins[i] = min(contrib[j], set_mins[i]);
+
+        }
+        u[i] /= sample_count;
+    }
+}
 
 double AdaptiveRSDiag::RSTriv() {
-//    std::cout << u[0] << "," << u[3] << "," << w1Max << "," << w1Min << "," << u_global << std::endl;
-    return (w1Max / w1Min) * u[0] * u[0] + s[3] * w1Max * u[0] / sample_count + u_global * u[3];
+    return (set_maxs[0] / set_mins[0]) * u[0] * u[0] + s4 * set_maxs[0] * u[0] / sample_count + set_maxs[3] * u[3];
 }
 
 double AdaptiveRSDiag::HBETriv(VectorXd &q, int level) {
@@ -195,6 +245,8 @@ double AdaptiveRSDiag::HBETriv(VectorXd &q, int level) {
         exp_k = ki[level];
     }
 
+    double p4max = 0;
+    double p1min = 1;
     double pmin = 1;
     vector<double> prob;
     for (size_t i = 0; i < samples.size(); i ++) {
@@ -207,18 +259,19 @@ double AdaptiveRSDiag::HBETriv(VectorXd &q, int level) {
         double c = delta.norm() / exp_w;
         double p = mathUtils::collisionProb(c, exp_k);
         prob.push_back(p);
+        if (contrib[i] < u_global) { // S4
+            p4max = max(p4max, p);
+        } else { // S1
+            p1min = min(p1min, p);
+        }
         pmin = min(pmin, p);
     }
 
-    double vij_wwmax = 0;
-    double vij_wmax = 0;
+    double v4_wmax = 0;
     int pi = -1;
     int pj = -1;
-    int pi_ = -1;
-    int pj_ = -1;
     double kjmin = std::numeric_limits<double>::max();
-    double kimax = 0;
-    double kjmax = 0;
+    double v1_wmax = 0;
     for (size_t i = 0; i < samples.size(); i ++) {
         if (contrib[i] < thresh) {
             continue;
@@ -228,49 +281,28 @@ double AdaptiveRSDiag::HBETriv(VectorXd &q, int level) {
         double k_j = contrib[i] / prob[i];
 
         if (contrib[i] > u_global) { // S1
-            double tmp = min(pmin, prob[i]) / prob[i] / prob[i] * contrib[i];
-            vij_wmax = max(vij_wmax, tmp);
-//            if ((w1Max - contrib[i]) < 1e-5) {
-//                pj_ = i;
-//            }
-
-            if (k_i > kimax) {pi = i;}
+            if (k_i > v1_wmax) {pi = i;}
             if (k_j < kjmin) {pj = i;}
-            if (k_j > kjmax) {pi_ = i;}
-            kimax = max(kimax, k_i);
+            v1_wmax = max(v1_wmax, k_i);
             kjmin = min(kjmin, k_j);
-            kjmax = max(kjmax, k_j);
+        } else { // S4
+            v4_wmax = max(v4_wmax, k_i);
         }
     }
-    double vmax = 1 / pmin;
+    double sup3 = v4_wmax * p4max;
+    double sup2 = v1_wmax * p4max;
 
-    vij_wwmax = kjmax * w1Max;
+    double sup1 = 1 / p1min;
     if (prob[pi] > prob[pj]) {
 //        std::cout << ">: pi: " << prob[pi] << ",  wi: " << contrib[pi] << ", pj:" << prob[pj] << ", wj: " << contrib[pj]
 //                  << std::endl;
-        vij_wwmax = max(vij_wwmax, kimax / kjmin);
+        sup1 = max(sup1, v1_wmax / kjmin);
     }
-//    } else {
-//        std::cout << "<: pi: " << prob[pi_] << ",  wi: " << contrib[pi_] <<", pj:" << prob[pj_] << ", wj: " << contrib[pj_] << ", w1max:"
-//            << w1Max << std::endl;
-//        vij_wwmax = kjmax * w1Max;
-//    }
-//    std::cout << vij_wwmax << "," << vij_wwmax * u[0] * u[0] << "," << s[3] * vij_wmax * u[0] / sample_count << std::endl;
 
-    return vij_wwmax * u[0] * u[0] + s[3] * vij_wmax * u[0] / sample_count + vmax * u_global * u[3];
+//    std::cout << sup1 << "," << sup2 << "," << sup3 << std::endl;
+    return sup1 * u[0] * u[0] + s4 * sup2 * u[0] / sample_count + sup3 * u[3];
 }
 
-
-int AdaptiveRSDiag::findTargetLevel(double est) {
-    int i = 0;
-    while (i < I) {
-        if (est > mui[i]) {
-            return i;
-        }
-        i ++;
-    }
-    return I - 1;
-}
 
 int AdaptiveRSDiag::findActualLevel(VectorXd &q, double truth, double eps) {
     int i = 0;

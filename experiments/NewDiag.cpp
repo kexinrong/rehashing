@@ -91,10 +91,9 @@ int main(int argc, char *argv[]) {
 
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    for (int iter = 0; iter < 3; iter ++) {
+    for (int iter = 0; iter < 1; iter ++) {
         vector<double> rs_cost;
         vector<double> hbe_cost;
-        int sparse = 0;
         for (int j = 0; j < 100; j++) {
             int idx = distribution(rng);
             VectorXd q = X.row(idx);
@@ -103,23 +102,23 @@ int main(int argc, char *argv[]) {
             }
             rs.clearSamples();
             vector<double> rs_est = rs.query(q);
+//            if (rs_est[0] < tau) { continue; }
+            double r2 = max(rs_est[0], tau);
+            r2 *= r2;
 
-            if (rs_est[0] < tau) { continue; }
-
-            int target = rs.findTargetLevel(rs_est[0]);
             int actual = rs.findActualLevel(q, rs_est[0], eps);
-            rs.getConstants(rs_est[0], eps);
+//            std::cout << "actual level: " << actual << "," << rs_est[0] << std::endl;
+            rs.getConstants();
+            rs.findRings(1, eps);
 
-//            std::cout << rs_est[0] << std::endl;
-            rs_cost.push_back(rs.RSTriv());
+//            rs_cost.push_back(rs.RSTriv() / r2);
 //            std::cout << "rs: "<< rs_cost[rs_cost.size() - 1];
-            hbe_cost.push_back(rs.HBETriv(q, actual));
+//            hbe_cost.push_back(rs.HBETriv(q, actual) / r2);
 //            std::cout << "hbe: " << hbe_cost[rs_cost.size() - 1] << " | ";
-
 
         }
         //std::cout << "actual:" << reals/100 << ", target: " << level/100 << std::endl;
-        std::cout << "rs:" << getAvg(rs_cost) << ", hbe: " <<  getAvg(hbe_cost) << std::endl;
+//        std::cout << "rs:" << getAvg(rs_cost) << ", hbe: " <<  getAvg(hbe_cost) << std::endl;
     }
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Diagnosis took: " <<

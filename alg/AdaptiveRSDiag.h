@@ -27,17 +27,15 @@ public:
     AdaptiveRSDiag(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);
     AdaptiveRSDiag(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples, double lb, double eps);
 
-
-    int findTargetLevel(double est);
     int findActualLevel(VectorXd &q, double est, double eps);
 
-    void getConstants(double est, double eps);
-    void clearSamples();
+    void findRings(int strategy, double eps);
 
+    void getConstants();
+    void clearSamples();
 
     double RSTriv();
     double HBETriv(VectorXd &q, int level);
-
 
 
 protected:
@@ -48,12 +46,14 @@ protected:
     double thresh;
 
     // Diagnosis constants
+    vector<int> set_start;
+    int s4 = 0;
     vector<double> u;
-    vector<int> s;
     int sample_count;
     double u_global;
-    double w1Max;
-    double w1Min;
+
+    vector<double> set_mins;
+    vector<double> set_maxs;
     double lambda;
     double l;
 
