@@ -24,19 +24,21 @@ public:
     vector<double> contrib;
     vector<int> samples;
 
+    double lambda;
+    double l;
+
     AdaptiveRSDiag(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);
     AdaptiveRSDiag(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples, double lb, double eps);
 
     int findActualLevel(VectorXd &q, double est, double eps);
 
-    void findRings(int strategy, double eps);
+    void findRings(int strategy, double eps, VectorXd &q, int level);
 
     void getConstants();
     void clearSamples();
 
-    double RSTriv();
-    double HBETriv(VectorXd &q, int level);
-
+    double RSDirect();
+    double HBEDirect();
 
 protected:
     double lb;
@@ -47,15 +49,18 @@ protected:
 
     // Diagnosis constants
     vector<int> set_start;
-    int s4 = 0;
     vector<double> u;
     int sample_count;
     double u_global;
 
-    vector<double> set_mins;
-    vector<double> set_maxs;
-    double lambda;
-    double l;
+    vector<double> w_mins;
+    vector<double> w_maxs;
+    vector<double> pmins;
+    vector<double> pmaxs;
+    vector<vector<double>> w_pps;
+    vector<vector<double>> w_ps;
+    vector<vector<int>> w_pp_idx;
+    vector<vector<int>> w_p_idx;
 
     std::vector<double> evaluateQuery(VectorXd q, int level);
 
@@ -63,6 +68,7 @@ private:
     const double LOG2 = log(2);
     const double SQRT_2PI = sqrt(2.0 / M_PI);
 
+    double evaluateSamples(VectorXd q, int level, std::vector<double> &Z);
     void buildLevels(double tau, double eps);
 };
 
