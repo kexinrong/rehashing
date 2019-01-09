@@ -14,6 +14,7 @@ using Eigen::VectorXd;
 
 class AdaptiveEstimator {
 public:
+    int numPoints;
     double totalTime = 0;
     double r;
     double gamma = 0.5;
@@ -35,16 +36,12 @@ public:
         while (i < I) {
             std::vector<double> results = evaluateQuery(q, i);
             est = results[0];
-            returns[1] += L * Mi[i];
-
+            returns[1] += results[1];
 //            std::cout << "Level: " << i << ", est: "<< est << ", target: "<< mui[i] << std::endl;
-            if (est >= mui[i]) {
+            if (est >= mui[i] || L * Mi[i] > numPoints) {
                 break;
             } else {
                 int k = (int) floor(log(est) / log(1 - gamma));
-//                if (i == 0 && k >= I) {
-//                    k = I - 1;
-//                }
                 i = std::max(k, i + 1);
             }
         }

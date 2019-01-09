@@ -115,6 +115,7 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level) {
     }
 
     results[0] = mathUtils::median(Z) / results[1];
+    results[1] *= L;
     return results;
 }
 

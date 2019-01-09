@@ -37,7 +37,7 @@ void AdaptiveRSDiag::buildLevels(double tau, double eps) {
         ti[i] = sqrt(log(1 / mui[i]));
         ki[i] = (int) (3 * ceil(r * ti[i]));
         wi[i] = ki[i] / ti[i] * SQRT_2PI;
-//        std::cout << "Level " << i << ", samples " << Mi[i] <<
+//        std::cout << "Level " << i << ", funcs " << ki[i] <<
 //            ", target: "<< mui[i] << std::endl;
     }
 }
@@ -99,8 +99,21 @@ std::vector<double> AdaptiveRSDiag::evaluateQuery(VectorXd q, int level) {
     std::uniform_int_distribution<int> distribution(0, numPoints - 1);
 
     std::vector<double> results = std::vector<double>(2, 0);
-    results[1] =  Mi[level];
+    if (L * Mi[level] > numPoints) {
+        // Compute Exact
+        results[1] = numPoints;
+        samples.clear();
+        contrib.clear();
+        for (int i = 0; i < numPoints; i ++) {
+            double d = kernel->density(q, X->row(i));
+            samples.push_back(i);
+            contrib.push_back(d);
+            results[0] += d;
+        }
+        return results;
+    }
 
+    results[1] =  L * Mi[level];
     std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
         std::vector<int> indices(results[1]);
@@ -119,31 +132,6 @@ std::vector<double> AdaptiveRSDiag::evaluateQuery(VectorXd q, int level) {
 
     results[0] = mathUtils::median(Z) / results[1];
     return results;
-}
-
-double AdaptiveRSDiag::evaluateSamples(VectorXd q, int level, std::vector<double> &Z) {
-    std::uniform_int_distribution<int> distribution(0, numPoints - 1);
-
-    int nsample = Mi[level];
-    if (level > 0) {
-        nsample -= Mi[level-1];
-    }
-    for (int i = 0; i < L; i ++) {
-        std::vector<int> indices(nsample);
-        for (int j = 0; j < nsample; j ++) {
-            indices[j] = distribution(rng);
-        }
-        std::sort(indices.begin(), indices.end());
-        for (int j = 0; j < nsample; j ++) {
-            int idx = indices[j];
-            double d = kernel->density(q, X->row(idx));
-            samples.push_back(idx);
-            contrib.push_back(d);
-            Z[i] += d;
-        }
-    }
-
-    return mathUtils::median(Z) / Mi[level];
 }
 
 void AdaptiveRSDiag::clearSamples() {
@@ -170,8 +158,12 @@ void AdaptiveRSDiag::getConstants() {
     vector<int> tmp_samples;
     vector<double> tmp_weights;
     for (auto i: sort_indexes(contrib)) {
-        tmp_samples.push_back(samples[i]);
-        tmp_weights.push_back(contrib[i]);
+        if (contrib[i] < 1) { // Ignore self, otherwise RS cost goes up
+            tmp_samples.push_back(samples[i]);
+            tmp_weights.push_back(contrib[i]);
+        } else {
+            break;
+        }
     }
     samples = tmp_samples;
     contrib = tmp_weights;
@@ -179,21 +171,18 @@ void AdaptiveRSDiag::getConstants() {
     thresh = 1e-10;
     set_start.clear();
     u_global = 0;
-    sample_count = 0;
-    size_t idx = 0;
+    sample_count = samples.size();
     u = vector<double>(4, 0);
-    while (contrib[idx] < thresh) {idx ++; }
     // Start of S4
-    set_start.push_back(idx);
+    set_start.push_back(0);
 
-    for (size_t i = idx; i < contrib.size(); i ++) {
-        sample_count += 1;
+    for (size_t i = 0; i < contrib.size(); i ++) {
         u_global += contrib[i];
     }
     u_global /= sample_count;
 
     // Calcuate S4 stats
-    size_t i = idx;
+    size_t i = 0;
     while (set_start.size() == 1) {
         if (contrib[i] < u_global) {
             u[3] += contrib[i];
@@ -259,6 +248,7 @@ void AdaptiveRSDiag::findRings(int strategy, double eps, VectorXd &q, int level)
         vector<double> wp;
         for (int j = set_start[3-i]; j < set_start[4-i]; j ++) {
             u[i] += contrib[j];
+            if (contrib[j] < thresh) { continue; }
             w_maxs[i] = max(contrib[j], w_maxs[i]);
             w_mins[i] = min(contrib[j], w_mins[i]);
 
@@ -300,7 +290,7 @@ void AdaptiveRSDiag::findRings(int strategy, double eps, VectorXd &q, int level)
 }
 
 
-double AdaptiveRSDiag::RSDirect() {
+double AdaptiveRSDiag::RSDirect(double est) {
     double up = w_maxs[3] * u[3];
     double t2_factor = (set_start[1] - set_start[0]) * 1.0 / sample_count;
     for (int i = 0; i < 3; i ++) {
@@ -316,7 +306,8 @@ double AdaptiveRSDiag::RSDirect() {
 
 
 double AdaptiveRSDiag::HBEDirect() {
-    double sup3 = w_pps[3][0] * pmaxs[3];
+    //double sup3 = w_pps[3][0] * pmaxs[3];
+    double sup3 = w_ps[3][w_ps[3].size() - 1] ;
 
     double up = sup3 * u[3];
     double t2_factor = (set_start[1] - set_start[0]) * 1.0 / sample_count;
@@ -338,7 +329,7 @@ double AdaptiveRSDiag::HBEDirect() {
             } else if (i < j) { // From different sets
                 sup1 = w_pps[i][0] / w_ps[j][0];
             } else {
-                sup1 = w_ps[i][w_ps[i].size() - 1] * w_maxs[j];
+                sup1 = w_ps[i][w_ps[i].size() - 1] / w_mins[j];
             }
             up += sup1 * u[i] * u[j];
         }
@@ -349,13 +340,17 @@ double AdaptiveRSDiag::HBEDirect() {
 
 
 int AdaptiveRSDiag::findActualLevel(VectorXd &q, double truth, double eps) {
+
+    vector<int> indices;
+    for (int i = 0; i < samples.size(); ++i) indices.push_back(i);
+    // using built-in random generator:
+    std::random_shuffle ( indices.begin(), indices.end() );
+
     int i = 0;
     std::vector<double> Z = std::vector<double>(L, 0);
     while (i < I) {
-        double est = evaluateSamples(q, i, Z);
-        if (fabs(est - truth) / truth < eps) {
-        //std::vector<double> results = evaluateQuery(q, i);
-        //if (fabs(results[0] - truth) / truth < eps) {
+        std::vector<double> results = evaluateQuery(q, i);
+        if (fabs(results[0] - truth) / truth < eps) {
             return i;
         }
         i ++;

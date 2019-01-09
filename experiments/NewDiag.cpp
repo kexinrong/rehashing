@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
         vector<double> rs_cost;
         vector<double> hbe_cost;
         int j = 0;
-        while (j < 100) {
+        while (j < 50) {
             int idx = distribution(rng);
             VectorXd q = X.row(idx);
             if (hasQuery != 0) {
@@ -109,13 +109,11 @@ int main(int argc, char *argv[]) {
 
             int actual = rs.findActualLevel(q, rs_est[0], eps);
             rs.getConstants();
-            rs.findRings(0, 0.5, q, actual);
+            rs.findRings(1, 0.5, q, actual);
 //            std::cout << rs.lambda << "," << rs.l << std::endl;
             j ++;
-            rs_cost.push_back(rs.RSDirect() / r2);
-//            std::cout << "rs: "<< rs_cost[rs_cost.size() - 1];
+            rs_cost.push_back(rs.RSDirect(rs_est[0]) / r2);
             hbe_cost.push_back(rs.HBEDirect() / r2);
-//            std::cout << "hbe: " << hbe_cost[rs_cost.size() - 1] << " | ";
         }
         std::cout << "rs:" << getAvg(rs_cost) << ", hbe: " <<  getAvg(hbe_cost) << std::endl;
     }

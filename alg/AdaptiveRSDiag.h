@@ -18,7 +18,6 @@ class AdaptiveRSDiag : public AdaptiveEstimator {
 
 public:
     shared_ptr<MatrixXd> X;
-    int numPoints;
     shared_ptr<Kernel> kernel;
 
     vector<double> contrib;
@@ -37,7 +36,7 @@ public:
     void getConstants();
     void clearSamples();
 
-    double RSDirect();
+    double RSDirect(double est);
     double HBEDirect();
 
 protected:
@@ -68,7 +67,6 @@ private:
     const double LOG2 = log(2);
     const double SQRT_2PI = sqrt(2.0 / M_PI);
 
-    double evaluateSamples(VectorXd q, int level, std::vector<double> &Z);
     void buildLevels(double tau, double eps);
 };
 

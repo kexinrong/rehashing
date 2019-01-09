@@ -65,6 +65,7 @@ std::vector<double> AdaptiveHBE::evaluateQuery(VectorXd q, int l) {
     }
 
     results[0] = mathUtils::median(Z);
+    results[1] *= L;
     return results;
 }
 

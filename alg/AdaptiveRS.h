@@ -18,7 +18,6 @@ class AdaptiveRS : public AdaptiveEstimator {
 
 public:
     shared_ptr<MatrixXd> X;
-    int numPoints;
     shared_ptr<Kernel> kernel;
 
     vector<double> contrib;

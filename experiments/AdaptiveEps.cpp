@@ -72,6 +72,7 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
             VectorXd q = X->row(j);
             if (hasQuery != 0) {
                 q = Y.row(j);
+                idx = j;
             } else {
                 if (!sequential) {
                     q = X->row(int(exact[idx + 1]));
@@ -138,6 +139,7 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
             VectorXd q = X->row(j);
             if (hasQuery != 0) {
                 q = Y.row(j);
+                idx = j;
             } else {
                 if (!sequential) {
                     q = X->row(int(exact[idx + 1]));
@@ -214,15 +216,19 @@ int main(int argc, char *argv[]) {
     // Read exact KDE
     bool sequential = (N == M);
     double *exact = new double[M * 2];
-    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
-
-    std::cout << "HBE\n";
-    findEps(false, X_ptr, Y, exact, cfg, sequential, hasQuery);
-
-    std::cout << "======================================\n";
+    if (hasQuery != 0) {
+        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
+    } else {
+        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
+    }
 
     std::cout << "RS\n";
     findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
+
+    std::cout << "======================================\n";
+
+    std::cout << "HBE\n";
+    findEps(false, X_ptr, Y, exact, cfg, sequential, hasQuery);
 
     delete[] exact;
 }
