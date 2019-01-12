@@ -202,13 +202,12 @@ public:
     }
 
     static shared_ptr<MatrixXd> downSample(shared_ptr<MatrixXd> data, vector<int>& indices, int samples, std::mt19937_64 &rng) {
-        std::uniform_int_distribution<int> distribution(0, data->rows() - 1);
+        std::unordered_set<int> elems = mathUtils::pickSet(data->rows(), samples, rng);
 
         indices.clear();
-        for (int k = 0; k < samples; k ++) {
-            indices.push_back(distribution(rng));
-        }
+        for (int e : elems) { indices.push_back(e); }
         std::sort(indices.begin(), indices.end());
+
         shared_ptr<MatrixXd> X_sample = make_shared<MatrixXd>(MatrixXd::Zero(samples, data->cols()));
         for (int k = 0; k < samples; k ++) {
             X_sample->row(k) = data->row(indices[k]);

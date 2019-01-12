@@ -6,15 +6,16 @@
 #define EPS_MRSKETCH_H
 
 #include "SketchTable.h"
+#include "dataUtils.h"
 
 class MRSketch {
 public:
     vector<pair<int, double>> final_samples;
 
+    // Multi Resolution
     MRSketch(shared_ptr<MatrixXd> X, int m, double w, int k, double tau) {
         final_samples.clear();
         int N = X->rows();
-        int d = X->cols();
         int L = log(N * tau) / log(8);
         std::uniform_int_distribution<int> distribution(0, N - 1);
 
@@ -42,33 +43,6 @@ public:
             }
         }
 
-//        int cst = 5;
-//        for (size_t i = 0; i < cst; i ++) {
-//            int nsamples = m / cst;
-//
-//            // Subsample dataset
-//            int subsample = N / cst;
-//            std::vector<int> indices;
-//            for (int k = 0; k < subsample; k ++) {
-//                indices.push_back(distribution(rng));
-//            }
-//            std::sort(indices.begin(), indices.end());
-//            shared_ptr<MatrixXd> X_sample = make_shared<MatrixXd>(MatrixXd::Zero(subsample, d));
-//            for (int k = 0; k < subsample; k ++) {
-//                X_sample->row(k) = X->row(indices[k]);
-//            }
-//
-//            SketchTable t = SketchTable(X_sample, w, k, rng);
-//            vector<pair<int, double>> samples = t.sample(nsamples, rng);
-//            // Output samples and normalize weights
-//            for (size_t j = 0; j < samples.size(); j ++) {
-//                samples[j].second /= nsamples;
-//                samples[j].second /= cst;
-//                samples[j].first = indices[samples[j].first];
-//                final_samples.push_back(samples[j]);
-//            }
-//        }
-
         // S1, ..., SL
         for (int l = 1; l < L + 1; l ++) {
             int tables = pow(4, l);
@@ -79,14 +53,7 @@ public:
                 // Subsample dataset
                 int subsample = N / l_cst;
                 std::vector<int> indices;
-                for (int k = 0; k < subsample; k ++) {
-                    indices.push_back(distribution(rng));
-                }
-                std::sort(indices.begin(), indices.end());
-                shared_ptr<MatrixXd> X_sample = make_shared<MatrixXd>(MatrixXd::Zero(subsample, d));
-                for (int k = 0; k < subsample; k ++) {
-                    X_sample->row(k) = X->row(indices[k]);
-                }
+                shared_ptr<MatrixXd> X_sample = dataUtils::downSample(X, indices, subsample, rng);
 
                 // HBS
                 SketchTable t = SketchTable(X_sample, w, k, rng);
@@ -102,6 +69,41 @@ public:
             }
         }
     }
+
+    // Single Resolution
+    MRSketch(shared_ptr<MatrixXd> X, int m, double w, int k, int ntbls) {
+        final_samples.clear();
+        int N = X->rows();
+        std::uniform_int_distribution<int> distribution(0, N - 1);
+
+        //Will be used to obtain a seed for the random number engine
+        std::random_device rd;
+        std::mt19937_64 rng(rd());
+
+        for (int i = 0; i < ntbls; i ++) {
+            int nsamples = m / ntbls;
+
+            // Subsample dataset
+            int subsample = N * 2 / ntbls;
+            std::vector<int> indices;
+            shared_ptr<MatrixXd> X_sample = dataUtils::downSample(X, indices, subsample, rng);
+            for (int k = 0; k < subsample; k ++) {
+                indices.push_back(distribution(rng));
+            }
+
+            SketchTable t = SketchTable(X_sample, w, k, rng);
+            vector<pair<int, double>> samples = t.sample(nsamples, rng);
+            // Output samples and normalize weights
+            for (size_t j = 0; j < samples.size(); j ++) {
+                samples[j].second /= nsamples;
+                samples[j].second /= ntbls;
+                samples[j].first = indices[samples[j].first];
+                final_samples.push_back(samples[j]);
+            }
+        }
+
+    }
+
 };
 
 

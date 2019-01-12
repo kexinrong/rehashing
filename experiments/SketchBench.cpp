@@ -20,6 +20,7 @@
 #include "../alg/RS.h"
 #include "../alg/MRSketch.h"
 #include "../alg/Herding.h"
+#include "../alg/KCenter.h"
 #include <boost/math/distributions/normal.hpp>
 #include "parseConfig.h"
 
@@ -92,6 +93,7 @@ int main(int argc, char *argv[]) {
 
 
     for (size_t idx = 0; idx < sizeof(nsamples)/sizeof(nsamples[0]); idx ++) {
+        idx = 5;
         int m = nsamples[idx];
         std::cout << "k=" << m << std::endl;
         for (size_t iter = 0; iter < 10; iter ++) {
@@ -99,12 +101,16 @@ int main(int argc, char *argv[]) {
             MRSketch hbs = MRSketch(X_ptr, m, w, k, tau);
             MRSketch hbs_simple = MRSketch(X_ptr, m, w, k, 5);
             Herding herding = Herding(X_ptr, simpleKernel, m);
+            KCenter kcenter = KCenter(X_ptr, simpleKernel, m, 1);
 
             // Evaluate errors on random samples
             auto& samples = hbs.final_samples;
             auto& hbs_samples = hbs_simple.final_samples;
             auto& h_samples = herding.samples;
-            vector<double> err (4,0);
+            auto& hc_samples = kcenter.center_samples;
+            auto& hc_rs_samples = kcenter.rs_samples;
+
+            vector<double> err (5,0);
             int N_EVAL = 200;
             for (int i = 0; i < N_EVAL; i ++) {
                 int idx = distribution(rng);
@@ -135,12 +141,28 @@ int main(int argc, char *argv[]) {
                     est += h_samples[j].second * simpleKernel->density(q, X.row(h_samples[j].first));
                 }
                 err[2] += pow((est - exact_val) / max(tau, exact_val), 2);
+
+                // KCenter
+                est = 0;
+                for (size_t j = 0; j < hc_samples.size(); j ++) {
+                    est += hc_samples[j].second * simpleKernel->density(q, X.row(hc_samples[j].first));
+                }
+                if (hc_rs_samples.size() > 0) {
+                    double est1 = 0;
+                    for (size_t j = 0; j < hc_rs_samples.size(); j ++) {
+                        est1 += hc_rs_samples[j].second * simpleKernel->density(q, X.row(hc_rs_samples[j].first));
+                    }
+                    est = est / kcenter.kc + est1 * (1 - 1/kcenter.kc);
+                }
+                err[4] += pow((est - exact_val) / max(tau, exact_val), 2);
+
             }
 
             std::cout << "HBE: " << sqrt(err[0]/N_EVAL) << std::endl;
             std::cout << "HBE (single): " << sqrt(err[3]/N_EVAL) << std::endl;
             std::cout << "RS: " << sqrt(err[1]/N_EVAL) << std::endl;
             std::cout << "Herding: " << sqrt(err[2]/N_EVAL) << std::endl;
+            std::cout << "KCenter: " << sqrt(err[4]/N_EVAL) << std::endl;
 
         }
     }

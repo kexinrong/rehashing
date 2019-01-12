@@ -24,7 +24,7 @@ RS::RS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples) {
     }
     // Sample input matrix
     std::random_device rd;
-    std::mt19937 gen(rd());
+    std::mt19937_64 gen(rd());
     auto indices = mathUtils::pickSet(n, samples, gen);
     X = make_shared<MatrixXd>(samples, data->cols());
     int i = 0;
@@ -51,7 +51,7 @@ std::vector<double> RS::MoM(VectorXd q, int L, int m) {
         std::sort(indices.begin(), indices.end());
         for (int j = 0; j < m; j ++) {
             int idx = indices[j];
-//            int idx = distribution(rng);
+            if (m == numPoints) { idx = j; }
             Z[i] += kernel->density(q, X->row(idx));
         }
     }

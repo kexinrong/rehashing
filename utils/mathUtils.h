@@ -109,7 +109,7 @@ public:
     }
 
 
-    static std::unordered_set<int> pickSet(int N, int k, std::mt19937& gen) {
+    static std::unordered_set<int> pickSet(int N, int k, std::mt19937_64& gen) {
         std::unordered_set<int> elems;
         for (int r = N - k; r < N; ++r) {
             int v = std::uniform_int_distribution<>(0, r)(gen);

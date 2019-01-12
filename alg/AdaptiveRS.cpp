@@ -68,7 +68,7 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samp
         return;
     }
     // Sample input matrix
-    std::mt19937 gen(rd());
+    std::mt19937_64 gen(rd());
     auto indices = mathUtils::pickSet(n, samples, gen);
     X = make_shared<MatrixXd>(samples, data->cols());
     int i = 0;
