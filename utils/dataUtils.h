@@ -201,6 +201,21 @@ public:
         infile.close();
     }
 
+    static shared_ptr<MatrixXd> downSample(shared_ptr<MatrixXd> data, vector<int>& indices, int samples, std::mt19937_64 &rng) {
+        std::uniform_int_distribution<int> distribution(0, data->rows() - 1);
+
+        indices.clear();
+        for (int k = 0; k < samples; k ++) {
+            indices.push_back(distribution(rng));
+        }
+        std::sort(indices.begin(), indices.end());
+        shared_ptr<MatrixXd> X_sample = make_shared<MatrixXd>(MatrixXd::Zero(samples, data->cols()));
+        for (int k = 0; k < samples; k ++) {
+            X_sample->row(k) = data->row(indices[k]);
+        }
+        return X_sample;
+    }
+
 };
 
 #endif //HBE_DATAUTILS_H
