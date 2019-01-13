@@ -24,7 +24,7 @@
 #include <boost/math/distributions/normal.hpp>
 #include "parseConfig.h"
 
-int nsamples[] = {8, 13, 23, 39, 68, 116, 199, 341, 584, 1000};
+//int nsamples[] = {8, 13, 23, 39, 68, 116, 199, 341, 584, 1000};
 //int nsamples[] = { 584, 1000, 5000, 10000};
 
 int main(int argc, char *argv[]) {
@@ -86,14 +86,19 @@ int main(int argc, char *argv[]) {
     double *exact = new double[M * 2];
     dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
 
-    std::uniform_int_distribution<int> distribution(0, M - 1);
     //Will be used to obtain a seed for the random number engine
     std::random_device rd;
     std::mt19937_64 rng(rd());
 
+    vector<int> nsamples;
+    int s = 16;
+    while (s < 1/tau) {
+        nsamples.push_back(s);
+        s *= 2;
+    }
+    nsamples.push_back(int(1/tau));
 
-    for (size_t idx = 0; idx < sizeof(nsamples)/sizeof(nsamples[0]); idx ++) {
-        idx = 5;
+    for (size_t idx = 0; idx < nsamples.size(); idx ++) {
         int m = nsamples[idx];
         std::cout << "k=" << m << std::endl;
         for (size_t iter = 0; iter < 10; iter ++) {
@@ -110,11 +115,18 @@ int main(int argc, char *argv[]) {
             auto& hc_samples = kcenter.center_samples;
             auto& hc_rs_samples = kcenter.rs_samples;
 
-            vector<double> err (5,0);
-            int N_EVAL = 200;
-            for (int i = 0; i < N_EVAL; i ++) {
-                int idx = distribution(rng);
+            vector<vector<double>> err;
+            for (int i = 0; i < 5; i ++) {
+                std::vector<double> tmp;
+                err.push_back(tmp);
+            }
+            int N_EVAL = 10000;
+            std::unordered_set<int> elems = mathUtils::pickSet(M, N_EVAL, rng);
+            int cnt = 0;
+            for (int idx : elems) {
                 double exact_val = exact[idx * 2];
+                //if (exact_val < tau) {continue};
+                cnt += 1;
                 double query_idx = exact[idx * 2 + 1];
                 VectorXd q = X.row(query_idx);
 
@@ -123,24 +135,28 @@ int main(int argc, char *argv[]) {
                 for (size_t j = 0; j < samples.size(); j ++) {
                     est += samples[j].second * simpleKernel->density(q, X.row(samples[j].first));
                 }
-                err[0] += pow((est - exact_val) / max(tau, exact_val), 2);
+                //err[0] += pow((est - exact_val) / max(tau, exact_val), 2);
+                err[0].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
                 est = 0;
                 for (size_t j = 0; j < hbs_samples.size(); j ++) {
                     est += hbs_samples[j].second * simpleKernel->density(q, X.row(hbs_samples[j].first));
                 }
-                err[3] += pow((est - exact_val) / max(tau, exact_val), 2);
+                //err[3] += pow((est - exact_val) / max(tau, exact_val), 2);
+                err[3].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
                 // Uniform
                 double rs_est = rs.query(q, tau, m);
-                err[1] += pow((rs_est - exact_val) / max(tau, exact_val), 2);
+                //err[1] += pow((rs_est - exact_val) / max(tau, exact_val), 2);
+                err[1].push_back(fabs(rs_est - exact_val) / max(tau, exact_val));
 
                 // Herding
                 est = 0;
                 for (size_t j = 0; j < h_samples.size(); j ++) {
                     est += h_samples[j].second * simpleKernel->density(q, X.row(h_samples[j].first));
                 }
-                err[2] += pow((est - exact_val) / max(tau, exact_val), 2);
+                //err[2] += pow((est - exact_val) / max(tau, exact_val), 2);
+                err[2].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
                 // KCenter
                 est = 0;
@@ -154,15 +170,21 @@ int main(int argc, char *argv[]) {
                     }
                     est = est / kcenter.kc + est1 * (1 - 1/kcenter.kc);
                 }
-                err[4] += pow((est - exact_val) / max(tau, exact_val), 2);
+                //err[4] += pow((est - exact_val) / max(tau, exact_val), 2);
+                err[4].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
             }
+//            std::cout << "HBE: " << sqrt(err[0]/N_EVAL) << std::endl;
+//            std::cout << "HBE (single): " << sqrt(err[3]/N_EVAL) << std::endl;
+//            std::cout << "RS: " << sqrt(err[1]/N_EVAL) << std::endl;
+//            std::cout << "Herding: " << sqrt(err[2]/N_EVAL) << std::endl;
+//            std::cout << "KCenter: " << sqrt(err[4]/N_EVAL) << std::endl;
 
-            std::cout << "HBE: " << sqrt(err[0]/N_EVAL) << std::endl;
-            std::cout << "HBE (single): " << sqrt(err[3]/N_EVAL) << std::endl;
-            std::cout << "RS: " << sqrt(err[1]/N_EVAL) << std::endl;
-            std::cout << "Herding: " << sqrt(err[2]/N_EVAL) << std::endl;
-            std::cout << "KCenter: " << sqrt(err[4]/N_EVAL) << std::endl;
+            std::cout << "HBE: " << dataUtils::getAvg(err[0]) << "," << dataUtils::getStd(err[0]) << std::endl;
+            std::cout << "HBE (single): " << dataUtils::getAvg(err[3]) << "," << dataUtils::getStd(err[3]) << std::endl;
+            std::cout << "RS: " << dataUtils::getAvg(err[1]) << "," << dataUtils::getStd(err[1]) << std::endl;
+            std::cout << "Herding: " << dataUtils::getAvg(err[2]) << "," << dataUtils::getStd(err[2]) << std::endl;
+            std::cout << "KCenter: " << dataUtils::getAvg(err[4]) << "," << dataUtils::getStd(err[4]) << std::endl;
 
         }
     }

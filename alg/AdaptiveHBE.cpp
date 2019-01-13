@@ -49,6 +49,7 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
 }
 
 AdaptiveHBE::AdaptiveHBE(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps) {
+    numPoints = data->rows();
     tau = lb;
     buildLevels(data, k, tau, eps);
 }

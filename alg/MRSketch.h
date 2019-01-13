@@ -74,7 +74,6 @@ public:
     MRSketch(shared_ptr<MatrixXd> X, int m, double w, int k, int ntbls) {
         final_samples.clear();
         int N = X->rows();
-        std::uniform_int_distribution<int> distribution(0, N - 1);
 
         //Will be used to obtain a seed for the random number engine
         std::random_device rd;
@@ -87,9 +86,6 @@ public:
             int subsample = N * 2 / ntbls;
             std::vector<int> indices;
             shared_ptr<MatrixXd> X_sample = dataUtils::downSample(X, indices, subsample, rng);
-            for (int k = 0; k < subsample; k ++) {
-                indices.push_back(distribution(rng));
-            }
 
             SketchTable t = SketchTable(X_sample, w, k, rng);
             vector<pair<int, double>> samples = t.sample(nsamples, rng);
