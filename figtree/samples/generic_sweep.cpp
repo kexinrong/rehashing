@@ -139,21 +139,10 @@ int main(int argc, char* argv[])
 
     int d, N, M;
     double h = 1;
-    N = 500000;
+    N = 1022340;
     M = 10000;
     d = atoi(argv[4]);
     std::string ds(argv[1]);
-    if (strcmp(argv[1], "1") == 0) {
-        N = 512349;
-    } else if (strcmp(argv[1], "10") == 0) {
-        N = 512340;
-    } else if (strcmp(argv[1], "100") == 0) {
-        N = 512200;
-    } else if (strcmp(argv[1], "1000") == 0) {
-        N = 511000;
-    } else if (strcmp(argv[1], "10000") == 0) {
-        N = 510000;
-    }
 
     // Desired maximum absolute error after normalizing output by sum of weights.
     // If the weights, q_i (see below), add up to 1, then this is will be the
@@ -165,7 +154,6 @@ int main(int argc, char* argv[])
     std::cout << "dataset=gen" << ds << std::endl;
     std::cout << "epsilon=" << epsilon << std::endl;
 
-
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
     // For example, below N = 20 and d = 7, so there are 20 rows, each
@@ -173,24 +161,10 @@ int main(int argc, char* argv[])
     long size = N * d;
     double *x = new double[size];
 
-    std::string path = "../../resources/generic_gaussian/";
+    std::string path = "../../resources/";
     path += argv[3];
 
-    if (strcmp(argv[1], "1") == 0) {
-        readFile(path + "/data_1,500000.txt", false, N, 0, d-1, &x[0]);
-    } else if (strcmp(argv[1], "10") == 0) {
-        readFile(path + "/data_10,50000.txt", false, N, 0, d-1, &x[0]);
-    } else if (strcmp(argv[1], "100") == 0) {
-        readFile(path + "/data_100,5000.txt", false, N, 0, d-1, &x[0]);
-    } else if (strcmp(argv[1], "1000") == 0) {
-        readFile(path + "/data_1000,500.txt", false, N, 0, d-1, &x[0]);
-    } else if (strcmp(argv[1], "10000") == 0) {
-        readFile(path + "/data_10000,50.txt", false, N, 0, d-1, &x[0]);
-    } else if (strcmp(argv[1], "100000") == 0) {
-        readFile(path + "/data_100000,5.txt", false, N, 0, d-1, &x[0]);
-    } else if (strcmp(argv[1], "500000") == 0) {
-        readFile(path + "/data_500000,1.txt", false, N, 0, d-1, &x[0]);
-    }
+    readFile(path + "/generic_" + argv[4] + ".txt", false, N, 0, d-1, &x[0]);
     //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
@@ -198,39 +172,13 @@ int main(int argc, char* argv[])
     // For example, below M = 10 and d = 7, so there are 10 rows, each
     // a 7-dimensional sample.
     double *exact = new double[M * 2];
-    if (strcmp(argv[1], "1") == 0) {
-        readFile(path + "/exact_1,500000.txt", false, M, 0, 1, &exact[0]);
-    } else if (strcmp(argv[1], "10") == 0) {
-        readFile(path + "/exact_10,50000.txt", false, M, 0, 1, &exact[0]);
-    } else if (strcmp(argv[1], "100") == 0) {
-        readFile(path + "/exact_100,5000.txt", false, M, 0, 1, &exact[0]);
-    } else if (strcmp(argv[1], "1000") == 0) {
-        readFile(path + "/exact_1000,500.txt", false, M, 0, 1, &exact[0]);
-    } else if (strcmp(argv[1], "10000") == 0) {
-        readFile(path + "/exact_10000,50.txt", false, M, 0, 1, &exact[0]);
-    } else if (strcmp(argv[1], "100000") == 0) {
-        readFile(path + "/exact_100000,5.txt", false, M, 0, 1, &exact[0]);
-    } else if (strcmp(argv[1], "500000") == 0) {
-        readFile(path + "/exact_500000,1.txt", false, M, 0, 1, &exact[0]);
-    }
+    readFile(path + "/exact_generic" + argv[4] + ".txt", false, M, 0, 1, &exact[0]);
+    std::cout << exact[0] << ',' << exact[1] << std::endl;
+
 
     size = M * d;
     double *y = new double[size];
-    if (strcmp(argv[1], "1") == 0) {
-        readFile(path + "/query1,500000.txt", false, M, 0, d-1, &y[0]);
-    } else if (strcmp(argv[1], "10") == 0) {
-        readFile(path + "/query10,50000.txt", false, M, 0, d-1, &y[0]);
-    } else if (strcmp(argv[1], "100") == 0) {
-        readFile(path + "/query100,5000.txt", false, M, 0, d-1, &y[0]);
-    } else if (strcmp(argv[1], "1000") == 0) {
-        readFile(path + "/query1000,500.txt", false, M, 0, d-1, &y[0]);
-    } else if (strcmp(argv[1], "10000") == 0) {
-        readFile(path + "/query10000,50.txt", false, M, 0, d-1, &y[0]);
-    } else if (strcmp(argv[1], "100000") == 0) {
-        readFile(path + "/query100000,5.txt", false, M, 0, d-1, &y[0]);
-    } else if (strcmp(argv[1], "500000") == 0) {
-        readFile(path + "/query500000,1.txt", false, M, 0, d-1, &y[0]);
-    }
+    readFile(path + "/query_generic_" + argv[4] + ".txt", false, M, 0, d-1, &y[0]);
 
     // The weight array.  The ith weight is associated with the ith source sample.
     // To evaluate the Gauss Transform with the same sources and targets, but

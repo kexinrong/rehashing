@@ -22,10 +22,7 @@ public:
     shared_ptr<Kernel> ker;
     int N;
 
-    Herding(shared_ptr<MatrixXd> data, shared_ptr<Kernel> kernel, int m) {
-        std::random_device rd;  //Will be used to obtain a seed for the random number engine
-        std::mt19937_64 rng = std::mt19937_64(rd());
-
+    Herding(shared_ptr<MatrixXd> data, shared_ptr<Kernel> kernel, int m, std::mt19937_64 & rng) {
         ker = kernel;
 
         N = data->rows() / m;

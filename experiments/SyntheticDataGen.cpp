@@ -18,19 +18,18 @@ using Eigen::IOFormat;
 
 const int uN = 100;
 const int uC = 5000;
-const int cN = 100000;
-const int cC = 5;
+const int cN = 50000;
+const int cC = 10;
 const int scales = 4;
 const int dim = 10;
-const double spread = 0.1;
+const double spread = 0.001;
 const double mu = 1.0 / 1000;
 
 const int nqueries = 10000;
 const int N = 500000;
 
-int dims[] = {5, 10, 20, 50, 100, 200, 500, 1000};
+int dims[] = {5, 10, 20, 50, 100, 200, 500};
 //int clusters[] = {1, 10, 100, 1000, 10000, 100000};
-int clusters[] = {1, 500};
 int points[] = {500000, 1000};
 
 void genQuery(std::ofstream &outfile, GenericInstance &data, int dim) {
@@ -58,6 +57,8 @@ int main() {
         // Output instance
 //        GenericInstance data = SyntheticData::genSingle(n, k, dim, mu, scales, spread, kernel);
         GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, mu, scales, spread, kernel);
+        //GenericInstance data = SyntheticData::genSingle(uN, uC, dim, mu, scales, spread, kernel);
+        //GenericInstance data = SyntheticData::genSingle(cN, cC, dim, mu, scales, spread, kernel);
         data.output("resources/syn/generic_" +
             std::to_string(dim) + ".txt");
         std::cout <<  "N=" << data.points.rows() << std::endl;

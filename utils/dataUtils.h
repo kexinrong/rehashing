@@ -215,6 +215,21 @@ public:
         return X_sample;
     }
 
+    static double getAvg(vector<double>& results) {
+        double sum = 0;
+        for (auto& n : results) { sum += n; }
+        return sum / results.size();
+    }
+
+    static double getStd(vector<double>& results) {
+        double avg = getAvg(results);
+        double var = 0;
+        for (auto& n : results) {
+            var += (n - avg) * (n - avg);
+        }
+        return var / results.size();
+    }
+
 };
 
 #endif //HBE_DATAUTILS_H

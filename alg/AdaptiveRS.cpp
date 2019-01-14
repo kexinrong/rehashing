@@ -21,7 +21,8 @@ void AdaptiveRS::buildLevels(double tau, double eps) {
 
     for (int i = 0; i < I; i ++) {
         if (i == 0) {
-            mui[i] = (1 - gamma);
+            //mui[i] = (1 - gamma);
+            mui[i] = 0.4;
         } else {
             mui[i] = (1 - gamma) * mui[i - 1];
         }

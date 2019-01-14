@@ -22,10 +22,8 @@ public:
     int kr;
     int n_rs;
 
-    KCenter(shared_ptr<MatrixXd> data, shared_ptr<Kernel> kernel, int k, int seed) {
+    KCenter(shared_ptr<MatrixXd> data, shared_ptr<Kernel> kernel, int k, int seed, std::mt19937_64 &rng) {
         int n = data->rows();
-        std::random_device rd;
-        std::mt19937_64 rng = std::mt19937_64(rd());
         std::uniform_int_distribution<int> uniform(0, n - 1);
 
         kc = k;
