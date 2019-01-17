@@ -91,22 +91,27 @@ int main(int argc, char *argv[]) {
     std::mt19937_64 rng(rd());
 
     vector<int> nsamples;
-    int s = 16;
-    while (s < 1/tau) {
+    //int upper = min(int(1/tau), 2 * int(sqrt(N)));
+    int upper = 2000;
+
+    int s = 10;
+    int interval = 200;
+    while (s < upper) {
         nsamples.push_back(s);
-        s *= 2;
+        s += interval;
     }
-    nsamples.push_back(int(1/tau));
+    nsamples.push_back(upper);
 
     for (size_t idx = 0; idx < nsamples.size(); idx ++) {
         int m = nsamples[idx];
         std::cout << "k=" << m << std::endl;
+        std::unordered_set<int> elems = mathUtils::pickSet(M, 10000, rng);
         for (size_t iter = 0; iter < 10; iter ++) {
             RS rs(X_ptr, simpleKernel, m);
-            MRSketch hbs = MRSketch(X_ptr, m, w, k, tau);
-            MRSketch hbs_simple = MRSketch(X_ptr, m, w, k, 5);
-            Herding herding = Herding(X_ptr, simpleKernel, m);
-            KCenter kcenter = KCenter(X_ptr, simpleKernel, m, 1);
+            MRSketch hbs = MRSketch(X_ptr, m, w, k, tau, rng);
+            MRSketch hbs_simple = MRSketch(X_ptr, m, w, k, 5, rng);
+            Herding herding = Herding(X_ptr, simpleKernel, m, rng);
+            KCenter kcenter = KCenter(X_ptr, simpleKernel, m, 1, rng);
 
             // Evaluate errors on random samples
             auto& samples = hbs.final_samples;
@@ -120,13 +125,10 @@ int main(int argc, char *argv[]) {
                 std::vector<double> tmp;
                 err.push_back(tmp);
             }
-            int N_EVAL = 10000;
-            std::unordered_set<int> elems = mathUtils::pickSet(M, N_EVAL, rng);
-            int cnt = 0;
-            for (int idx : elems) {
+            //for (int idx : elems) {
+            for (int idx = 0; idx < M; idx ++) {
                 double exact_val = exact[idx * 2];
-                //if (exact_val < tau) {continue};
-                cnt += 1;
+                if (exact_val > 5 * tau) {continue; }
                 double query_idx = exact[idx * 2 + 1];
                 VectorXd q = X.row(query_idx);
 
@@ -135,6 +137,8 @@ int main(int argc, char *argv[]) {
                 for (size_t j = 0; j < samples.size(); j ++) {
                     est += samples[j].second * simpleKernel->density(q, X.row(samples[j].first));
                 }
+                est /= samples.size();
+                //std::cout << est << "," << exact_val << std::endl;
                 //err[0] += pow((est - exact_val) / max(tau, exact_val), 2);
                 err[0].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
@@ -142,6 +146,7 @@ int main(int argc, char *argv[]) {
                 for (size_t j = 0; j < hbs_samples.size(); j ++) {
                     est += hbs_samples[j].second * simpleKernel->density(q, X.row(hbs_samples[j].first));
                 }
+                est /= hbs_samples.size();
                 //err[3] += pow((est - exact_val) / max(tau, exact_val), 2);
                 err[3].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
@@ -174,17 +179,13 @@ int main(int argc, char *argv[]) {
                 err[4].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
             }
-//            std::cout << "HBE: " << sqrt(err[0]/N_EVAL) << std::endl;
-//            std::cout << "HBE (single): " << sqrt(err[3]/N_EVAL) << std::endl;
-//            std::cout << "RS: " << sqrt(err[1]/N_EVAL) << std::endl;
-//            std::cout << "Herding: " << sqrt(err[2]/N_EVAL) << std::endl;
-//            std::cout << "KCenter: " << sqrt(err[4]/N_EVAL) << std::endl;
 
-            std::cout << "HBE: " << dataUtils::getAvg(err[0]) << "," << dataUtils::getStd(err[0]) << std::endl;
-            std::cout << "HBE (single): " << dataUtils::getAvg(err[3]) << "," << dataUtils::getStd(err[3]) << std::endl;
-            std::cout << "RS: " << dataUtils::getAvg(err[1]) << "," << dataUtils::getStd(err[1]) << std::endl;
-            std::cout << "Herding: " << dataUtils::getAvg(err[2]) << "," << dataUtils::getStd(err[2]) << std::endl;
-            std::cout << "KCenter: " << dataUtils::getAvg(err[4]) << "," << dataUtils::getStd(err[4]) << std::endl;
+            std::cout << "# evals" << err[0].size() << std::endl;
+            std::cout << "HBE: " << dataUtils::getAvg(err[0]) << "," << dataUtils::getSE(err[0]) << std::endl;
+            std::cout << "HBE (single): " << dataUtils::getAvg(err[3]) << "," << dataUtils::getSE(err[3]) << std::endl;
+            std::cout << "RS: " << dataUtils::getAvg(err[1]) << "," << dataUtils::getSE(err[1]) << std::endl;
+            std::cout << "Herding: " << dataUtils::getAvg(err[2]) << "," << dataUtils::getSE(err[2]) << std::endl;
+            std::cout << "KCenter: " << dataUtils::getAvg(err[4]) << "," << dataUtils::getSE(err[4]) << std::endl;
 
         }
     }

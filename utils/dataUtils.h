@@ -227,7 +227,11 @@ public:
         for (auto& n : results) {
             var += (n - avg) * (n - avg);
         }
-        return var / results.size();
+        return sqrt(var / results.size());
+    }
+
+    static double getSE(vector<double>& results) {
+        return getStd(results) / sqrt(results.size());
     }
 
 };
