@@ -79,7 +79,7 @@ public:
         double log_delta = 1 / eps_cst * 1.1;
         if (nbuckets <= cst / tau) {
             gamma = 1 - log(eps_cst * log_delta) / log(nn);
-            std::cout << "gamma: " << gamma << "\n";
+//            std::cout << "gamma: " << gamma << "\n";
         }
         samples = int(sqrt(n));
 //        samples = 1/ eps_cst / tau * pow(max_bucket * nbuckets * 1.0 / n, 1-gamma);

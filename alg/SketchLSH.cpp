@@ -3,7 +3,6 @@
 //
 
 #include "SketchLSH.h"
-#include "SketchTable.h"
 
 SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker) {
     numTables = M;
@@ -51,28 +50,27 @@ SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int scales,
     std::random_shuffle ( tables.begin(), tables.end() );
 }
 
-SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k,
-                     shared_ptr<Kernel> ker, int sketches) {
+SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, vector<SketchTable> &sketches, vector<vector<int>> &indices,
+        int M, double w, int k, shared_ptr<Kernel> ker, std::mt19937_64& rng) {
     binWidth = w;
     numHash = k;
     kernel = ker;
-    N_SKETCHES = sketches;
-    numTables = M / N_SKETCHES * N_SKETCHES;
-
-    //Will be used to obtain a seed for the random number engine
-    std::random_device rd;
-    rng = std::mt19937_64(rd());
+    int N_SKETCHES = sketches.size();
+    numTables = M  / N_SKETCHES * N_SKETCHES;
 
     for (int i = 0; i < N_SKETCHES; i++) {
-        SketchTable t = SketchTable(X, w, k, rng);
+        auto& t = sketches[i];
         for (int j = 0; j < numTables / N_SKETCHES; j ++) {
             numPoints.push_back(t.samples);
             vector<pair<int, double>> samples = t.sample(t.samples, rng);
+            for (size_t s = 0; s < samples.size(); s ++) {
+                samples[s].first = indices[i][samples[s].first];
+            }
             tables.push_back(HashTable(X, w, k, samples, rng));
         }
     }
     // Shuffle to mix data sampled from separate base tables
-    if (sketches > 1) {
+    if (N_SKETCHES > 1) {
         std::random_shuffle ( tables.begin(), tables.end() );
     }
 }

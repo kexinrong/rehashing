@@ -59,10 +59,10 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
             est = make_shared<AdaptiveRS>(X, simpleKernel, tau, eps);
         } else {
             auto t1 = std::chrono::high_resolution_clock::now();
-            est = make_shared<AdaptiveHBE>(X, simpleKernel, tau, eps);
+            est = make_shared<AdaptiveHBE>(X, simpleKernel, tau, eps, true);
             auto t2 = std::chrono::high_resolution_clock::now();
             std::cout << "Adaptive Table Init: " <<
-                      std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+                      std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count() / 1000.0  << std::endl;
         }
         est->totalTime = 0;
         vector<double> results(2,0);
@@ -126,7 +126,7 @@ void findEps(bool isRandom, shared_ptr<MatrixXd> X, MatrixXd &Y, double *exact, 
             est = make_shared<AdaptiveRS>(X, simpleKernel, tau, eps);
         } else {
             auto t1 = std::chrono::high_resolution_clock::now();
-            est = make_shared<AdaptiveHBE>(X, simpleKernel, tau, eps);
+            est = make_shared<AdaptiveHBE>(X, simpleKernel, tau, eps, true);
             auto t2 = std::chrono::high_resolution_clock::now();
             std::cout << "Adaptive Table Init: " <<
                       std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
@@ -222,13 +222,14 @@ int main(int argc, char *argv[]) {
         dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
     }
 
-    std::cout << "RS\n";
-    findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
-
-    std::cout << "======================================\n";
+//    std::cout << "RS\n";
+//    findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
+//
+//    std::cout << "======================================\n";
 
     std::cout << "HBE\n";
     findEps(false, X_ptr, Y, exact, cfg, sequential, hasQuery);
+
 
     delete[] exact;
 }

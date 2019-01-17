@@ -21,10 +21,10 @@ void checkBandwidth(parseConfig &cfg, char* scope, double h) {
     auto band = make_unique<Bandwidth>(N, dim);
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
-    if (strcmp(scope, "gaussian") == 0) {
-        kernel = make_shared<Gaussiankernel>(dim);
-    } else {
+    if (strcmp(scope, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
+    } else {
+        kernel = make_shared<Gaussiankernel>(dim);
     }
     kernel->initialize(band->bw);
     const double eps = cfg.getEps();
@@ -98,10 +98,10 @@ int main(int argc, char *argv[]) {
                 }
                 norm = norm + (temp*temp);
             }
-            if (strcmp(scope, "gaussian") == 0) {
-                g[j] = g[j] + exp(-norm/hSquare);
-            } else { // exp kernel
+            if (strcmp(scope, "exp") == 0) { // exp kernel
                 g[j] = g[j] + exp(-sqrt(norm/hSquare));
+            } else {
+                g[j] = g[j] + exp(-norm/hSquare);
             }
         }
         g[j] /= N;

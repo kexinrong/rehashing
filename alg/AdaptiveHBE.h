@@ -17,20 +17,21 @@ using Eigen::VectorXd;
 
 class AdaptiveHBE : public AdaptiveEstimator {
 public:
-    vector<BaseLSH> levels;
-    //vector<SketchLSH> levels;
+    vector<BaseLSH> b_levels;
+    vector<SketchLSH> s_levels;
     double tau;
 
-    AdaptiveHBE(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);
+    AdaptiveHBE(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps, bool sketch);
 
 protected:
     std::vector<double> evaluateQuery(VectorXd q, int level);
 
 private:
+    bool use_sketch;
     const double LOG2 = log(2);
     const double SQRT_2PI = sqrt(2.0 / M_PI);
 
-    void buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, double tau, double eps);
+    void buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, double tau, double eps, bool sketch);
 
 };
 
