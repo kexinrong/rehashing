@@ -120,63 +120,6 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level) {
     return results;
 }
 
-double AdaptiveRS::findRSRatio(double eps) {
-    double thresh = lb * eps / 10;
-    double mmin = 1;
-    double mmax = 0;
-    for (size_t i = 0; i < contrib.size(); i ++) {
-        if (contrib[i] < thresh) {
-            continue;
-        }
-        mmin = min(contrib[i], mmin);
-        mmax = max(contrib[i], mmax);
-    }
-    return mmax / mmin;
-}
-
-double AdaptiveRS::findHBERatio(VectorXd &q, int level, double eps) {
-    // Gaussian Kernel
-    if (kernel->getName() != EXP_STR) {
-        exp_w = wi[level];
-        exp_k = ki[level];
-    }
-
-    double thresh = lb * eps / 10;
-    double mmin = 1;
-    double mmax = 0;
-    for (size_t i = 0; i < samples.size(); i ++) {
-        if (contrib[i] < thresh) {
-            continue;
-        }
-        int idx = samples[i];
-        VectorXd delta = X->row(idx) - q.transpose();
-        double c = delta.norm() / exp_w;
-        double p = mathUtils::collisionProb(c, exp_k);
-        double k_i = contrib[i] / p / p;
-        double k_j = contrib[i] / p;
-
-        if (mmax == 0) {
-            mmin = k_j;
-            mmax = k_i;
-        } else {
-            mmax = max(mmax, k_i);
-            mmin = min(mmin, k_j);
-        }
-    }
-    return mmax / mmin;
-}
-
-
-int AdaptiveRS::findTargetLevel(double est) {
-    int i = 0;
-    while (i < I) {
-        if (est > mui[i]) {
-            return i;
-        }
-        i ++;
-    }
-    return I - 1;
-}
 
 int AdaptiveRS::findActualLevel(VectorXd &q, double truth, double eps) {
     int i = 0;

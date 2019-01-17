@@ -1,5 +1,5 @@
 //
-// Created by Kexin Rong on 2018-11-10.
+// Created by Kexin Rong on 12/31/18.
 //
 
 #include <stdio.h>
@@ -18,7 +18,7 @@
 #include "bandwidth.h"
 #include "math.h"
 #include "../alg/RS.h"
-#include "../alg/AdaptiveRS.h"
+#include "../alg/AdaptiveRSDiag.h"
 #include <boost/math/distributions/normal.hpp>
 #include "parseConfig.h"
 
@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
             h *= sqrt(2);
         }
     }
+//    std::cout << "bw: " << h << std::endl;
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -73,8 +74,8 @@ int main(int argc, char *argv[]) {
                                 cfg.ignoreHeader(), M, cfg.getStartCol(), cfg.getEndCol());
     }
 
-    AdaptiveRS rs(X_ptr, simpleKernel, tau, eps);
-    rs.setMedians(7);
+    AdaptiveRSDiag rs(X_ptr, simpleKernel, tau, eps);
+    rs.setMedians(3);
 
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -82,37 +83,30 @@ int main(int argc, char *argv[]) {
 
     auto t1 = std::chrono::high_resolution_clock::now();
     for (int iter = 0; iter < 3; iter ++) {
-        double reals = 0;
-        double level = 0;
-        double rs_cost = 0;
-        double hbe_cost = 0;
-        int sparse = 0;
-        for (int j = 0; j < 100; j++) {
+        vector<double> rs_cost;
+        vector<double> hbe_cost;
+        int j = 0;
+        while (j < 50) {
             int idx = distribution(rng);
             VectorXd q = X.row(idx);
             if (hasQuery != 0) {
                 q = Y.row(j);
             }
+            rs.clearSamples();
             vector<double> rs_est = rs.query(q);
-
-            if (rs_est[0] < tau) {
-                sparse += 1;
-                continue;
-            }
-
-            int target = rs.findTargetLevel(rs_est[0]);
+            if (rs_est[0] < tau) { continue; }
+            double r2 = max(rs_est[0], tau);
+            r2 *= r2;
 
             int actual = rs.findActualLevel(q, rs_est[0], eps);
-            reals += actual;
-            level += target;
-
-            rs_cost += rs.findRSRatio(eps);
-            hbe_cost += rs.findHBERatio(q, actual, eps);
-
+            rs.getConstants();
+            rs.findRings(1, 0.5, q, actual);
+//            std::cout << rs.lambda << "," << rs.l << std::endl;
+            j ++;
+            rs_cost.push_back(rs.RSDirect(rs_est[0]) / r2);
+            hbe_cost.push_back(rs.HBEDirect() / r2);
         }
-        //std::cout << "actual:" << reals/100 << ", target: " << level/100 << std::endl;
-//        std::cout << "sparse: " << sparse << std::endl;
-        std::cout << "rs:" << rs_cost/(100 - sparse) << ", hbe: " << hbe_cost/(100 - sparse) << std::endl;
+        std::cout << "rs:" << dataUtils::getAvg(rs_cost) << ", hbe: " <<  dataUtils::getAvg(hbe_cost) << std::endl;
     }
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Diagnosis took: " <<

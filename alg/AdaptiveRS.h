@@ -26,11 +26,7 @@ public:
     AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);
     AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples, double lb, double eps);
 
-    int findTargetLevel(double est);
     int findActualLevel(VectorXd &q, double est, double eps);
-
-    double findRSRatio(double eps);
-    double findHBERatio(VectorXd &q, int level, double eps);
 
 protected:
     double lb;
