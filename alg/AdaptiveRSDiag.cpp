@@ -1,12 +1,4 @@
-//
-// Created by Kexin Rong on 1/2/19.
-//
-
 #include "AdaptiveRSDiag.h"
-
-//
-// Created by Kexin Rong on 2018-11-09.
-//
 
 #include "AdaptiveRS.h"
 #include "dataUtils.h"
@@ -176,7 +168,7 @@ void AdaptiveRSDiag::getConstants() {
 
         samples.clear();
         contrib.clear();
-        for (int i = 0; i < indices.size(); i ++) {
+        for (size_t i = 0; i < indices.size(); i ++) {
             samples.push_back(tmp_samples[indices[i]]);
             contrib.push_back(tmp_weights[indices[i]]);
         }
@@ -308,7 +300,7 @@ void AdaptiveRSDiag::findRings(int strategy, double eps, VectorXd &q, int level)
 }
 
 
-double AdaptiveRSDiag::RSDirect(double est) {
+double AdaptiveRSDiag::RSDirect() {
     double up = w_maxs[3] * u[3];
     double t2_factor = (set_start[1] - set_start[0]) * 1.0 / sample_count;
     for (int i = 0; i < 3; i ++) {
@@ -360,7 +352,7 @@ double AdaptiveRSDiag::HBEDirect() {
 int AdaptiveRSDiag::findActualLevel(VectorXd &q, double truth, double eps) {
 
     vector<int> indices;
-    for (int i = 0; i < samples.size(); ++i) indices.push_back(i);
+    for (size_t i = 0; i < samples.size(); ++i) indices.push_back(i);
     // using built-in random generator:
     std::random_shuffle ( indices.begin(), indices.end() );
 

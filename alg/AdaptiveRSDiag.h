@@ -32,7 +32,7 @@ public:
     void getConstants();
     void clearSamples();
 
-    double RSDirect(double est);
+    double RSDirect();
     double HBEDirect();
 
 protected:

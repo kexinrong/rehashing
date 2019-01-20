@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
             rs.findRings(1, 0.5, q, actual);
 //            std::cout << rs.lambda << "," << rs.l << std::endl;
             j ++;
-            rs_cost.push_back(rs.RSDirect(rs_est[0]) / r2);
+            rs_cost.push_back(rs.RSDirect() / r2);
             hbe_cost.push_back(rs.HBEDirect() / r2);
         }
         std::cout << "rs:" << dataUtils::getAvg(rs_cost) << ", hbe: " <<  dataUtils::getAvg(hbe_cost) << std::endl;

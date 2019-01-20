@@ -115,16 +115,3 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level) {
     results[1] *= L;
     return results;
 }
-
-
-int AdaptiveRS::findActualLevel(VectorXd &q, double truth, double eps) {
-    int i = 0;
-    while (i < I) {
-        std::vector<double> results = evaluateQuery(q, i);
-        if (fabs(results[0] - truth) / truth < eps) {
-            return i;
-        }
-        i ++;
-    }
-    return I - 1;
-}
