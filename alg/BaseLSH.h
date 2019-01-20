@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/5/18.
-//
-
 #ifndef HBE_BASELSH_H
 #define HBE_BASELSH_H
 

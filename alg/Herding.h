@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 1/11/19.
-//
-
 #ifndef EPS_HERDING_H
 #define EPS_HERDING_H
 

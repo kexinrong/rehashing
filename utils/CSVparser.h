@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/4/18.
-//
-
 #ifndef HBE_CSVPARSER_H
 #define HBE_CSVPARSER_H
 

@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/21/18.
-//
-
 #ifndef HBE_GAUSSIANKERNEL_H
 #define HBE_GAUSSIANKERNEL_H
 

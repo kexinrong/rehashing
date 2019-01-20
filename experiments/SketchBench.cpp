@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 1/10/19.
-//
-
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -23,9 +19,6 @@
 #include "../alg/KCenter.h"
 #include <boost/math/distributions/normal.hpp>
 #include "parseConfig.h"
-
-//int nsamples[] = {8, 13, 23, 39, 68, 116, 199, 341, 584, 1000};
-//int nsamples[] = { 584, 1000, 5000, 10000};
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -91,7 +84,6 @@ int main(int argc, char *argv[]) {
     std::mt19937_64 rng(rd());
 
     vector<int> nsamples;
-    //int upper = min(int(1/tau), 2 * int(sqrt(N)));
     int upper = 2000;
 
     int s = 10;
@@ -138,8 +130,6 @@ int main(int argc, char *argv[]) {
                     est += samples[j].second * simpleKernel->density(q, X.row(samples[j].first));
                 }
                 est /= samples.size();
-                //std::cout << est << "," << exact_val << std::endl;
-                //err[0] += pow((est - exact_val) / max(tau, exact_val), 2);
                 err[0].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
                 est = 0;
@@ -147,12 +137,10 @@ int main(int argc, char *argv[]) {
                     est += hbs_samples[j].second * simpleKernel->density(q, X.row(hbs_samples[j].first));
                 }
                 est /= hbs_samples.size();
-                //err[3] += pow((est - exact_val) / max(tau, exact_val), 2);
                 err[3].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
                 // Uniform
                 double rs_est = rs.query(q, tau, m);
-                //err[1] += pow((rs_est - exact_val) / max(tau, exact_val), 2);
                 err[1].push_back(fabs(rs_est - exact_val) / max(tau, exact_val));
 
                 // Herding
@@ -160,7 +148,6 @@ int main(int argc, char *argv[]) {
                 for (size_t j = 0; j < h_samples.size(); j ++) {
                     est += h_samples[j].second * simpleKernel->density(q, X.row(h_samples[j].first));
                 }
-                //err[2] += pow((est - exact_val) / max(tau, exact_val), 2);
                 err[2].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
                 // KCenter
@@ -175,7 +162,6 @@ int main(int argc, char *argv[]) {
                     }
                     est = est / kcenter.kc + est1 * (1 - 1/kcenter.kc);
                 }
-                //err[4] += pow((est - exact_val) / max(tau, exact_val), 2);
                 err[4].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
             }

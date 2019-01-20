@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/5/18.
-//
-
 #include "BaseLSH.h"
 
 using Eigen::PermutationMatrix;

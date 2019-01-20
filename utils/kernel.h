@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/3/18.
-//
-
 #ifndef HBE_KERNEL_H
 #define HBE_KERNEL_H
 

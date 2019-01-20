@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 12/30/18.
-//
-
 #ifndef HBE_HYBRIDADAPTIVE_H
 #define HBE_HYBRIDADAPTIVE_H
 

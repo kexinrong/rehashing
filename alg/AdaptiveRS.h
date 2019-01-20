@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 2018-11-09.
-//
-
 #ifndef HBE_ADAPTIVERS_H
 #define HBE_ADAPTIVERS_H
 

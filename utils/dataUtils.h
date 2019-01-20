@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/4/18.
-//
-
 #ifndef HBE_DATAUTILS_H
 #define HBE_DATAUTILS_H
 
@@ -219,6 +215,10 @@ public:
         double sum = 0;
         for (auto& n : results) { sum += n; }
         return sum / results.size();
+    }
+
+    static double getMax(vector<double>& results) {
+        return *max_element(std::begin(results), std::end(results));
     }
 
     static double getStd(vector<double>& results) {

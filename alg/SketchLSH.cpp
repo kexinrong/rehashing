@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 2018-10-26.
-//
-
 #include "SketchLSH.h"
 
 SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker) {

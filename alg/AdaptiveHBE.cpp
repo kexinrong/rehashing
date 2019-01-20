@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 2018-11-11.
-//
-
 #include "AdaptiveHBE.h"
 #include "dataUtils.h"
 #include "SketchTable.h"

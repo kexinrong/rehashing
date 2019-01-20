@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 2018-11-09.
-//
-
 #ifndef HBE_ADAPTIVEESTIMATOR_H
 #define HBE_ADAPTIVEESTIMATOR_H
 
@@ -48,7 +44,6 @@ public:
         returns[0] = est;
         auto t2 = std::chrono::high_resolution_clock::now();
         totalTime += std::chrono::duration_cast<std::chrono::nanoseconds>(t2-t1).count();
-//        std::cout << "==========================\n";
         return returns;
     }
 

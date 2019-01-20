@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 2018-10-26.
-//
-
 #ifndef HBE_SKETCHLSH_H
 #define HBE_SKETCHLSH_H
 

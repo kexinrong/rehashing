@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 12/30/18.
-//
-
 #include "HybridAdaptive.h"
 #include "dataUtils.h"
 

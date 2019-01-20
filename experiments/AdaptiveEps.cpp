@@ -1,13 +1,3 @@
-//
-// Created by Kexin Rong on 12/29/18.
-//
-
-
-
-//
-// Created by Kexin Rong on 2018-11-10.
-//
-
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -222,10 +212,10 @@ int main(int argc, char *argv[]) {
         dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
     }
 
-//    std::cout << "RS\n";
-//    findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
-//
-//    std::cout << "======================================\n";
+    std::cout << "RS\n";
+    findEps(true, X_ptr, Y, exact, cfg, sequential, hasQuery);
+
+    std::cout << "======================================\n";
 
     std::cout << "HBE\n";
     findEps(false, X_ptr, Y, exact, cfg, sequential, hasQuery);

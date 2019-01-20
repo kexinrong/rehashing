@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/17/18.
-//
-
 #include "multiHBE.h"
 #include "dataUtils.h"
 

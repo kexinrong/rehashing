@@ -144,11 +144,11 @@ int main(int argc, char* argv[])
     } else if (strcmp(argv[1], "tmy") == 0) {
         d = 8;
         N = 1822080;
-        M = 100000;
+        M = 10000;
     } else if (strcmp(argv[1], "covtype") == 0) {
         d = 54;
         N = 581012;
-        M = 100000;
+        M = 10000;
     } else if (strcmp(argv[1], "home") == 0) {
         d = 10;
         N = 928991;
@@ -188,7 +188,7 @@ int main(int argc, char* argv[])
     } else if (strcmp(argv[1], "msd") == 0) {
         d = 90;
         N = 463715;
-        M = 90969;
+        M = 10000;
         //M = 100000;
     } else if (strcmp(argv[1], "poker") == 0) {
         d = 10;
@@ -230,16 +230,11 @@ int main(int argc, char* argv[])
         d = 3072;
         N = 630420;
         M = 9820;
+    } else if (strcmp(argv[1], "higgs") == 0) {
+        d = 28;
+        N = 11000000;
+        M = 100000;
     }
-
-// hep
-//    int d = 27;
-//    int N = 10500000;
-//    int M = 100000;
-// higgs
-//    int d = 28;
-//    int N = 11000000;
-//    int M = 100000;
 
 
 
@@ -311,9 +306,9 @@ int main(int argc, char* argv[])
         readFile("../../resources/data/census_normed.txt", false, N, 0, 67, &x[0]);
     } else if (strcmp(argv[1], "svhn") == 0) {
         readFile("../../resources/data/svhn_normed.txt", false, N, 0, 3071, &x[0]);
+    } else if (strcmp(argv[1], "higgs") == 0) {
+        readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
     }
-//    readFile("../../resources/data/hep_normed.csv", true, N, 2, 28, &x[0]);
-//    readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
     //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
@@ -369,17 +364,14 @@ int main(int argc, char* argv[])
     std::cout << "FIGTREE auto: " << (float)(t2 - t1)/CLOCKS_PER_SEC << std::endl;
 
     // compute absolute error of the Gauss Transform at each target and for all sets of weights.
-//    std::ofstream outfile("covtype.txt");
     double err = 0;
     for( int i = 0; i < M; i++) {
         double tmp = fabs(g_auto[i] - exact[i*2]) / exact[i*2];
         err += tmp;
-//        outfile << g_auto[i] << "\n";
     }
     std::cout << "Relative Error: " << err / M << std::endl;
     std::cout << "-----------------------------" << std::endl;
 
-//    outfile.close();
 
     // deallocate memory
     delete [] x;

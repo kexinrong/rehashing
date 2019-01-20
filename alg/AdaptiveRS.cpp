@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 2018-11-09.
-//
-
 #include "AdaptiveRS.h"
 #include "dataUtils.h"
 #include "mathUtils.h"

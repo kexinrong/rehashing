@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/17/18.
-//
-
 #ifndef HBE_MRHBE_H
 #define HBE_MRHBE_H
 

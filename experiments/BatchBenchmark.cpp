@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/30/18.
-//
-
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -28,25 +24,6 @@ double relErr(double est, double exact) {
     return fabs(est - exact) / exact;
 }
 
-double getMax(vector<double>& results) {
-    return *max_element(std::begin(results), std::end(results));;
-}
-
-double getAvg(vector<double>& results) {
-    double sum = 0;
-    for (auto& n : results) { sum += n; }
-    return sum / results.size();
-}
-
-double getStd(vector<double>& results) {
-    double avg = getAvg(results);
-    double var = 0;
-    for (auto& n : results) {
-        var += (n - avg) * (n - avg);
-    }
-    return var / results.size();
-}
-
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cout << "Need config file" << std::endl;
@@ -55,6 +32,7 @@ int main(int argc, char *argv[]) {
 
     char* scope = argv[2];
     parseConfig cfg(argv[1], scope);
+    const char* name = cfg.getName();
     const double eps = cfg.getEps();
     const double tau = cfg.getTau();
     const double beta = cfg.getBeta();
@@ -73,7 +51,8 @@ int main(int argc, char *argv[]) {
             h *= sqrt(2);
         }
     }
-    std::cout << "Bandwidth: " << h << std::endl;
+    std::cout << "dataset: " << name << std::endl;
+    std::cout << "bw: " << h << std::endl;
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -105,13 +84,9 @@ int main(int argc, char *argv[]) {
     }
 
     // Read exact KDE
-    bool sequential = (argc > 3 || N == M);
+    bool sequential = (N == M);
     double *exact = new double[M * 2];
-    if (sequential) {
-        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 0, &exact[0]);
-    } else {
-        dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
-    }
+    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
 
     // Estimate parameters
     int tables = min((int)(means * 1.1), 1100);
@@ -148,7 +123,8 @@ int main(int argc, char *argv[]) {
     RS rs(X_ptr, simpleKernel, rs_size);
 
 
-    for (int i = 0; i < 10; i ++) {
+    //for (int i = 0; i < 10; i ++) {
+    for (int i = 0; i < 5; i ++) {
         samples = 100 * (i + 1);
         std::cout << "------------------" << std::endl;
         std::cout << "HBE samples: " << samples << ", RS samples: " << int(samples * sample_ratio) << std::endl;
@@ -188,13 +164,13 @@ int main(int argc, char *argv[]) {
         std::cout << "Sketch (3 scales) HBE total time: " << sketch4.totalTime / 1e9 << std::endl;
         std::cout << "RS Sampling total time: " << rs.totalTime / 1e9 << std::endl;
         printf("Uniform HBE relative error: %f, %f, %f\n",
-                getAvg(hbe_error), getStd(hbe_error), getMax(hbe_error));
+                dataUtils::getAvg(hbe_error), dataUtils::getStd(hbe_error), dataUtils::getMax(hbe_error));
         printf("Sketch HBE relative error:  %f, %f, %f\n",
-                getAvg(sketch_error), getStd(sketch_error), getMax(sketch_error));
+               dataUtils::getAvg(sketch_error), dataUtils::getStd(sketch_error), dataUtils::getMax(sketch_error));
         printf("Sketch (3 scales)  HBE relative error:  %f, %f, %f\n",
-                getAvg(sketch_scale_error), getStd(sketch_scale_error), getMax(sketch_scale_error));
+               dataUtils::getAvg(sketch_scale_error),dataUtils:: getStd(sketch_scale_error), dataUtils::getMax(sketch_scale_error));
         printf("RS relative error:  %f, %f, %f\n",
-               getAvg(rs_error), getStd(rs_error), getMax(rs_error));
+               dataUtils::getAvg(rs_error), dataUtils::getStd(rs_error), dataUtils::getMax(rs_error));
     }
 
     delete[] exact;

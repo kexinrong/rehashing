@@ -154,9 +154,11 @@ vector<size_t> sort_indexes(const vector<T> &v) {
 }
 
 void AdaptiveRSDiag::getConstants() {
+    //std::cout << contrib.size() << std::endl;
     // Sort samples by contribution
     vector<int> tmp_samples;
     vector<double> tmp_weights;
+    thresh = 1e-10;
     for (auto i: sort_indexes(contrib)) {
         if (contrib[i] < 1) { // Ignore self, otherwise RS cost goes up
             tmp_samples.push_back(samples[i]);
@@ -165,10 +167,26 @@ void AdaptiveRSDiag::getConstants() {
             break;
         }
     }
-    samples = tmp_samples;
-    contrib = tmp_weights;
 
-    thresh = 1e-10;
+    if (tmp_samples.size() > 50000) {
+        std::unordered_set<int> elems = mathUtils::pickSet(tmp_samples.size(), 50000, rng);
+        vector<int> indices;
+        for (int e : elems) { indices.push_back(e); }
+        std::sort(indices.begin(), indices.end());
+
+        samples.clear();
+        contrib.clear();
+        for (int i = 0; i < indices.size(); i ++) {
+            samples.push_back(tmp_samples[indices[i]]);
+            contrib.push_back(tmp_weights[indices[i]]);
+        }
+    } else {
+        samples = tmp_samples;
+        contrib = tmp_weights;
+    };
+
+
+
     set_start.clear();
     u_global = 0;
     sample_count = samples.size();

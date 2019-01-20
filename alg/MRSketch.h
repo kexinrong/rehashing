@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 1/10/19.
-//
-
 #ifndef EPS_MRSKETCH_H
 #define EPS_MRSKETCH_H
 

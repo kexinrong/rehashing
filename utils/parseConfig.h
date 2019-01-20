@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 10/2/18.
-//
-
 #ifndef HBE_PARSECONFIG_H
 #define HBE_PARSECONFIG_H
 

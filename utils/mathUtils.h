@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/3/18.
-//
-
 #ifndef HBE_UTILS_H
 #define HBE_UTILS_H
 

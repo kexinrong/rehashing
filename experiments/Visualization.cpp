@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     parseConfig cfg(argv[1], scope);
     const double eps = cfg.getEps();
     const double tau = cfg.getTau();
+    std::string name = std::string(cfg.getName());
     // The dimensionality of each sample vector.
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
@@ -41,7 +42,7 @@ int main(int argc, char *argv[]) {
             h *= sqrt(2);
         }
     }
-//    std::cout << "bw: " << h << std::endl;
+    std::cout << "bw: " << h << std::endl;
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -49,12 +50,12 @@ int main(int argc, char *argv[]) {
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
     shared_ptr<Kernel> simpleKernel;
-    if (strcmp(scope, "gaussian") == 0) {
-        kernel = make_shared<Gaussiankernel>(dim);
-        simpleKernel = make_shared<Gaussiankernel>(dim);
-    } else {
+    if (strcmp(scope, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
         simpleKernel = make_shared<Expkernel>(dim);
+    } else {
+        kernel = make_shared<Gaussiankernel>(dim);
+        simpleKernel = make_shared<Gaussiankernel>(dim);
     }
 
     kernel->initialize(band->bw);
@@ -70,14 +71,22 @@ int main(int argc, char *argv[]) {
                                 cfg.ignoreHeader(), M, cfg.getStartCol(), cfg.getEndCol());
     }
 
-    AdaptiveRSDiag rs(X_ptr, simpleKernel, tau, 0.6);
+    AdaptiveRSDiag rs(X_ptr, simpleKernel, tau, eps);
     rs.setMedians(3);
 
     std::random_device rd;
     std::mt19937 rng(rd());
     std::uniform_int_distribution<int> distribution(0, M - 1);
 
-    auto t1 = std::chrono::high_resolution_clock::now();
+//    std::string fname = "viz/" + name + "_samples.txt";
+//    std::ofstream outfile(fname);
+//    for (int ii = 0; ii < 5000; ii ++) {
+//        int idx1 = distribution(rng);
+//        int idx2 = distribution(rng);
+//        outfile << simpleKernel->density(X.row(idx1), X.row(idx2)) << "\n";
+//    }
+//    outfile.close();
+
     for (int iter = 0; iter < 3; iter ++) {
         vector<double> rs_cost;
         vector<double> hbe_cost;
@@ -97,15 +106,9 @@ int main(int argc, char *argv[]) {
             int actual = rs.findActualLevel(q, rs_est[0], eps);
             rs.getConstants();
             rs.findRings(1, 0.5, q, actual);
-//            std::cout << rs.lambda << "," << rs.l << std::endl;
+            std::cout << rs.lambda << "," << rs.l << std::endl;
             j ++;
-            rs_cost.push_back(rs.RSDirect(rs_est[0]) / r2);
-            hbe_cost.push_back(rs.HBEDirect() / r2);
         }
-        std::cout << "rs:" << dataUtils::getAvg(rs_cost) << ", hbe: " <<  dataUtils::getAvg(hbe_cost) << std::endl;
     }
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::cout << "Diagnosis took: " <<
-              std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count() << "ms" << std::endl;
 
 }
