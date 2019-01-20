@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -17,7 +16,6 @@
 #include "../alg/RS.h"
 #include "../alg/AdaptiveRS.h"
 #include "../alg/AdaptiveHBE.h"
-#include "../alg/HybridAdaptive.h"
 #include "parseConfig.h"
 
 void update(vector<double>& results, vector<double> est, double exact) {

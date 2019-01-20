@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/4/18.
-//
-
 #ifndef HBE_GENERICINSTANCE_H
 #define HBE_GENERICINSTANCE_H
 

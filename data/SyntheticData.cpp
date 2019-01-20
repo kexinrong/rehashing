@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 9/5/18.
-//
-
 #include "SyntheticData.h"
 #include <iostream>
 
