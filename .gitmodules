@@ -1,9 +1,6 @@
 [submodule "lib/eigen-git-mirror"]
 	path = lib/eigen-git-mirror
 	url = https://github.com/eigenteam/eigen-git-mirror.git
-[submodule "lib/robin-map"]
-	path = lib/robin-map
-	url = https://github.com/Tessil/robin-map.git
 [submodule "lib/config4cpp"]
 	path = lib/config4cpp
 	url = https://github.com/config4star/config4cpp.git
