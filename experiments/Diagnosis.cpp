@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
     }
 
     AdaptiveRSDiag rs(X_ptr, simpleKernel, tau, 0.6);
-    rs.setMedians(3);
+    rs.setMedians(5);
 
     std::random_device rd;
     std::mt19937 rng(rd());
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
         vector<double> rs_cost;
         vector<double> hbe_cost;
         int j = 0;
-        while (j < 50) {
+        while (j < 30) {
             int idx = distribution(rng);
             VectorXd q = X.row(idx);
             if (hasQuery != 0) {
@@ -99,8 +99,13 @@ int main(int argc, char *argv[]) {
             rs.findRings(1, 0.5, q, actual);
 //            std::cout << rs.lambda << "," << rs.l << std::endl;
             j ++;
-            rs_cost.push_back(rs.RSDirect() / r2);
-            hbe_cost.push_back(rs.HBEDirect() / r2);
+            double tmp1 = rs.RSDirect() / r2;
+            double tmp2 = rs.HBEDirect() / r2;
+            rs_cost.push_back(tmp1);
+            hbe_cost.push_back(tmp2);
+            //rs_cost.push_back(rs.RSDirect() / r2);
+            //hbe_cost.push_back(rs.HBEDirect() / r2);
+//            std::cout << tmp1 << "," << tmp2 << "," << r2 << "," << rs_est[0] << std::endl;
         }
         std::cout << "rs:" << dataUtils::getAvg(rs_cost) << ", hbe: " <<  dataUtils::getAvg(hbe_cost) << std::endl;
     }

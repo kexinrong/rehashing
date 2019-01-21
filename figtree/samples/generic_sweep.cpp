@@ -1,7 +1,3 @@
-//
-// Created by Kexin Rong on 12/11/18.
-//
-
 //------------------------------------------------------------------------------
 // The code was written by Vlad I. Morariu
 // and is copyrighted under the Lesser GPL:

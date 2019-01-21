@@ -10,7 +10,6 @@ export PLATFORM=default
 
 # set this to true (and specify the location) if using the efficient KS library
 export USE_KS=false
-#export KS_DIR=/home/kexinrong/askit_release/ks
 
 # ASKIT is currently only tested with these options, change at your own risk
 export MPICXX=mpiicpc

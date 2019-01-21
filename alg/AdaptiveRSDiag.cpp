@@ -102,6 +102,7 @@ std::vector<double> AdaptiveRSDiag::evaluateQuery(VectorXd q, int level) {
             contrib.push_back(d);
             results[0] += d;
         }
+        results[0] /= results[1];
         return results;
     }
 
@@ -316,7 +317,7 @@ double AdaptiveRSDiag::RSDirect() {
 
 
 double AdaptiveRSDiag::HBEDirect() {
-    //double sup3 = w_pps[3][0] * pmaxs[3];
+//    double sup3 = w_pps[3][0] * pmaxs[3];
     double sup3 = w_ps[3][w_ps[3].size() - 1] ;
 
     double up = sup3 * u[3];
