@@ -100,20 +100,18 @@ int main(int argc, char *argv[]) {
         std::unordered_set<int> elems = mathUtils::pickSet(M, 10000, rng);
         for (size_t iter = 0; iter < 10; iter ++) {
             RS rs(X_ptr, simpleKernel, m);
-            MRSketch hbs = MRSketch(X_ptr, m, w, k, tau, rng);
             MRSketch hbs_simple = MRSketch(X_ptr, m, w, k, 5, rng);
             Herding herding = Herding(X_ptr, simpleKernel, m, rng);
             KCenter kcenter = KCenter(X_ptr, simpleKernel, m, 1, rng);
 
             // Evaluate errors on random samples
-            auto& samples = hbs.final_samples;
             auto& hbs_samples = hbs_simple.final_samples;
             auto& h_samples = herding.samples;
             auto& hc_samples = kcenter.center_samples;
             auto& hc_rs_samples = kcenter.rs_samples;
 
             vector<vector<double>> err;
-            for (int i = 0; i < 5; i ++) {
+            for (int i = 0; i < 4; i ++) {
                 std::vector<double> tmp;
                 err.push_back(tmp);
             }
@@ -126,18 +124,11 @@ int main(int argc, char *argv[]) {
 
                 // HBS
                 double est = 0;
-                for (size_t j = 0; j < samples.size(); j ++) {
-                    est += samples[j].second * simpleKernel->density(q, X.row(samples[j].first));
-                }
-                est /= samples.size();
-                err[0].push_back(fabs(est - exact_val) / max(tau, exact_val));
-
-                est = 0;
                 for (size_t j = 0; j < hbs_samples.size(); j ++) {
                     est += hbs_samples[j].second * simpleKernel->density(q, X.row(hbs_samples[j].first));
                 }
                 est /= hbs_samples.size();
-                err[3].push_back(fabs(est - exact_val) / max(tau, exact_val));
+                err[0].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
                 // Uniform
                 double rs_est = rs.query(q, tau, m);
@@ -162,16 +153,15 @@ int main(int argc, char *argv[]) {
                     }
                     est = est / kcenter.kc + est1 * (1 - 1/kcenter.kc);
                 }
-                err[4].push_back(fabs(est - exact_val) / max(tau, exact_val));
+                err[3].push_back(fabs(est - exact_val) / max(tau, exact_val));
 
             }
 
             std::cout << "# evals" << err[0].size() << std::endl;
             std::cout << "HBE: " << dataUtils::getAvg(err[0]) << "," << dataUtils::getSE(err[0]) << std::endl;
-            std::cout << "HBE (single): " << dataUtils::getAvg(err[3]) << "," << dataUtils::getSE(err[3]) << std::endl;
             std::cout << "RS: " << dataUtils::getAvg(err[1]) << "," << dataUtils::getSE(err[1]) << std::endl;
             std::cout << "Herding: " << dataUtils::getAvg(err[2]) << "," << dataUtils::getSE(err[2]) << std::endl;
-            std::cout << "KCenter: " << dataUtils::getAvg(err[4]) << "," << dataUtils::getSE(err[4]) << std::endl;
+            std::cout << "KCenter: " << dataUtils::getAvg(err[3]) << "," << dataUtils::getSE(err[3]) << std::endl;
 
         }
     }
