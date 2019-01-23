@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
     if (strcmp(argv[1], "mnist") == 0) {
         d = 784;
         N = 70000;
-        M = 70000;
+        M = 9229;
     } else if (strcmp(argv[1], "tmy") == 0) {
         d = 8;
         N = 1822080;
@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
     } else if (strcmp(argv[1], "home") == 0) {
         d = 10;
         N = 928991;
-        M = 100000;
+        M = 10000;
     } else if (strcmp(argv[1], "shuttle") == 0) {
         d = 9;
         N = 43500;
@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
     } else if (strcmp(argv[1], "susy") == 0) {
         d = 18;
         N = 5000000;
-        M = 100000;
+        M = 9958;
     } else if (strcmp(argv[1], "glove.6b.100d") == 0) {
         d = 100;
         N = 400000;
@@ -233,10 +233,12 @@ int main(int argc, char* argv[])
     } else if (strcmp(argv[1], "higgs") == 0) {
         d = 28;
         N = 11000000;
-        M = 100000;
+        M = 10000;
+    } else if (strcmp(argv[1], "hep") == 0) {
+        d = 27;
+        N = 10500000;
+        M = 10000;
     }
-
-
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
     // the Gauss Transform sums terms exp( -||x_i - y_j||^2 / h^2 ) as opposed
@@ -308,6 +310,8 @@ int main(int argc, char* argv[])
         readFile("../../resources/data/svhn_normed.txt", false, N, 0, 3071, &x[0]);
     } else if (strcmp(argv[1], "higgs") == 0) {
         readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
+    } else if (strcmp(argv[1], "hep") == 0) {
+        readFile("../../resources/data/hep_normed.csv", true, N, 2, 28, &x[0]);
     }
     //fitCube(&x[0], N, d);
 
