@@ -1,9 +1,9 @@
 
 # MLKROOT
-export MKLROOT=/lfs/1/krong/intel/mkl
+export MKLROOT=/opt/intel/mkl
 
 # location of the KNN library
-export KNN_DIR=/lfs/1/krong/hbe/askit_release/rkdtsrc
+export KNN_DIR=../../rkdtsrc
 
 # can use a specialized makefile.in file here if needed
 export PLATFORM=default

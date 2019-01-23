@@ -2,24 +2,7 @@ import subprocess
 import numpy as np
 
 datasets = {
-	'acoustic': [50, 78823, 78823, 1.41421],
-	'mnist': [784, 70000, 70000, 14.1421],
-	'tmy': [8, 1822080, 100000, 2.82843],
-	'covtype': [54, 581012, 581012, 2.81237],
-	'home': [10, 928991, 100000, 0.848528],
-	'shuttle': [9, 43500, 43500, 1.41421],
-	'ijcnn': [22, 141691, 100000, 2.12132],
-	'skin': [3, 245057, 100000, 0.282843],
-	'codrna': [8, 59535, 59535, 0.707107],
-	'corel': [32, 68040, 68040, 2.12132],
-	'elevator': [18, 16599, 16599, 2.12132],
-	'housing': [8, 20640, 20640, 1.41421],
-	'msd': [90, 463715, 100000, 4.24264],
-	'poker': [10, 25010, 25010, 2.82843],
-	'sensorless': [48, 58509, 58509, 2.82843],
-	'hep': [27, 10500000, 100000, 7.07107],
-	'higgs': [28, 11000000, 100000, 7.07107],
-	'susy': [18, 5000000, 100000, 5.65685]
+	'test': [3, 4, 4, 1]
 }
 
 def get_relerr(ds):
@@ -30,7 +13,7 @@ def get_relerr(ds):
 		err += np.abs(est[i] - exact[i][0]) / exact[i][0]
 	print("Relative Error: %f\n" % (err / len(est)))
 
-cmd = './askit_kde_main.exe -training_data /lfs/1/krong/hbe/resources/data/askit/%s_askit.txt  -training_knn_file ../../rkdtsrc/parallelIO/knn/%s.knn -test_data /lfs/1/krong/hbe/resources/data/askit/%s_askit_query.txt -test_knn_file ../../rkdtsrc/parallelIO/knn/%s_query.knn -training_N %d -test_N %d -d %d -output results/%s.txt -h %f'
+cmd = './askit_kde_main.exe -training_data ../../../resources/data/askit/%s_askit.txt  -training_knn_file ../../rkdtsrc/parallelIO/knn/%s.knn -test_data ../../../resources/data/askit/%s_askit_query.txt -test_knn_file ../../rkdtsrc/parallelIO/knn/%s_query.knn -training_N %d -test_N %d -d %d -output results/%s.txt -h %f'
 
 f = open('results/runtime.txt', 'w')
 for ds in datasets:
