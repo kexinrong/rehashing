@@ -1,7 +1,7 @@
 # Hashing-Based-Estimators (HBE)
 HBE is a C++ library for fast kernel evaluation for high-dimensional data that also includes a python implementation for illustration purposes. HBE uses [Locality Sensitive Hashing](https://en.wikipedia.org/wiki/Locality-sensitive_hashing) (LSH) to produce *provably accurate* estimates of the [kernel density](https://en.wikipedia.org/wiki/Kernel_density_estimation#Definition) for a given query point as well as weighted generalizations thereof. HBE is designed for [radially](https://en.wikipedia.org/wiki/Radial_basis_function) decreasing kernel functions (e.g. [Gaussian](https://en.wikipedia.org/wiki/Radial_basis_function_kernel) or [Exponential](http://www.jmlr.org/papers/volume2/genton01a/genton01a.pdf) kernels) and truly high dimensional data where [FIGTree](http://users.umiacs.umd.edu/~morariu/figtree/) and [Dual-Tree algorithms](http://jmlr.org/papers/volume16/curtin15a/curtin15a.pdf) for fast kernel evaluation are slow. 
 
-Currently, HBE supports one LSH family: [Eucledian LSH](http://mlwiki.org/index.php/Euclidean_LSH), introduced by [Datar, Immorlica, Indyk, Mirrokni SoCG'04](https://dl.acm.org/citation.cfm?id=997857) for solving the Nearest Neighbor Search problem for the Euclidean distance metric (see also the [E2LSH](https://www.mit.edu/~andoni/LSH/) package by [Alex Andoni](https://www.mit.edu/~andoni/)). 
+Currently, HBE supports one LSH family: [Eucledian LSH](http://mlwiki.org/index.php/Euclidean_LSH), introduced by [(Datar, Immorlica, Indyk, Mirrokni SoCG'04)](https://dl.acm.org/citation.cfm?id=997857) in the context of solving the Nearest Neighbor Search problem for the Euclidean distance metric (see also the [E2LSH](https://www.mit.edu/~andoni/LSH/) package by [Alex Andoni](https://www.mit.edu/~andoni/)). 
 
 # How to use HBE
 
@@ -15,10 +15,10 @@ HBE is mainly developed by [Kexin Rong](https://kexinrong.github.io/) and [Paris
 
 If you want to cite HBE in a publication, here is the bibliographic information of our research papers where the algorithms are described and analyzed:
 
-> *Rehashing Kernel Evaluation in High Dimensions*. Paris Siminelakis, Kexin Rong, Peter Bailis, Moses Charikar, Phillip Levis. 
-> ICML 2019
+> **Rehashing Kernel Evaluation in High Dimensions**. Paris Siminelakis, Kexin Rong, Peter Bailis, Moses Charikar, Phillip Levis. 
+> *ICML 2019*
 
-> *Hashing-Based-Estimatros for Kernel Density in High Dimensions*. Moses Charikar, Paris Siminelakis, FOCS 2017.
+> **Hashing-Based-Estimatros for Kernel Density in High Dimensions**. Moses Charikar, Paris Siminelakis, *FOCS 2017*.
 
 # License
 
