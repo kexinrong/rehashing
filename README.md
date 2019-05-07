@@ -7,7 +7,7 @@ Currently, HBE supports one LSH family: [Eucledian LSH](http://mlwiki.org/index.
 
 # How fast is HBE? 
 
-The speed of HBE depends on the desired relative error, the kernel and the dataset. For relative error 0.1 under the Gaussian kernel ahd datasets around 1M points HBE takes less than *25ms per query* and very often around ~2ms. For specific datasets and comparison with competing methods ([FIGTree](http://users.umiacs.umd.edu/~morariu/figtree/), [ASKIT](http://padas.ices.utexas.edu/libaskit/), uniform Random Sampling (RS)) see Table 1. 
+The speed of HBE depends on the desired relative error, the kernel and the dataset. For relative error 0.1 under the Gaussian kernel ahd datasets around 1M points HBE takes less than *25ms per query* and very often around ~2ms. For specific datasets and comparison with competing methods ([FIGTree](http://users.umiacs.umd.edu/~morariu/figtree/), [ASKIT](http://padas.ices.utexas.edu/libaskit/), Random Sampling (RS)) see Table 1. 
 
 ![Table 1](https://github.com/stanford-futuredata/hbe/blob/clean/experiments/experiments_hbe.png "Table 1")
 
