@@ -7,7 +7,7 @@ Currently, HBE supports one LSH family: [Eucledian LSH](http://mlwiki.org/index.
 
 # How fast is HBE? 
 
-The speed of HBE depends on the desired relative error, the kernel and the dataset. For relative error 0.1 under the Gaussian kernel ahd datasets around 1M points HBE takes less than 25ms per query and very often around ~2ms. For specific datasets and comparison with competing methods (e.g. [FIGTree](http://users.umiacs.umd.edu/~morariu/figtree/), [ASKIT](http://padas.ices.utexas.edu/libaskit/)) see Table 1. 
+The speed of HBE depends on the desired relative error, the kernel and the dataset. For relative error 0.1 under the Gaussian kernel ahd datasets around 1M points HBE takes less than *25ms per query* and very often around ~2ms. For specific datasets and comparison with competing methods ([FIGTree](http://users.umiacs.umd.edu/~morariu/figtree/), [ASKIT](http://padas.ices.utexas.edu/libaskit/), uniform Random Sampling (RS)) see Table 1. 
 
 ![Table 1](https://github.com/stanford-futuredata/hbe/blob/clean/experiments/experiments_hbe.png "Table 1")
 
@@ -22,7 +22,7 @@ If you want to cite HBE in a publication, here is the bibliographic information 
 > **Rehashing Kernel Evaluation in High Dimensions**. Paris Siminelakis, Kexin Rong, Peter Bailis, Moses Charikar, Phillip Levis. 
 > *ICML 2019*
 
-> **Hashing-Based-Estimatros for Kernel Density in High Dimensions**. Moses Charikar, Paris Siminelakis, *FOCS 2017*.
+> **Hashing-Based-Estimators for Kernel Density in High Dimensions**. Moses Charikar, Paris Siminelakis, *FOCS 2017*.
 
 # License
 
