@@ -5,7 +5,7 @@ Currently, HBE supports one LSH family: [Eucledian LSH](http://mlwiki.org/index.
 
 # How to use HBE
 
-The first step to use HBE is to consult the python demo that describes the tuning process. Alternatively you can directly consult the C++ documentation. 
+The first step to use HBE is to consult the [python demo](https://github.com/stanford-futuredata/hbe/wiki/Python-Demo) that describes the tuning process. Alternatively you can directly consult the C++ documentation. 
 
 # How fast is HBE? 
 
