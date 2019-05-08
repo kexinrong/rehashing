@@ -5,7 +5,7 @@ Currently, HBE supports one LSH family: [Eucledian LSH](http://mlwiki.org/index.
 
 # How to use HBE
 
-The first step to use HBE is to consult the [python demo](https://github.com/stanford-futuredata/hbe/wiki/Python-Demo) that describes the tuning process. Alternatively you can directly consult the C++ documentation. 
+The first step to use HBE is to consult the [python demo](https://github.com/stanford-futuredata/hbe/wiki/Python-Demo) that describes the tuning process. Alternatively you can directly consult the C++ documentation. In our [Wiki](https://github.com/stanford-futuredata/hbe/wiki) you can also find descriptions of how to construct tunable [synthetic benchmarks](https://github.com/stanford-futuredata/hbe/wiki/Synthetic-benchmarks) for kernel evaluation as well as produce dataset [visualizations](https://github.com/stanford-futuredata/hbe/wiki/Visualizations).
 
 # How fast is HBE? 
 
