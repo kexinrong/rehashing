@@ -13,6 +13,8 @@ The speed of HBE depends on the desired relative error, the kernel and the datas
 
 ![Table 1](https://github.com/stanford-futuredata/hbe/blob/clean/experiments/experiments_hbe.png "Table 1")
 
+If you want to gain intuition about what properties of datasets affect the performance of kernel evaluation algorithms see our [Synthetic Benchmarks](https://github.com/stanford-futuredata/hbe/wiki/Synthetic-benchmarks) page.
+
 # Authors 
 
 HBE is mainly developed by [Kexin Rong](https://kexinrong.github.io/) and [Paris Siminelakis](https://web.stanford.edu/~psimin/). HBE has grown out of research projects with our collaborators [Peter Bailis](http://www.bailis.org/), [Moses Charikar](https://engineering.stanford.edu/people/moses-charikar) and [Philip Levis](http://csl.stanford.edu/~pal/).
