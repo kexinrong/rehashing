@@ -626,7 +626,7 @@ class rehashing:
 if __name__ == "__main__":
     #%%  Problem Specificaiton
     # example dataset
-    points = np.loadtxt(open("datasets/covtype.data", "rb"), delimiter=",",\
+    points = np.loadtxt(open("../resources/covtype.data", "rb"), delimiter=",",\
                         skiprows=0)
     points = points.transpose()
     (d,n) = points.shape
