@@ -21,7 +21,7 @@ HBE is mainly developed by [Kexin Rong](https://kexinrong.github.io/) and [Paris
 
 If you want to cite HBE in a publication, here is the bibliographic information of our research papers where the algorithms are described and analyzed:
 
-> **Rehashing Kernel Evaluation in High Dimensions**. Paris Siminelakis, Kexin Rong, Peter Bailis, Moses Charikar, Phillip Levis. 
+> **Rehashing Kernel Evaluation in High Dimensions**. Paris Siminelakis, Kexin Rong, Peter Bailis, Moses Charikar, Philip Levis. 
 > *ICML 2019*
 
 > **Hashing-Based-Estimators for Kernel Density in High Dimensions**. Moses Charikar, Paris Siminelakis, *FOCS 2017*.
