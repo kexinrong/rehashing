@@ -7,27 +7,12 @@
  *      ./hbe conf/shuttle.cfg gaussian
  */
 
-
-#include <stdio.h>
-#include <stdlib.h>     /* atof */
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <string.h> // for memset
-#include <math.h>   // for abs
-#include <algorithm>    // std::max
 #include <chrono>
-#include "expkernel.h"
-#include "gaussiankernel.h"
-#include "mathUtils.h"
-#include "dataUtils.h"
-#include "bandwidth.h"
-#include "math.h"
 #include "../alg/RS.h"
 #include "../alg/MRSketch.h"
 #include "../alg/Herding.h"
 #include "../alg/KCenter.h"
-#include <boost/math/distributions/normal.hpp>
+#include "../utils/DataIngest.h"
 #include "parseConfig.h"
 
 int main(int argc, char *argv[]) {
@@ -38,47 +23,8 @@ int main(int argc, char *argv[]) {
 
     char* scope = argv[2];
     parseConfig cfg(argv[1], scope);
-    const double tau = cfg.getTau();
-    const double beta = cfg.getBeta();
-    // The dimensionality of each sample vector.
-    int dim = cfg.getDim();
-    // The number of sources which will be used for the gauss transform.
-    int N = cfg.getN();
-    int M = cfg.getM();
-
-    double h = cfg.getH();
-    const char* kernel_type = cfg.getKernel();
-    std::cout << "dataset: " << cfg.getName() << std::endl;
-    std::cout << "bw: " << h << std::endl;
-
-    MatrixXd X = dataUtils::readFile(
-            cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
-    auto band = make_unique<Bandwidth>(N, dim);
-    band->useConstant(h);
-    shared_ptr<Kernel> kernel;
-    shared_ptr<Kernel> simpleKernel;
-    // Exponential or Gaussian kernells
-    if (strcmp(kernel_type, "exp") == 0) {
-        kernel = make_shared<Expkernel>(dim);
-        simpleKernel = make_shared<Expkernel>(dim);
-    } else {
-        kernel = make_shared<Gaussiankernel>(dim);
-        simpleKernel = make_shared<Gaussiankernel>(dim);
-    }
-
-    // Normalized by bandwidth
-    kernel->initialize(band->bw);
-    X = dataUtils::normalizeBandwidth(X, band->bw);
-    shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
-
-    // Estimate parameters
-    double diam = dataUtils::estimateDiameter(X, tau);
-    int k = dataUtils::getPower(diam, beta);
-    double w = dataUtils::getWidth(k, beta);
-
-    // Read exact KDE
-    double *exact = new double[M * 2];
-    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
+    DataIngest data(cfg, true);
+    data.estimateHashParams();
 
     //Will be used to obtain a seed for the random number engine
     std::random_device rd;
@@ -98,12 +44,12 @@ int main(int argc, char *argv[]) {
         int m = nsamples[idx];
         std::cout << "----------------------------" << std::endl;
         std::cout << "sketch size=" << m << std::endl;
-        std::unordered_set<int> elems = mathUtils::pickSet(M, 10000, rng);
+        std::unordered_set<int> elems = mathUtils::pickSet(data.M, 10000, rng);
         for (size_t iter = 0; iter < 5; iter ++) {
-            RS rs(X_ptr, simpleKernel, m);
-            MRSketch hbs_simple = MRSketch(X_ptr, m, w, k, 5, rng);
-            Herding herding = Herding(X_ptr, simpleKernel, m, rng);
-            KCenter kcenter = KCenter(X_ptr, simpleKernel, m, 1, rng);
+            RS rs(data.X_ptr, data.kernel, m);
+            MRSketch hbs_simple = MRSketch(data.X_ptr, m, data.w, data.k, 5, rng);
+            Herding herding = Herding(data.X_ptr, data.kernel, m, rng);
+            KCenter kcenter = KCenter(data.X_ptr, data.kernel, m, 1, rng);
 
             // Evaluate errors on random samples
             auto& hbs_samples = hbs_simple.final_samples;
@@ -118,44 +64,45 @@ int main(int argc, char *argv[]) {
             }
             for (int idx : elems) {
             // for (int idx = 0; idx < M; idx ++) {
-                double exact_val = exact[idx * 2];
+                double exact_val = data.exact[idx * 2];
                 // Uncomment the for loop and following line to focus on low-density queries
 //                if (exact_val > 5 * tau) {continue; }
-                double query_idx = exact[idx * 2 + 1];
-                VectorXd q = X.row(query_idx);
+                double query_idx = data.exact[idx * 2 + 1];
+                VectorXd q = data.X_ptr->row(query_idx);
 
                 // HBS
                 double est = 0;
                 for (size_t j = 0; j < hbs_samples.size(); j ++) {
-                    est += hbs_samples[j].second * simpleKernel->density(q, X.row(hbs_samples[j].first));
+                    est += hbs_samples[j].second * data.kernel->density(q, data.X_ptr->row(hbs_samples[j].first));
                 }
                 est /= hbs_samples.size();
-                err[0].push_back(fabs(est - exact_val) / max(tau, exact_val));
+                err[0].push_back(fabs(est - exact_val) / max(data.tau, exact_val));
 
                 // Uniform
-                double rs_est = rs.query(q, tau, m);
-                err[1].push_back(fabs(rs_est - exact_val) / max(tau, exact_val));
+                double rs_est = rs.query(q, data.tau, m);
+                err[1].push_back(fabs(rs_est - exact_val) / max(data.tau, exact_val));
 
                 // Herding
                 est = 0;
                 for (size_t j = 0; j < h_samples.size(); j ++) {
-                    est += h_samples[j].second * simpleKernel->density(q, X.row(h_samples[j].first));
+                    est += h_samples[j].second * data.kernel->density(q, data.X_ptr->row(h_samples[j].first));
                 }
-                err[2].push_back(fabs(est - exact_val) / max(tau, exact_val));
+                err[2].push_back(fabs(est - exact_val) / max(data.tau, exact_val));
 
                 // KCenter
                 est = 0;
                 for (size_t j = 0; j < hc_samples.size(); j ++) {
-                    est += hc_samples[j].second * simpleKernel->density(q, X.row(hc_samples[j].first));
+                    est += hc_samples[j].second * data.kernel->density(q, data.X_ptr->row(hc_samples[j].first));
                 }
                 if (hc_rs_samples.size() > 0) {
                     double est1 = 0;
                     for (size_t j = 0; j < hc_rs_samples.size(); j ++) {
-                        est1 += hc_rs_samples[j].second * simpleKernel->density(q, X.row(hc_rs_samples[j].first));
+                        est1 += hc_rs_samples[j].second * data.kernel->density(q,
+                                data.X_ptr->row(hc_rs_samples[j].first));
                     }
                     est = est / kcenter.kc + est1 * (1 - 1/kcenter.kc);
                 }
-                err[3].push_back(fabs(est - exact_val) / max(tau, exact_val));
+                err[3].push_back(fabs(est - exact_val) / max(data.tau, exact_val));
 
             }
 

@@ -18,27 +18,15 @@
  */
 
 
-#include <stdio.h>
-#include <stdlib.h>     /* atof */
-#include <iostream>
-#include <sstream>
-#include <fstream>
-#include <string.h> // for memset
-#include <math.h>   // for abs
+
 #include <algorithm>    // std::max
 #include <chrono>
-#include "expkernel.h"
-#include "gaussiankernel.h"
-#include "mathUtils.h"
-#include "dataUtils.h"
-#include "bandwidth.h"
-#include "math.h"
+#include "parseConfig.h"
+#include "../utils/DataIngest.h"
 #include "../alg/RS.h"
 #include "../alg/naiveKDE.h"
 #include "../alg/BaseLSH.h"
 #include "../alg/SketchLSH.h"
-#include <boost/math/distributions/normal.hpp>
-#include "parseConfig.h"
 
 double relErr(double est, double exact) {
     return fabs(est - exact) / exact;
@@ -52,77 +40,34 @@ int main(int argc, char *argv[]) {
 
     char* scope = argv[2];
     parseConfig cfg(argv[1], scope);
-    const double eps = cfg.getEps();
-    const double tau = cfg.getTau();
-    const double beta = cfg.getBeta();
-    const double sample_ratio = cfg.getSampleRatio();
-    // The dimensionality of each sample vector.
-    int dim = cfg.getDim();
-    // The number of sources which will be used for the gauss transform.
-    int N = cfg.getN();
-    int M = cfg.getM();
+    DataIngest data(cfg, true);
+    data.estimateHashParams();
 
-    double h = cfg.getH();
-    const char* kernel_type = cfg.getKernel();
-    std::cout << "dataset: " << cfg.getName() << std::endl;
-    std::cout << "bw: " << h << std::endl;
-
-    MatrixXd X = dataUtils::readFile(
-            cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
-    auto band = make_unique<Bandwidth>(N, dim);
-    band->useConstant(h);
-    shared_ptr<Kernel> kernel;
-    shared_ptr<Kernel> simpleKernel;
-    if (strcmp(kernel_type, "exp") == 0) {
-        kernel = make_shared<Expkernel>(dim);
-        simpleKernel = make_shared<Expkernel>(dim);
-    } else {
-        kernel = make_shared<Gaussiankernel>(dim);
-        simpleKernel = make_shared<Gaussiankernel>(dim);
-    }
-    double means = ceil(6 * simpleKernel->RelVar(tau) / eps / eps);
-
-    // Normalized by bandwidth
-    kernel->initialize(band->bw);
-    X = dataUtils::normalizeBandwidth(X, band->bw);
-    shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
-
-    int hasQuery = strcmp(cfg.getDataFile(), cfg.getQueryFile());
-
-    MatrixXd Y;
-    if (hasQuery != 0) {
-        Y = dataUtils::readFile(cfg.getQueryFile(),
-                cfg.ignoreHeader(), M, cfg.getStartCol(), cfg.getEndCol());
-    }
-
-    // Read exact KDE
-    bool sequential = (N == M);
-    double *exact = new double[M * 2];
-    dataUtils::readFile(cfg.getExactPath(), false, M, 0, 1, &exact[0]);
+    double means = ceil(6 * data.kernel->RelVar(data.tau) / data.eps / data.eps);
 
     // Estimate parameters
     int tables = min((int)(means * 1.1), 1100);
-    double diam = dataUtils::estimateDiameter(X, tau);
-    int k = dataUtils::getPower(diam, beta);
-    double w = dataUtils::getWidth(k, beta);
 
     // Algorithms init
-    int subsample = int(sqrt(N));
-    std::cout << "M=" << tables << ",w=" << w << ",k=" << k << ",samples=" << subsample << std::endl;
+    int subsample = int(sqrt(data.N));
+    std::cout << "M=" << tables << ",w=" << data.w << ",k=" << data.k << ",samples=" << subsample << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    BaseLSH hbe(X_ptr, tables, w, k, simpleKernel, subsample);
+    BaseLSH hbe(data.X_ptr, tables, data.w, data.k, data.kernel, subsample);
     auto t2 = std::chrono::high_resolution_clock::now();
-    std::cout << "Uniform Sample Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+    std::cout << "Uniform Sample Table Init: " <<
+        std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
     t1 = std::chrono::high_resolution_clock::now();
-    SketchLSH sketch(X_ptr, tables, w, k, simpleKernel);
+    SketchLSH sketch(data.X_ptr, tables, data.w, data.k, data.kernel);
     t2 = std::chrono::high_resolution_clock::now();
-    std::cout << "Sketch Table Init: " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+    std::cout << "Sketch Table Init: " <<
+        std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
     t1 = std::chrono::high_resolution_clock::now();
-    SketchLSH sketch4(X_ptr, tables, w, k, 3, simpleKernel);
+    SketchLSH sketch4(data.X_ptr, tables, data.w, data.k, 3, data.kernel);
     t2 = std::chrono::high_resolution_clock::now();
-    std::cout << "Sketch Table Init (3 scales): " << std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
+    std::cout << "Sketch Table Init (3 scales): " <<
+        std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
     double cnt = 0;
     for (auto& t : hbe.tables) {
@@ -130,15 +75,15 @@ int main(int argc, char *argv[]) {
     }
     std::cout << "Average table size: " << cnt / tables << std::endl;
 
-    int rs_size = min(int(cnt), N);
+    int rs_size = min(int(cnt), data.N);
     std::cout << "RS reservoir size: " << rs_size << std::endl;
-    RS rs(X_ptr, simpleKernel, rs_size);
+    RS rs(data.X_ptr, data.kernel, rs_size);
 
 
     for (int i = 0; i < 10; i ++) {
         int samples = 100 * (i + 1);
         std::cout << "------------------" << std::endl;
-        std::cout << "HBE samples: " << samples << ", RS samples: " << int(samples * sample_ratio) << std::endl;
+        std::cout << "HBE samples: " << samples << ", RS samples: " << int(samples * data.sample_ratio) << std::endl;
         hbe.totalTime = 0;
         rs.totalTime = 0;
         sketch.totalTime = 0;
@@ -148,26 +93,27 @@ int main(int argc, char *argv[]) {
         vector<double> rs_error;
         vector<double> sketch_scale_error;
 
-        for(int j = 0; j < M; j++) {
+        for(int j = 0; j < data.M; j++) {
             int idx = j * 2;
-            VectorXd q = X.row(j);
-            if (hasQuery != 0) {
-                q = Y.row(j);
+            VectorXd q = data.X_ptr->row(j);
+            if (data.hasQuery != 0) {
+                q = data.Y_ptr->row(j);
             } else {
-                if (!sequential) {
-                    q = X.row(exact[idx + 1]);
+                if (!data.sequential) {
+                    q = data.X_ptr->row(data.exact[idx + 1]);
                 }
             }
-            if (exact[idx] < tau) { continue; }
+            double exact_val = data.exact[idx];
+            if (exact_val < data.tau) { continue; }
 
-            double hbe_est = hbe.query(q, tau, samples);
-            double sketch_est = sketch.query(q, tau, samples);
-            double sketch_scale_est = sketch4.query(q, tau, samples);
-            double rs_est = rs.query(q, tau, int(samples * sample_ratio));
-            hbe_error.push_back(relErr(hbe_est, exact[idx]));
-            rs_error.push_back(relErr(rs_est, exact[idx]));
-            sketch_error.push_back(relErr(sketch_est, exact[idx]));
-            sketch_scale_error.push_back(relErr(sketch_scale_est, exact[idx]));
+            double hbe_est = hbe.query(q, data.tau, samples);
+            double sketch_est = sketch.query(q, data.tau, samples);
+            double sketch_scale_est = sketch4.query(q, data.tau, samples);
+            double rs_est = rs.query(q, data.tau, int(samples * data.sample_ratio));
+            hbe_error.push_back(relErr(hbe_est, exact_val));
+            rs_error.push_back(relErr(rs_est, exact_val));
+            sketch_error.push_back(relErr(sketch_est,exact_val));
+            sketch_scale_error.push_back(relErr(sketch_scale_est, exact_val));
         }
 
         std::cout << "Uniform HBE total time: " << hbe.totalTime / 1e9 << std::endl;
@@ -183,6 +129,4 @@ int main(int argc, char *argv[]) {
         printf("RS relative error:  %f, %f, %f\n",
                dataUtils::getAvg(rs_error), dataUtils::getStd(rs_error), dataUtils::getMax(rs_error));
     }
-
-    delete[] exact;
 }

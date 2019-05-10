@@ -29,18 +29,7 @@ public:
     }
 
     double getH() {
-        // Get bandwidth
-        double h = cfg->lookupFloat(scope, "h");
-        // If input bandwidth is not constant
-        if (!isConst()) {
-            // Scott's rule
-            h *= pow(getN(), -1.0 / (getDim() + 4));
-            // Gaussian Kernel:  1/(2h^2)
-            if (strcmp(getKernel(), "gaussian") == 0) {
-                h *= sqrt(2);
-            }
-        }
-        return h;
+        return cfg->lookupFloat(scope, "h");
     }
 
     bool isConst() {

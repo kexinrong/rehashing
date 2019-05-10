@@ -49,7 +49,6 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
 
     if (sketch) { // HBS
         int m = min(ntables * samples, 2*n);
-        std::cout << m << std::endl;
         vector<SketchTable> sketches;
         vector<vector<int>> indices;
         for (int i = 0; i < N_SKETCHES; i ++ ){
