@@ -1,3 +1,13 @@
+/*
+ *  Sketching experiments:
+ *      Compare the relative error of Uniform, HBS, Herding and SKA under varying sketch sizes.
+ *      For each sketch, we output the average relative error and stanfard error of the mean.
+ *
+ *  Example usage:
+ *      ./hbe conf/shuttle.cfg gaussian
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -14,6 +24,7 @@
 #include "bandwidth.h"
 #include "math.h"
 #include "../alg/RS.h"
+#include "../alg/MRSketch.h"
 #include "../alg/Herding.h"
 #include "../alg/KCenter.h"
 #include <boost/math/distributions/normal.hpp>
@@ -26,10 +37,7 @@ int main(int argc, char *argv[]) {
     }
 
     char* scope = argv[2];
-    //int m = atoi(argv[3]);
-
     parseConfig cfg(argv[1], scope);
-    const char* name = cfg.getName();
     const double tau = cfg.getTau();
     const double beta = cfg.getBeta();
     // The dimensionality of each sample vector.
@@ -39,15 +47,16 @@ int main(int argc, char *argv[]) {
     int M = cfg.getM();
 
     double h = cfg.getH();
+    const char* kernel_type = cfg.getKernel();
     if (!cfg.isConst()) {
         h *= pow(N, -1.0/(dim+4));
-        if (strcmp(scope, "exp") != 0) {
+        // Gaussian Kernel:  1/(2h^2)
+        if (strcmp(kernel_type, "gaussian") == 0) {
             h *= sqrt(2);
         }
     }
-    std::cout << "dataset: " << name << std::endl;
+    std::cout << "dataset: " << cfg.getName() << std::endl;
     std::cout << "bw: " << h << std::endl;
-    std::cout << "----------------------------" << std::endl;
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -55,7 +64,8 @@ int main(int argc, char *argv[]) {
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
     shared_ptr<Kernel> simpleKernel;
-    if (strcmp(scope, "exp") == 0) {
+    // Exponential or Gaussian kernells
+    if (strcmp(kernel_type, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
         simpleKernel = make_shared<Expkernel>(dim);
     } else {
@@ -63,9 +73,8 @@ int main(int argc, char *argv[]) {
         simpleKernel = make_shared<Gaussiankernel>(dim);
     }
 
-    kernel->initialize(band->bw);
-//    dataUtils::checkBandwidthSamples(X, eps, kernel);
     // Normalized by bandwidth
+    kernel->initialize(band->bw);
     X = dataUtils::normalizeBandwidth(X, band->bw);
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
@@ -84,8 +93,7 @@ int main(int argc, char *argv[]) {
 
     vector<int> nsamples;
     int upper = 2000;
-
-    int s = 10;
+    int s = 50;
     int interval = 200;
     while (s < upper) {
         nsamples.push_back(s);
@@ -95,9 +103,10 @@ int main(int argc, char *argv[]) {
 
     for (size_t idx = 0; idx < nsamples.size(); idx ++) {
         int m = nsamples[idx];
-        std::cout << "k=" << m << std::endl;
+        std::cout << "----------------------------" << std::endl;
+        std::cout << "sketch size=" << m << std::endl;
         std::unordered_set<int> elems = mathUtils::pickSet(M, 10000, rng);
-        for (size_t iter = 0; iter < 10; iter ++) {
+        for (size_t iter = 0; iter < 5; iter ++) {
             RS rs(X_ptr, simpleKernel, m);
             MRSketch hbs_simple = MRSketch(X_ptr, m, w, k, 5, rng);
             Herding herding = Herding(X_ptr, simpleKernel, m, rng);
@@ -114,10 +123,11 @@ int main(int argc, char *argv[]) {
                 std::vector<double> tmp;
                 err.push_back(tmp);
             }
-            //for (int idx : elems) {
-            for (int idx = 0; idx < M; idx ++) {
+            for (int idx : elems) {
+            // for (int idx = 0; idx < M; idx ++) {
                 double exact_val = exact[idx * 2];
-                if (exact_val > 5 * tau) {continue; }
+                // Uncomment the for loop and following line to focus on low-density queries
+//                if (exact_val > 5 * tau) {continue; }
                 double query_idx = exact[idx * 2 + 1];
                 VectorXd q = X.row(query_idx);
 
@@ -156,12 +166,12 @@ int main(int argc, char *argv[]) {
 
             }
 
-            std::cout << "# evals" << err[0].size() << std::endl;
-            std::cout << "HBE: " << dataUtils::getAvg(err[0]) << "," << dataUtils::getSE(err[0]) << std::endl;
+            std::cout << "# queries: " << err[0].size() << std::endl;
+            std::cout << "HBS: " << dataUtils::getAvg(err[0]) << "," << dataUtils::getSE(err[0]) << std::endl;
             std::cout << "RS: " << dataUtils::getAvg(err[1]) << "," << dataUtils::getSE(err[1]) << std::endl;
             std::cout << "Herding: " << dataUtils::getAvg(err[2]) << "," << dataUtils::getSE(err[2]) << std::endl;
             std::cout << "KCenter: " << dataUtils::getAvg(err[3]) << "," << dataUtils::getSE(err[3]) << std::endl;
-
+            std::cout << std::endl;
         }
     }
 

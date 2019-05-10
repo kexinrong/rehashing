@@ -1,3 +1,14 @@
+/*
+ *  Computes the ground truth KDE give dataset, bandwidth and kernel.
+ *
+ *  The output file contains density of M random points in the dataset.
+ *  Each line in the output file contains a random query point's KDE and index (row number in the dataset).
+ *
+ *  Example usage:
+ *      ./hbe conf/shuttle.cfg gaussian
+ *
+ */
+
 #include <iostream>
 #include <sstream>
 #include <fstream>
@@ -29,10 +40,6 @@ void checkBandwidth(parseConfig &cfg, char* scope, double h) {
 }
 
 
-// This program computes the ground truth KDE give dataset, bandwidth and kernel.
-// Example usage:
-//      ./hbe conf/shuttle.cfg gaussian
-
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cout << "Need config file" << std::endl;
@@ -49,9 +56,12 @@ int main(int argc, char *argv[]) {
 
     // The bandwidth.
     double h = cfg.getH();
+    const char* kernel_type = cfg.getKernel();
     if (!cfg.isConst()) {
+        // Scott's rule
         h *= pow(N, -1.0/(d+4));
-        if (strcmp(scope, "exp") != 0) {
+        // Gaussian Kernel:  1/(2h^2)
+        if (strcmp(kernel_type, "gaussian") == 0) {
             h *= sqrt(2);
         }
     }
@@ -62,7 +72,7 @@ int main(int argc, char *argv[]) {
     dataUtils::readFile(cfg.getDataFile(), cfg.ignoreHeader(), N,
             cfg.getStartCol(), cfg.getEndCol(), &x[0]);
     // Check bandwidth
-    checkBandwidth(cfg, scope, h);
+    // checkBandwidth(cfg, scope, h);
 
     int hasQuery = strcmp(cfg.getDataFile(), cfg.getQueryFile());
 
@@ -100,7 +110,7 @@ int main(int argc, char *argv[]) {
                 }
                 norm = norm + (temp*temp);
             }
-            if (strcmp(scope, "exp") == 0) { // exp kernel
+            if (strcmp(kernel_type, "exp") == 0) { // exp kernel
                 g[j] = g[j] + exp(-sqrt(norm/hSquare));
             } else {
                 g[j] = g[j] + exp(-norm/hSquare);
@@ -112,6 +122,8 @@ int main(int argc, char *argv[]) {
     outfile.close();
     auto t2 = std::chrono::high_resolution_clock::now();
 
-    std::cout << M << " queries: " << std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count() << std::endl;
+    std::cout << M << " queries: " <<
+        std::chrono::duration_cast<std::chrono::milliseconds>(t2-t1).count() / 1000.0
+        << " sec" << std::endl;
 
 }
