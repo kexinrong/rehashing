@@ -137,107 +137,14 @@ int main(int argc, char* argv[])
     double multiplier = 1;
     double h = 0;
     std::string ds(argv[1]);
-    if (strcmp(argv[1], "mnist") == 0) {
-        d = 784;
-        N = 70000;
-        M = 9229;
-    } else if (strcmp(argv[1], "tmy") == 0) {
-        d = 8;
-        N = 1822080;
-        M = 10000;
-    } else if (strcmp(argv[1], "covtype") == 0) {
+    if (strcmp(argv[1], "covtype") == 0) {
         d = 54;
         N = 581012;
-        M = 10000;
-    } else if (strcmp(argv[1], "home") == 0) {
-        d = 10;
-        N = 928991;
         M = 10000;
     } else if (strcmp(argv[1], "shuttle") == 0) {
         d = 9;
         N = 43500;
         M = 43500;
-    } else if (strcmp(argv[1], "ijcnn") == 0) {
-        d = 22;
-        N = 141691;
-        M = 93067;
-    } else if (strcmp(argv[1], "skin") == 0) {
-        d = 3;
-        N = 245057;
-        M = 100000;
-    } else if (strcmp(argv[1], "acoustic") == 0) {
-        d = 50;
-        N = 78823;
-        M = 78823;
-    } else if (strcmp(argv[1], "codrna") == 0) {
-        d = 8;
-        N = 59535;
-        M = 59535;
-    } else if (strcmp(argv[1], "corel") == 0) {
-        d = 32;
-        N = 68040;
-        M = 68040;
-    } else if (strcmp(argv[1], "elevator") == 0) {
-        d = 18;
-        N = 16599;
-        M = 16599;
-    } else if (strcmp(argv[1], "housing") == 0) {
-        d = 8;
-        N = 20640;
-        M = 20640;
-    } else if (strcmp(argv[1], "msd") == 0) {
-        d = 90;
-        N = 463715;
-        M = 10000;
-        //M = 100000;
-    } else if (strcmp(argv[1], "poker") == 0) {
-        d = 10;
-        N = 25010;
-        M = 25010;
-    } else if (strcmp(argv[1], "sensorless") == 0) {
-        d = 48;
-        N = 58509;
-        M = 58509;
-    } else if (strcmp(argv[1], "susy") == 0) {
-        d = 18;
-        N = 5000000;
-        M = 9958;
-    } else if (strcmp(argv[1], "glove.6b.100d") == 0) {
-        d = 100;
-        N = 400000;
-        M = 100000;
-    } else if (strcmp(argv[1], "cifar10") == 0) {
-        d = 3072;
-        N = 50000;
-        M = 50000;
-    } else if (strcmp(argv[1], "aloi") == 0) {
-        d = 128;
-        N = 108000;
-        M = 9121;
-    } else if (strcmp(argv[1], "timit") == 0) {
-        d = 440;
-        N = 1000000;
-        M = 9812;
-    } else if (strcmp(argv[1], "glove") == 0) {
-        d = 100;
-        N = 400000;
-        M = 10000;
-    } else if (strcmp(argv[1], "census") == 0) {
-        d = 68;
-        N = 2458285;
-        M = 9546;
-    } else if (strcmp(argv[1], "svhn") == 0) {
-        d = 3072;
-        N = 630420;
-        M = 9820;
-    } else if (strcmp(argv[1], "higgs") == 0) {
-        d = 28;
-        N = 11000000;
-        M = 10000;
-    } else if (strcmp(argv[1], "hep") == 0) {
-        d = 27;
-        N = 10500000;
-        M = 10000;
     }
 
     // The bandwidth.  NOTE: this is not the same as standard deviation since
@@ -257,7 +164,7 @@ int main(int argc, char* argv[])
 
     std::cout << "dataset=" << ds << std::endl;
     std::cout << "epsilon=" << epsilon << std::endl;
-    std::cout << "h=" << h << std::endl;
+    std::cout << "bandwidth=" << h << std::endl;
 
     // The source array.  It is a contiguous array, where
     // ( x[i*d], x[i*d+1], ..., x[i*d+d-1] ) is the ith d-dimensional sample.
@@ -267,53 +174,10 @@ int main(int argc, char* argv[])
     double *x = new double[size];
 
     if (strcmp(argv[1], "shuttle") == 0) {
-        readFile("../../resources/data/shuttle_normed.csv", true, N, 1, 9, &x[0]);
-    } else if (strcmp(argv[1], "home") == 0) {
-        readFile("../../resources/data/home_normed.csv", true, N, 4, 13, &x[0]);
-    } else if (strcmp(argv[1], "ijcnn") == 0) {
-        readFile("../../resources/data/ijcnn_scaled.csv", false, N, 0, 21, &x[0]);
-    } else if (strcmp(argv[1], "skin") == 0) {
-        readFile("../../resources/data/skin_scaled.csv", false, N, 0, 2, &x[0]);
+        readFile("../../../resources/data/shuttle_normed.csv", true, N, 1, 9, &x[0]);
     } else if (strcmp(argv[1], "covtype") == 0) {
-        readFile("../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
-    } else if (strcmp(argv[1], "tmy") == 0) {
-        readFile("../../resources/data/tmy_normed.csv", true, N, 1, 8, &x[0]);
-    } else if (strcmp(argv[1], "mnist") == 0) {
-        readFile("../../resources/data/mnist_normed.csv", true, N, 3, 786, &x[0]);
-    } else if (strcmp(argv[1], "acoustic") == 0) {
-        readFile("../../resources/data/acoustic_normed.csv", false, N, 0, 49, &x[0]);
-    } else if (strcmp(argv[1], "codrna") == 0) {
-        readFile("../../resources/data/codrna_normed.csv", false, N, 0, 7, &x[0]);
-    } else if (strcmp(argv[1], "corel") == 0) {
-        readFile("../../resources/data/corel_normed.csv", true, N, 3, 34, &x[0]);
-    } else if (strcmp(argv[1], "elevator") == 0) {
-        readFile("../../resources/data/elevator_normed.csv", true, N, 1, 18, &x[0]);
-    } else if (strcmp(argv[1], "housing") == 0) {
-        readFile("../../resources/data/housing_normed.csv", true, N, 1, 8, &x[0]);
-    } else if (strcmp(argv[1], "msd") == 0) {
-        readFile("../../resources/data/msd_scaled.csv", false, N, 0, 89, &x[0]);
-    } else if (strcmp(argv[1], "poker") == 0) {
-        readFile("../../resources/data/poker_scaled.csv", false, N, 0, 9, &x[0]);
-    } else if (strcmp(argv[1], "sensorless") == 0) {
-        readFile("../../resources/data/sensorless_scaled.csv", false, N, 0, 47, &x[0]);
-    } else if (strcmp(argv[1], "susy") == 0) {
-        readFile("../../resources/data/susy_normed.csv", true, N, 1, 18, &x[0]);
-    } else if (strcmp(argv[1], "aloi") == 0) {
-        readFile("../../resources/data/aloi_scaled.csv", false, N, 0, 127, &x[0]);
-    } else if (strcmp(argv[1], "timit") == 0) {
-        readFile("../../resources/data/timit_normed.txt", false, N, 0, 439, &x[0]);
-    } else if (strcmp(argv[1], "glove") == 0) {
-        readFile("../../resources/data/glove.6B.100d_normed.txt", false, N, 0, 99, &x[0]);
-    } else if (strcmp(argv[1], "census") == 0) {
-        readFile("../../resources/data/census_normed.txt", false, N, 0, 67, &x[0]);
-    } else if (strcmp(argv[1], "svhn") == 0) {
-        readFile("../../resources/data/svhn_normed.txt", false, N, 0, 3071, &x[0]);
-    } else if (strcmp(argv[1], "higgs") == 0) {
-        readFile("../../resources/data/higgs_normed.csv", true, N, 2, 29, &x[0]);
-    } else if (strcmp(argv[1], "hep") == 0) {
-        readFile("../../resources/data/hep_normed.csv", true, N, 2, 28, &x[0]);
+        readFile("../../../resources/data/covtype_normed.csv", true, N, 1, 54, &x[0]);
     }
-    //fitCube(&x[0], N, d);
 
     // The target array.  It is a contiguous array, where
     // ( y[j*d], y[j*d+1], ..., y[j*d+d-1]f ) is the jth d-dimensional sample.
@@ -321,7 +185,7 @@ int main(int argc, char* argv[])
     // a 7-dimensional sample.
     double *exact = new double[M * 2];
     std::string exact_file(argv[4]);
-    std::string fname = "../../resources/exact/" + exact_file;
+    std::string fname = "../../../resources/exact/" + exact_file;
     readFile(fname, false, M, 0, 1, &exact[0]);
 
     size = M * d;
