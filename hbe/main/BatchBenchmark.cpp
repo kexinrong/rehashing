@@ -1,3 +1,23 @@
+/*
+ *  Runtime/accuracy benchmark:
+ *      Compare runtime and accuracy of HBE and RS. Candidates are:
+ *          RS: RS on a reservoir of random samples
+ *          Uniform HBE: HBE on a reservoir of random samples
+ *          Sketch HBE: HBE on a sketch produced by HBS
+ *          Sketch (3 scales) HBE: HBE on HBS, where in each hash bucket of the HBS,
+ *                                 we store 3 data samples (one from each weight scale).
+ *                                 Comparing to storing 1 sample per bucket (default),
+ *                                 this option takes slightly longer but is more accurate.
+ *
+ *
+ *      The relative runtime of HBE and RS can be controlled by changing the "sample_ratio"
+ *      parameter in the config file.
+ *
+ *  Example usage:
+ *      ./hbe conf/shuttle.cfg gaussian
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -32,12 +52,10 @@ int main(int argc, char *argv[]) {
 
     char* scope = argv[2];
     parseConfig cfg(argv[1], scope);
-    const char* name = cfg.getName();
     const double eps = cfg.getEps();
     const double tau = cfg.getTau();
     const double beta = cfg.getBeta();
     const double sample_ratio = cfg.getSampleRatio();
-    int samples = cfg.getSamples();
     // The dimensionality of each sample vector.
     int dim = cfg.getDim();
     // The number of sources which will be used for the gauss transform.
@@ -45,13 +63,8 @@ int main(int argc, char *argv[]) {
     int M = cfg.getM();
 
     double h = cfg.getH();
-    if (!cfg.isConst()) {
-        h *= pow(N, -1.0/(dim+4));
-        if (strcmp(scope, "exp") != 0) {
-            h *= sqrt(2);
-        }
-    }
-    std::cout << "dataset: " << name << std::endl;
+    const char* kernel_type = cfg.getKernel();
+    std::cout << "dataset: " << cfg.getName() << std::endl;
     std::cout << "bw: " << h << std::endl;
 
     MatrixXd X = dataUtils::readFile(
@@ -60,7 +73,7 @@ int main(int argc, char *argv[]) {
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
     shared_ptr<Kernel> simpleKernel;
-    if (strcmp(scope, "exp") == 0) {
+    if (strcmp(kernel_type, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
         simpleKernel = make_shared<Expkernel>(dim);
     } else {
@@ -69,9 +82,8 @@ int main(int argc, char *argv[]) {
     }
     double means = ceil(6 * simpleKernel->RelVar(tau) / eps / eps);
 
-    kernel->initialize(band->bw);
-//    dataUtils::checkBandwidthSamples(X, eps, kernel);
     // Normalized by bandwidth
+    kernel->initialize(band->bw);
     X = dataUtils::normalizeBandwidth(X, band->bw);
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
 
@@ -117,15 +129,14 @@ int main(int argc, char *argv[]) {
         cnt += t.bucket_count;
     }
     std::cout << "Average table size: " << cnt / tables << std::endl;
-//
+
     int rs_size = min(int(cnt), N);
     std::cout << "RS reservoir size: " << rs_size << std::endl;
     RS rs(X_ptr, simpleKernel, rs_size);
 
 
-    //for (int i = 0; i < 10; i ++) {
-    for (int i = 0; i < 5; i ++) {
-        samples = 100 * (i + 1);
+    for (int i = 0; i < 10; i ++) {
+        int samples = 100 * (i + 1);
         std::cout << "------------------" << std::endl;
         std::cout << "HBE samples: " << samples << ", RS samples: " << int(samples * sample_ratio) << std::endl;
         hbe.totalTime = 0;

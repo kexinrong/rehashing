@@ -3,6 +3,7 @@
 
 #include <config4cpp/Configuration.h>
 #include <exception>
+#include <math.h>
 using namespace config4cpp;
 
 class parseConfig {
@@ -28,7 +29,18 @@ public:
     }
 
     double getH() {
-        return cfg->lookupFloat(scope, "h");
+        // Get bandwidth
+        double h = cfg->lookupFloat(scope, "h");
+        // If input bandwidth is not constant
+        if (!isConst()) {
+            // Scott's rule
+            h *= pow(getN(), -1.0 / (getDim() + 4));
+            // Gaussian Kernel:  1/(2h^2)
+            if (strcmp(getKernel(), "gaussian") == 0) {
+                h *= sqrt(2);
+            }
+        }
+        return h;
     }
 
     bool isConst() {
@@ -49,10 +61,6 @@ public:
 
     double getSampleRatio() {
         return cfg->lookupFloat(scope, "sample_ratio");
-    }
-
-    int getSamples() {
-        return cfg->lookupInt(scope, "samples");
     }
 
     int getStartCol() {

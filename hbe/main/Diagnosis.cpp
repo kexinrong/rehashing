@@ -1,3 +1,13 @@
+/*
+ *  Diagnosis:
+ *      Output the estimated relative variance of HBE and RS given dataset and hashing scheme.
+ *      The lower the variance, the more sample efficient the estimator is.
+ *      Take the median of the estimated variance for robustness.
+ *
+ *  Example usage:
+ *      ./hbe conf/shuttle.cfg gaussian
+ */
+
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -35,13 +45,8 @@ int main(int argc, char *argv[]) {
     int M = cfg.getM();
 
     double h = cfg.getH();
-    if (!cfg.isConst()) {
-        h *= pow(N, -1.0 / (dim + 4));
-        if (strcmp(scope, "exp") != 0) {
-            h *= sqrt(2);
-        }
-    }
-//    std::cout << "bw: " << h << std::endl;
+    const char* kernel_type = cfg.getKernel();
+    std::cout << "bw: " << h << std::endl;
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -97,15 +102,11 @@ int main(int argc, char *argv[]) {
             int actual = rs.findActualLevel(q, rs_est[0], eps);
             rs.getConstants();
             rs.findRings(1, 0.5, q, actual);
-//            std::cout << rs.lambda << "," << rs.l << std::endl;
+            // Uncomment to output rs.lambda, rs.l for visualization
+            // std::cout << rs.lambda << "," << rs.l << std::endl;
             j ++;
-            double tmp1 = rs.RSDirect() / r2;
-            double tmp2 = rs.HBEDirect() / r2;
-            rs_cost.push_back(tmp1);
-            hbe_cost.push_back(tmp2);
-            //rs_cost.push_back(rs.RSDirect() / r2);
-            //hbe_cost.push_back(rs.HBEDirect() / r2);
-//            std::cout << tmp1 << "," << tmp2 << "," << r2 << "," << rs_est[0] << std::endl;
+            rs_cost.push_back(rs.RSDirect() / r2);
+            hbe_cost.push_back(rs.HBEDirect() / r2);
         }
         std::cout << "rs:" << dataUtils::getAvg(rs_cost) << ", hbe: " <<  dataUtils::getAvg(hbe_cost) << std::endl;
     }

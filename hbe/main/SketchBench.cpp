@@ -48,13 +48,6 @@ int main(int argc, char *argv[]) {
 
     double h = cfg.getH();
     const char* kernel_type = cfg.getKernel();
-    if (!cfg.isConst()) {
-        h *= pow(N, -1.0/(dim+4));
-        // Gaussian Kernel:  1/(2h^2)
-        if (strcmp(kernel_type, "gaussian") == 0) {
-            h *= sqrt(2);
-        }
-    }
     std::cout << "dataset: " << cfg.getName() << std::endl;
     std::cout << "bw: " << h << std::endl;
 
