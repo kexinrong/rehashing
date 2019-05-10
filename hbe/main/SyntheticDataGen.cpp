@@ -1,3 +1,9 @@
+/*
+ *  Main program for generating "worst-case" and "D-strucutured" instances.
+ *
+ */
+
+
 #include "expkernel.h"
 #include "mathUtils.h"
 #include "dataUtils.h"
@@ -11,10 +17,10 @@
 
 using Eigen::IOFormat;
 
-const int uN = 100;
-const int uC = 5000;
-const int cN = 50000;
-const int cC = 10;
+const int uN = 100;         // #pts (per cluster) for "uncorrelated"
+const int uC = 5000;        // #clusters for "uncorrelated"
+const int cN = 50000;       // #pts (per cluster) for "correlated"
+const int cC = 10;          // #clusters for "correlated"
 const int scales = 4;
 const int dim = 10;
 const double spread = 0.001;
@@ -46,17 +52,18 @@ int main() {
         std::cout << "dim = " << dim << std::endl;
         int k = clusters[i];
         int n = N / k;
-        std::cout << "n = " << n << ", k = " << k << std::endl;
+        std::cout << "#pts (per cluster) = " << n << ", #clusters = " << k << std::endl;
         shared_ptr<Kernel> kernel = make_shared<Gaussiankernel>(dim);
-        // Output instance
+        // Generate an instance
         GenericInstance data = SyntheticData::genSingle(n, k, dim, mu, scales, spread, kernel);
+        // Generate a mixed instance
         //GenericInstance data = SyntheticData::genMixed(uN, cN, uC, cC, dim, mu, scales, spread, kernel);
-        data.output("resources/generic_gaussian/s1/generic_" +
+        data.output("../resources/data/generic_" +
             std::to_string(k) + ".txt");
         std::cout <<  "N=" << data.points.rows() << std::endl;
 
         // Output query
-        std::ofstream outfile("resources/generic_gaussian/s1/query_" +
+        std::ofstream outfile("../resources/data/query_" +
             std::to_string(k) + ".txt");
         genQuery(outfile, data, dim);
         outfile.close();
