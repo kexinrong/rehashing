@@ -11,7 +11,7 @@ The first step to use HBE is to consult the [python demo](https://github.com/sta
 
 The speed of HBE depends on the desired relative error, the kernel and the dataset. For relative error 0.1 under the Gaussian kernel and datasets around 1M points HBE takes less than *25ms per query* and very often around ~2ms. For specific datasets and comparison with competing methods ([FIGTree](http://users.umiacs.umd.edu/~morariu/figtree/), [ASKIT](http://padas.ices.utexas.edu/libaskit/), Random Sampling (RS)) see Table 1. 
 
-![Table 1](https://github.com/stanford-futuredata/hbe/blob/clean/experiments/experiments_hbe.png "Table 1")
+![Table 1](plots/experiments_hbe.png "Table 1")
 
 If you want to gain intuition about what properties of datasets affect the performance of kernel evaluation algorithms see our [Synthetic Benchmarks](https://github.com/stanford-futuredata/hbe/wiki/Synthetic-benchmarks) page.
 
