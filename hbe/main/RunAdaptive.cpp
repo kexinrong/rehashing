@@ -20,7 +20,6 @@
 
 void update(vector<double>& results, vector<double> est, double exact) {
     results[0] += fabs(est[0] - exact) / exact;
-//    std::cout << exact << "," << est[0] << "|" << fabs(est[0] - exact) / exact <<  ',' <<  est[1] << std::endl;
     results[1] += est[1];
 }
 

@@ -14,7 +14,6 @@
 #include "bandwidth.h"
 #include "math.h"
 #include "../alg/RS.h"
-#include "../alg/MRSketch.h"
 #include "../alg/Herding.h"
 #include "../alg/KCenter.h"
 #include <boost/math/distributions/normal.hpp>

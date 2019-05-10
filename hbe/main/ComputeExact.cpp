@@ -28,6 +28,11 @@ void checkBandwidth(parseConfig &cfg, char* scope, double h) {
     dataUtils::checkBandwidthSamples(X, eps, kernel);
 }
 
+
+// This program computes the ground truth KDE give dataset, bandwidth and kernel.
+// Example usage:
+//      ./hbe conf/shuttle.cfg gaussian
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         std::cout << "Need config file" << std::endl;

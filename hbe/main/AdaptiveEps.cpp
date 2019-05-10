@@ -1,3 +1,7 @@
+// This program finds the smallest epsilon for random sampling and HBE that achieves a true relative error < 0.1.
+// Epsilon is a parameter that controls error in the adaptive sampling procedure.
+
+
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
 #include <iostream>
@@ -190,7 +194,6 @@ int main(int argc, char *argv[]) {
     }
 
     kernel->initialize(band->bw);
-//    dataUtils::checkBandwidthSamples(X, eps, kernel);
     // Normalized by bandwidth
     X = dataUtils::normalizeBandwidth(X, band->bw);
     shared_ptr<MatrixXd> X_ptr = make_shared<MatrixXd>(X);
