@@ -1,6 +1,6 @@
-// This program finds the smallest epsilon for random sampling and HBE that achieves a true relative error < 0.1.
-// Epsilon is a parameter that controls error in the adaptive sampling procedure.
-
+/* This program finds the smallest epsilon for random sampling and HBE that achieves a true relative error < 0.1.
+ * Epsilon is a parameter that controls error in the adaptive sampling procedure.
+ */
 
 #include <stdio.h>
 #include <stdlib.h>     /* atof */
@@ -174,12 +174,7 @@ int main(int argc, char *argv[]) {
     int M = cfg.getM();
 
     double h = cfg.getH();
-    if (!cfg.isConst()) {
-        h *= pow(N, -1.0 / (dim + 4));
-        if (strcmp(scope, "exp") != 0) {
-            h *= sqrt(2);
-        }
-    }
+    const char* kernel_type = cfg.getKernel();
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -187,7 +182,7 @@ int main(int argc, char *argv[]) {
     std::cout << "bw: " << h << std::endl;
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
-    if (strcmp(scope, "exp") == 0) {
+    if (strcmp(kernel_type, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
     } else {
         kernel = make_shared<Gaussiankernel>(dim);

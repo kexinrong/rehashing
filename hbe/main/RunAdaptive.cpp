@@ -42,12 +42,7 @@ int main(int argc, char *argv[]) {
     int M = cfg.getM();
 
     double h = cfg.getH();
-    if (!cfg.isConst()) {
-        h *= pow(N, -1.0 / (dim + 4));
-        if (strcmp(scope, "exp") != 0) {
-            h *= sqrt(2);
-        }
-    }
+    const char* kernel_type = cfg.getKernel();
 
     MatrixXd X = dataUtils::readFile(
             cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());
@@ -56,7 +51,7 @@ int main(int argc, char *argv[]) {
     band->useConstant(h);
     shared_ptr<Kernel> kernel;
     shared_ptr<Kernel> simpleKernel;
-    if (strcmp(scope, "exp") == 0) {
+    if (strcmp(kernel_type, "exp") == 0) {
         kernel = make_shared<Expkernel>(dim);
         simpleKernel = make_shared<Expkernel>(dim);
     } else {

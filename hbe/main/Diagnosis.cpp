@@ -105,6 +105,7 @@ int main(int argc, char *argv[]) {
             // Uncomment to output rs.lambda, rs.l for visualization
             // std::cout << rs.lambda << "," << rs.l << std::endl;
             j ++;
+            // Estimate relative variance; not necessary for visualization
             rs_cost.push_back(rs.RSDirect() / r2);
             hbe_cost.push_back(rs.HBEDirect() / r2);
         }
