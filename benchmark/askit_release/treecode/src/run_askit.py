@@ -1,29 +1,31 @@
 import subprocess
+import sys
 import numpy as np
 
 datasets = {
-	'test': [3, 4, 4, 1]
+	'covtype': [54, 581012, 10000, 2.2499],
+	'shuttle': [9, 43500, 43500, 0.621882],
+
 }
 
 def get_relerr(ds):
 	est = np.loadtxt('results/%s.txt' % ds)
-	exact = np.loadtxt('../../../resources/exact/%s_gaussian.txt' % ds, delimiter=',')
+	exact = np.loadtxt('../../../../resources/exact/%s_gaussian.txt' % ds, delimiter=',')
 	err = 0
 	for i in range(len(est)):
 		err += np.abs(est[i] - exact[i][0]) / exact[i][0]
 	print("Relative Error: %f\n" % (err / len(est)))
 
-cmd = './askit_kde_main.exe -training_data ../../../resources/data/askit/%s_askit.txt  -training_knn_file ../../rkdtsrc/parallelIO/knn/%s.knn -test_data ../../../resources/data/askit/%s_askit_query.txt -test_knn_file ../../rkdtsrc/parallelIO/knn/%s_query.knn -training_N %d -test_N %d -d %d -output results/%s.txt -h %f'
+cmd = './askit_kde_main.exe -id_tol %f -training_data ../../../../resources/data/%s_askit.data  -training_knn_file ../../rkdtsrc/parallelIO/%s.knn -test_data ../../../../resources/data/%s_askit_query.data -test_knn_file ../../rkdtsrc/parallelIO/%s_query.knn -training_N %d -test_N %d -d %d -output results/%s.txt -h %f'
 
-f = open('results/runtime.txt', 'w')
-for ds in datasets:
+if __name__ == "__main__":
+	ds = sys.argv[1]
+	eps = float(sys.argv[2])
 	print(ds)
-	f.write('%s\n' % ds)
-	d, n, m, h = datasets[ds] 
+	d, n, m, h = datasets[ds]
 	# bandwidth: -0.5 / (h^2)
 	h = h / np.sqrt(2)
-	cmd_ds = cmd % (ds, ds, ds, ds, n, m, d, ds, h)
-	subprocess.call(cmd_ds.split(), stdout=f)
-	f.write('\n\n\n')
+	cmd_ds = cmd % (eps, ds, ds, ds, ds, n, m, d, ds, h)
+	print(cmd_ds)
+	subprocess.call(cmd_ds.split())
 	get_relerr(ds)
-f.close()
