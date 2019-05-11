@@ -5,7 +5,7 @@ Currently, HBE supports one LSH family: [Eucledian LSH](http://mlwiki.org/index.
 
 # How to use HBE
 
-The first step to use HBE is to consult the [python demo](https://github.com/stanford-futuredata/hbe/wiki/Python-Demo) that describes the tuning process. Alternatively you can directly consult the C++ documentation. In our [Wiki](https://github.com/stanford-futuredata/hbe/wiki) you can also find descriptions of how to construct tunable [synthetic benchmarks](https://github.com/stanford-futuredata/hbe/wiki/Synthetic-benchmarks) for kernel evaluation as well as produce dataset [visualizations](https://github.com/stanford-futuredata/hbe/wiki/Visualizations).
+The first step to use HBE is to consult the [python demo](https://github.com/kexinrong/rehashing/wiki/Python-Demo) that describes the tuning process. Alternatively you can directly consult the C++ documentation. In our [Wiki](https://github.com/kexinrong/rehashing/wiki) you can also find descriptions of how to construct tunable [synthetic benchmarks](https://github.com/kexinrong/rehashing/wiki/Synthetic-benchmarks) for kernel evaluation as well as produce dataset [visualizations](https://github.com/kexinrong/rehashing/wiki/Visualizations).
 
 # How fast is HBE? 
 
@@ -13,7 +13,7 @@ The speed of HBE depends on the desired relative error, the kernel and the datas
 
 ![Table 1](plots/experiments_hbe.png "Table 1")
 
-If you want to gain intuition about what properties of datasets affect the performance of kernel evaluation algorithms see our [Synthetic Benchmarks](https://github.com/stanford-futuredata/hbe/wiki/Synthetic-benchmarks) page.
+If you want to gain intuition about what properties of datasets affect the performance of kernel evaluation algorithms see our [Synthetic Benchmarks](https://github.com/kexinrong/rehashing/wiki/Synthetic-benchmarks) page.
 
 # Authors 
 
