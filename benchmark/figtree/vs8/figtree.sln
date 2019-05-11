@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sample", "Sample.vcproj", "{B642F6A2-B5E4-4FF6-A5F1-1FA862DD628D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{408082FC-005E-4574-959E-CBBDA44A703C} = {408082FC-005E-4574-959E-CBBDA44A703C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "figtree", "figtree.vcproj", "{408082FC-005E-4574-959E-CBBDA44A703C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mexFigtree", "mexFigtree.vcproj", "{3106F69E-7161-44A2-ABD7-63889E215DAD}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mexFigtreeKCenterClustering", "mexFigtreeKCenterClustering.vcproj", "{DDBFFD46-9534-4B93-A240-6A4F4F4D6583}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test.vcproj", "{B35FF5AD-7996-447E-A1AA-911E0B743253}"
+	ProjectSection(ProjectDependencies) = postProject
+		{408082FC-005E-4574-959E-CBBDA44A703C} = {408082FC-005E-4574-959E-CBBDA44A703C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ann_figtree_version", "..\external\ann_1.1.1\MS_Win32\dll\dll.vcproj", "{A7D00B21-CB9C-4BBB-8DEE-51025104F867}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mexFigtreeChooseEvaluationMethod", "mexFigtreeChooseEvaluationMethod.vcproj", "{520B337B-7966-4095-8556-621B93806522}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B642F6A2-B5E4-4FF6-A5F1-1FA862DD628D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B642F6A2-B5E4-4FF6-A5F1-1FA862DD628D}.Debug|Win32.Build.0 = Debug|Win32
+		{B642F6A2-B5E4-4FF6-A5F1-1FA862DD628D}.Release|Win32.ActiveCfg = Release|Win32
+		{B642F6A2-B5E4-4FF6-A5F1-1FA862DD628D}.Release|Win32.Build.0 = Release|Win32
+		{408082FC-005E-4574-959E-CBBDA44A703C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{408082FC-005E-4574-959E-CBBDA44A703C}.Debug|Win32.Build.0 = Debug|Win32
+		{408082FC-005E-4574-959E-CBBDA44A703C}.Release|Win32.ActiveCfg = Release|Win32
+		{408082FC-005E-4574-959E-CBBDA44A703C}.Release|Win32.Build.0 = Release|Win32
+		{3106F69E-7161-44A2-ABD7-63889E215DAD}.Debug|Win32.ActiveCfg = Debug|Win32
+		{3106F69E-7161-44A2-ABD7-63889E215DAD}.Debug|Win32.Build.0 = Debug|Win32
+		{3106F69E-7161-44A2-ABD7-63889E215DAD}.Release|Win32.ActiveCfg = Release|Win32
+		{3106F69E-7161-44A2-ABD7-63889E215DAD}.Release|Win32.Build.0 = Release|Win32
+		{DDBFFD46-9534-4B93-A240-6A4F4F4D6583}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DDBFFD46-9534-4B93-A240-6A4F4F4D6583}.Debug|Win32.Build.0 = Debug|Win32
+		{DDBFFD46-9534-4B93-A240-6A4F4F4D6583}.Release|Win32.ActiveCfg = Release|Win32
+		{DDBFFD46-9534-4B93-A240-6A4F4F4D6583}.Release|Win32.Build.0 = Release|Win32
+		{B35FF5AD-7996-447E-A1AA-911E0B743253}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B35FF5AD-7996-447E-A1AA-911E0B743253}.Debug|Win32.Build.0 = Debug|Win32
+		{B35FF5AD-7996-447E-A1AA-911E0B743253}.Release|Win32.ActiveCfg = Release|Win32
+		{B35FF5AD-7996-447E-A1AA-911E0B743253}.Release|Win32.Build.0 = Release|Win32
+		{A7D00B21-CB9C-4BBB-8DEE-51025104F867}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A7D00B21-CB9C-4BBB-8DEE-51025104F867}.Debug|Win32.Build.0 = Debug|Win32
+		{A7D00B21-CB9C-4BBB-8DEE-51025104F867}.Release|Win32.ActiveCfg = Release|Win32
+		{A7D00B21-CB9C-4BBB-8DEE-51025104F867}.Release|Win32.Build.0 = Release|Win32
+		{520B337B-7966-4095-8556-621B93806522}.Debug|Win32.ActiveCfg = Debug|Win32
+		{520B337B-7966-4095-8556-621B93806522}.Debug|Win32.Build.0 = Debug|Win32
+		{520B337B-7966-4095-8556-621B93806522}.Release|Win32.ActiveCfg = Release|Win32
+		{520B337B-7966-4095-8556-621B93806522}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

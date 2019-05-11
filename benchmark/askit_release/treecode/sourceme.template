@@ -1,0 +1,25 @@
+
+# MLKROOT
+export MKLROOT=/opt/intel/mkl
+
+# location of the KNN library
+export KNN_DIR=../../rkdtsrc
+
+# can use a specialized makefile.in file here if needed
+export PLATFORM=default
+
+# set this to true (and specify the location) if using the efficient KS library
+export USE_KS=false
+
+# ASKIT is currently only tested with these options, change at your own risk
+export MPICXX=mpiicpc
+export MPICC=mpiicc
+export FC=gfortran 
+export USE_MKL=true 
+export USE_GNU=false
+export USE_INTEL=true
+#export MPICXX=mpicxx
+#export MPICC=mpicc
+
+
+			 

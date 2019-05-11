@@ -1,2 +1,0 @@
-LIBRARY  figtree.dll
-EXPORTS mexFunction          

@@ -1,0 +1,14 @@
+% Before running this file, run 'mex -setup' and make sure that gcc or g++
+% are used for compiling mex files (code was only tested using gcc/g++).
+%
+% Created:  09-12-07 by Vlad Morariu
+% Modified: 12-05-08
+
+
+if( ~isunix )
+    fprintf('To compile mex files in windows, you can use the VS8 projects provided.\n');
+end;
+
+mex('-v','-O','-I../include','-I../external/ann_1.1.1/include','-I../external/ann_1.1.1/src','-DFIGTREE_USE_MATLAB_MEX','../external/ann_1.1.1/src/ANN.cpp','../external/ann_1.1.1/src/bd_fix_rad_search.cpp','../external/ann_1.1.1/src/bd_pr_search.cpp','../external/ann_1.1.1/src/bd_search.cpp','../external/ann_1.1.1/src/bd_tree.cpp','../external/ann_1.1.1/src/brute.cpp','../external/ann_1.1.1/src/kd_dump.cpp','../external/ann_1.1.1/src/kd_fix_rad_search.cpp','../external/ann_1.1.1/src/kd_pr_search.cpp','../external/ann_1.1.1/src/kd_search.cpp','../external/ann_1.1.1/src/kd_split.cpp','../external/ann_1.1.1/src/kd_tree.cpp','../external/ann_1.1.1/src/kd_util.cpp','../external/ann_1.1.1/src/perf.cpp','../src/figtree.cpp','../src/KCenterClustering.cpp','../src/mex/mexFigtree.cpp','-output','figtree');
+mex('-v','-O','-I../include','-I../external/ann_1.1.1/include','-I../external/ann_1.1.1/src','-DFIGTREE_USE_MATLAB_MEX','../external/ann_1.1.1/src/ANN.cpp','../external/ann_1.1.1/src/bd_fix_rad_search.cpp','../external/ann_1.1.1/src/bd_pr_search.cpp','../external/ann_1.1.1/src/bd_search.cpp','../external/ann_1.1.1/src/bd_tree.cpp','../external/ann_1.1.1/src/brute.cpp','../external/ann_1.1.1/src/kd_dump.cpp','../external/ann_1.1.1/src/kd_fix_rad_search.cpp','../external/ann_1.1.1/src/kd_pr_search.cpp','../external/ann_1.1.1/src/kd_search.cpp','../external/ann_1.1.1/src/kd_split.cpp','../external/ann_1.1.1/src/kd_tree.cpp','../external/ann_1.1.1/src/kd_util.cpp','../external/ann_1.1.1/src/perf.cpp','../src/figtree.cpp','../src/KCenterClustering.cpp','../src/mex/mexFigtreeChooseEvaluationMethod.cpp','-output','figtreeChooseEvaluationMethod');
+mex('-v','-O','-I../include','-I../external/ann_1.1.1/include','-I../external/ann_1.1.1/src','-DFIGTREE_USE_MATLAB_MEX','../external/ann_1.1.1/src/ANN.cpp','../external/ann_1.1.1/src/bd_fix_rad_search.cpp','../external/ann_1.1.1/src/bd_pr_search.cpp','../external/ann_1.1.1/src/bd_search.cpp','../external/ann_1.1.1/src/bd_tree.cpp','../external/ann_1.1.1/src/brute.cpp','../external/ann_1.1.1/src/kd_dump.cpp','../external/ann_1.1.1/src/kd_fix_rad_search.cpp','../external/ann_1.1.1/src/kd_pr_search.cpp','../external/ann_1.1.1/src/kd_search.cpp','../external/ann_1.1.1/src/kd_split.cpp','../external/ann_1.1.1/src/kd_tree.cpp','../external/ann_1.1.1/src/kd_util.cpp','../external/ann_1.1.1/src/perf.cpp','../src/figtree.cpp','../src/KCenterClustering.cpp','../src/mex/mexFigtreeKCenterClustering.cpp','-output','figtreeKCenterClustering');

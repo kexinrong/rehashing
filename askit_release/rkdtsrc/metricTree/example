@@ -1,1 +1,0 @@
-run -np 2 ./test.exe -rn 10000 -qn 10000 -mppn 10000 -d 4 -gen 0 -k 2 -verify 1 -time 1

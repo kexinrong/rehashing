@@ -1,0 +1,158 @@
+
+ASKIT Library 
+(add copyright)
+(add citations for papers)
+
+NOTE: this library contains both the treecode *and* FMM versions of the 
+algorithm. See input options below for how to select between these.
+
+
+== Authors ==
+
+- Bill March (march@ices.utexas.edu)
+- Bo Xiao (bo@ices.utexas.edu)
+- George Biros (gbiros@acm.org)
+- Chenhan Yu (chenhan@cs.utexas.edu)
+- Sameer Tharakan (sameer@ices.utexas.edu)
+
+
+== Dependencies ==
+
+ASKIT currently requires: 
+
+- The Intel MPI libraries and compiler, including the MKL library.
+- Bo Xiao's efficient KNN library (link here).
+- (Optional) Chenhan Yu's efficient kernel summation library (link here).
+
+
+== Building ==
+
+Edit the sourceme.template file to contain the path to the KNN library (and the
+KS library, if desired).
+
+Then run:
+  source sourceme.template
+  make
+
+
+== Tests ==
+
+ASKIT will build a simple test executables. 
+
+- test_askit_main.exe - runs on a single MPI rank.  It quickly performs a 
+few small computations.  It will print "ALL TESTS PASSED" if everything is 
+working correctly.
+
+
+== Simplified Example -- Kernel Density Estimation ==
+
+We also include a simple executable to conduct kernel density estimation with 
+a Gaussian kernel. This executable runs the ASKIT-FMM variant, with 
+adaptive rank selection and adaptive level restriction. The user provides the 
+error tolerance and kernel bandwidth.
+
+
+
+== Running ASKIT == 
+
+The main ASKIT executable is "askit_distributed_main.exe". Run:
+  ./askit_distributed_main.exe --help 
+to see the full list of input parameters and flags with a short description
+of each.
+
+
+= Inputs =
+
+** Data
+
+-data, -charges, -knn_file, -N, -d are for the input data and 
+nearest neighbor files
+
+** Basic ASKIT parameters
+
+-k: the number of neighbors per point to read from the file -knn_file. This can
+be any number from 1 to the number of points in the file.  NOTE: we count
+each point as one of its own nearest neighbors.
+
+-fks_mppn: (m in the writeups).  This controls the size of the leaf nodes
+in the tree. 
+
+-id_rank: (s in the writeups). This controls the rank of the skeletonization
+used throughout the tree. In the adaptive rank case, this is s_max.
+
+-min_skeleton_level (L in the writeups). This controls the level restriction
+in ASKIT. 
+
+** Kernel parameters
+
+-kernel_type: use this to select the type of kernel function.
+-h, p, c: parameters governing different kernels.
+
+** Test sets
+
+In order to run ASKIT with separate test and training sets, specify the flag
+"-do_test_evaluation" and fill in "-test_data_file", "-test_knn_file", and 
+"-num_test_points".
+
+** Error estimation
+
+Setting "-err" to a value greater than 0 will compute exact potentials for "err"
+points and use these to estimate the error of the ASKIT approximation. 
+
+
+** Other flags 
+
+Flags marked "Advanced" are under development or involve experimental variants 
+of ASKIT. Don't use them unless you know what you're doing.
+
+Flags marked "Deprecated" should be ignored.
+
+
+=== Examples === 
+
+We give a few examples of using ASKIT from the command line. We assume the 
+data are in a binary file "data.bin" with 1M 6d points and the nearest 
+neighbors are in "knn.bin".
+
+** Basic ASKIT, fixed rank skeletonization, flat charges, Gaussian kernel
+
+./askit_distributed_main.exe -data data.bin -charges ones -knn_file knn.bin \
+ -N 1000000 -d 6 -k 32 -fks_mppn 512 -id_rank 256 -kernel_type gaussian \ 
+ -h 0.1 -output test.out -binary
+
+** FMM ASKIT, adaptive rank skeletonization, normal charges, Laplace kernel, 
+level restriction to 6, normal charges with error estimated over 5 iterations
+
+./askit_distributed_main.exe -data data.bin -charges ones -knn_file knn.bin \
+ -N 1000000 -d 6 -k 32 -fks_mppn 512 -id_rank 2048 -min_skeleton_level 6 \
+ -do_simplified_adaptive_rank -do_fmm -kernel_type laplace -output test.out \
+ -err 1000 -num_error_repeats 5 -binary 
+ 
+
+======= Linking ASKIT to other code ==========
+
+The make command above also generates an ASKIT library file in 
+${ASKIT}/treecode/build/libaskit.a
+
+ASKIT is contained in a driver class AskitAlg, which takes as a template
+argument a kernel class. The constructor requires:
+ an fksData class -- contains the coordinates, see fksTree.h
+ an AskitInputs class -- contains the parameter settings, see askit_utils.hpp
+ a KernelInputs class -- contains the kernel function parameters, see
+ kernel_inputs.hpp
+
+See comments in askit_alg.hpp for more details on the public members of the 
+AskitAlg class. 
+
+
+
+
+
+
+
+
+
+
+
+
+
