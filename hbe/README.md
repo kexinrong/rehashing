@@ -1,11 +1,16 @@
 # Dependencies and Build Instruction
-Our library uses CMake, and depends on Boost, Eigen3 and Config4Cpp. We include Eigen3 and Config4Cpp as git submodules. To build these libraries from source:
+Our library uses CMake, and depends on Boost, [Eigen3](http://eigen.tuxfamily.org/index.php?title=Main_Page) and Config4Cpp. The following instructions have been tested on Linux machines. To install Boost:
+```sh
+sudo apt-get install libboost-all-dev
+```
+
+We include the source codes of Eigen3 and Config4Cpp as git submodules. To get the source codes:
 ```sh
 ~/rehashing/hbe/$ git submodule init
 ~/rehashing/hbe/$ git submodule update
 ```
 
-To build Eigen
+If you already have a recent version of Eigen3 installed on your system, you might want to use this version. The library assumes that the Eigen headers are accessible as `#include <Eigen/Dense>` etc. Alternatively, you can build Eigen from source:
 ```sh
 ~/rehashing/hbe/$ mkdir build
 ~/rehashing/hbe/$ cd build
@@ -17,7 +22,7 @@ To build Config4Cpp
 ~/rehashing/hbe/lib/config4cpp/$ make
 ```
 
-To build the experiments
+Finally, you can build the main programs by
 ```sh
 ~/rehashing/hbe/$ cmake .
 ~/rehashing/hbe/$ make
