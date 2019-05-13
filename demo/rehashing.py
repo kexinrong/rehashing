@@ -648,7 +648,7 @@ class rehashing:
 if __name__ == "__main__":
     #%%  Problem Specificaiton
     # example dataset
-    points = np.loadtxt(open("/usr/local/Dropbox/Dropbox/Research/KDE/Code/Exponential/rehashing/datasets/covtype.data", "rb"), delimiter=",",\
+    points = np.loadtxt(open("../resources/data/covtype.csv", "rb"), delimiter=",",\
                         skiprows=0)
     points = points.transpose()
     (d,n) = points.shape
