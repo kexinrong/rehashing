@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 from scipy.special import erf as erf
 from functools import partial as partial
 
+
 MIN_DIST = 10**-6 # threshold for considering two points distinct
 CIRCLE_POINTS = 10**3 # number of points used to visualize circles.
 
@@ -112,6 +113,7 @@ def weighted_sampling(points, weights, size):
 
     return sub_sample
 
+
 def kcenter(Data, k, seed=0):
     """
         kcenter: finds k points (centers) to approximately minimize the maximum
@@ -170,6 +172,57 @@ def set_parameters_kcenter(k, n):
     return (k, n_feasible)
 
 
+def SKA_sketch(size_of_sketch, points, weights, num_of_points):
+    """
+        SKA_sketch: implements the approach of Sparse Kernel approximation
+                    by Cortes and Scott 2015 to create a sketch of the density.
+
+        Input:
+            - size_of_sketch: number of points to return in the sketch
+            - points: d x n array of n points
+            - weights: vector of n non-negative numbers
+            - num_of_points: number of points to be sketched
+
+        Output:
+            - sketch: a dictionary such that
+                -- sketch['p']: d x size array
+                -- sketch['w']: array of non-negative weights that sum to 1
+    """
+
+    # find valid parameters for k-center that satisfy constraints
+    (k, n_feasible) = set_parameters_kcenter(size_of_sketch, num_of_points)
+    # sub-sample data set so that there n_feasible points
+    sub_sample = weighted_sampling(points, \
+                                   weights,\
+                                   n_feasible)
+    # run kcenter to obtain the points
+    centers, max_dist = kcenter(sub_sample['p'], k, 0)
+    # compute center densities
+    y = np.zeros(k)
+    for i in range(k):
+        for j in range(num_of_points):
+            y[i] = y[i] + self.kernel(points[:, j],\
+                    sub_sample['p'][:,centers[i]]) / \
+                    num_of_points
+    # kernel matrix between centers
+    K = np.array([[self.kernel(sub_sample['p'][:,centers[ci]], \
+                 sub_sample['p'][:,centers[cj]]) \
+                 for cj in centers]  for ci in centers])
+    # Least squares fit of center densities
+    w  = np.linalg.pinv(K).dot(y)
+    # complement the sketch with random samples
+    num_of_random = size_of_sketch - k
+    random_sketch = weighted_sampling(points, weights, num_of_random)
+    # merge the two sketches by weighting them appropriately.
+    sketch = {}
+    sketch['p'] = np.append(sub_sample['p'][:, centers], \
+                                random_sketch['p'])
+    sketch['w'] = np.append(w / k, (1.0 - 1.0 /k) * \
+                              random_sketch['w'])
+
+    return sketch
+
+
 class rehashing:
 
     def __init__(self, points=[], weights=[],\
@@ -193,7 +246,6 @@ class rehashing:
         self.weights = weights
         self.num_of_points = len(weights)
         self.kernel = kernel_fun
-
 
     def eval_density(self, query_point):
         """
@@ -257,38 +309,8 @@ class rehashing:
             # under the constraint that the total pre-perocessing time is
             # linear in thenumber of points.
             for l in range(self.num_of_means):
-                # find valid parameters for k-center that satisfy constraints
-                (k, n_feasible) = set_parameters_kcenter(self.size_of_sketch, n)
-                # sub-sample data set so that there n_feasible points
-                sub_sample = weighted_sampling(self.points, \
-                                               self.weights,\
-                                               n_feasible)
-                # run kcenter to obtain the points
-                centers, max_dist = kcenter(sub_sample['p'], k, 0)
-                # compute center densities
-                y = np.zeros(k)
-                for i in range(k):
-                    for j in range(self.num_of_points):
-                        y[i] = y[i] + self.kernel(self.points[:, j],\
-                                sub_sample['p'][:,centers[i]]) / \
-                                self.num_of_points
-                # kernel matrix between centers
-                K = np.array([[self.kernel(sub_sample['p'][:,centers[ci]], \
-                             sub_sample['p'][:,centers[cj]]) \
-                             for cj in centers]  for ci in centers])
-                # Least squares fit of center densities
-                w  = np.linalg.pinv(K).dot(y)
-                # complement the sketch with random samples
-                num_of_random = self.size_of_sketch - k
-                random_sketch = weighted_sampling(self.points,
-                                                  self.weights,\
-                                                  num_of_random)
-                # merge the two sketches by weighting them appropriately.
-                sketch_l = {}
-                sketch_l['p'] = np.append(sub_sample['p'][:, centers], \
-                                            random_sketch['p'])
-                sketch_l['w'] = np.append(w / k, (1.0 - 1.0 /k) * \
-                                          random_sketch['w'])
+                sketch_l = SKA_sketch(self.size_of_sketch, self.points,\
+                                      self.weights, self.num_of_points)
 
                 self.sketches.append(sketch_l)
 
@@ -626,7 +648,7 @@ class rehashing:
 if __name__ == "__main__":
     #%%  Problem Specificaiton
     # example dataset
-    points = np.loadtxt(open("../resources/data/covtype.csv", "rb"), delimiter=",",\
+    points = np.loadtxt(open("/usr/local/Dropbox/Dropbox/Research/KDE/Code/Exponential/rehashing/datasets/covtype.data", "rb"), delimiter=",",\
                         skiprows=0)
     points = points.transpose()
     (d,n) = points.shape
@@ -653,20 +675,26 @@ if __name__ == "__main__":
     # For illustration we will apply our method for 2 hashing schemes
     # but one can extend this to an arbitrary number of hashing schemes
 
-    # Hashing scheme #1
+    # Hashing scheme #0
     kappa_0 = int(np.ceil(np.sqrt(2*np.pi)*R*np.log(1/tau))) # ``power"
     w0 = np.sqrt(2 / np.pi) * 2 * kappa_0 # set hash bucket width
     p0 = partial(eLSH_prob, w=w0*sigma, k=kappa_0) # collision probability
     hash_probs.append(p0) # add to list
 
-    # Hashing scheme #2
+    # Hashing scheme #1
     kappa_1 = kappa_0 / 5 # ``power"
     w1 = np.sqrt(2 / np.pi) * 2 * kappa_1 # set hash bucket width
     p1 = partial(eLSH_prob, w=w1*sigma, k=kappa_1)  # collision probability
     hash_probs.append(p1) # add to list
 
+    # Hashing scheme #2
+    kappa_1 = kappa_0 / 10 # ``power"
+    w2 = np.sqrt(2 / np.pi) * 2 * kappa_1 # set hash bucket width
+    p2 = partial(eLSH_prob, w=w1*sigma, k=kappa_1)  # collision probability
+    hash_probs.append(p2) # add to list
+
     # Run diagnostic and visualization
     covtype.diagnostic(hash_probs, acc=eps, threshold=tau, \
-                   num_queries=100, visualization_flag=True)
+                   num_queries=30, visualization_flag=True)
 
     # Use the diagnostic procedure to specify a config file for C++ code.
