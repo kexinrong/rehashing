@@ -7,6 +7,10 @@
 
 using namespace std;
 
+///
+/// Kernel herding algorithm
+/// See details in supplementary material, Section 5.3
+///
 class Herding {
 public:
     vector<int> X_indices;

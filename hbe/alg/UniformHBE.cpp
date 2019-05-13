@@ -1,13 +1,12 @@
-#include "BaseLSH.h"
+#include "UniformHBE.h"
 
 using Eigen::PermutationMatrix;
 using Eigen::Dynamic;
 
-BaseLSH::BaseLSH() {}
+UniformHBE::UniformHBE() {}
 
-BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k,
+UniformHBE::UniformHBE(shared_ptr<MatrixXd> X, int M, double w, int k,
                  shared_ptr<Kernel> ker, int subsample) {
-    batchSize = 1;
     numTables = M;
     binWidth = w;
     numHash = k;
@@ -41,7 +40,7 @@ BaseLSH::BaseLSH(shared_ptr<MatrixXd> X, int M, double w, int k,
 
 
 
-vector<double> BaseLSH::MoM(VectorXd query, int L, int m) {
+vector<double> UniformHBE::MoM(VectorXd query, int L, int m) {
     std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
         for (int j = 0; j < m; j ++){
@@ -51,7 +50,7 @@ vector<double> BaseLSH::MoM(VectorXd query, int L, int m) {
     return Z;
 }
 
-double BaseLSH::evaluateQuery(VectorXd query) {
+double UniformHBE::evaluateQuery(VectorXd query) {
     idx = (idx + 1) % numTables;
     auto buckets = tables[idx].sample(query);
     double results = 0;

@@ -11,23 +11,15 @@ void AdaptiveRS::buildLevels(double tau, double eps) {
     I = (int) ceil(tmp / LOG2);
     mui = vector<double>(I);
     Mi = vector<int>(I);
-    ti = vector<double>(I);
-    ki = vector<int>(I);
-    wi = vector<double>(I);
 
     for (int i = 0; i < I; i ++) {
         if (i == 0) {
             mui[i] = (1 - gamma);
-            //mui[i] = 0.4;
         } else {
             mui[i] = (1 - gamma) * mui[i - 1];
         }
         Mi[i] = (int) (ceil(mathUtils::randomRelVar(mui[i]) / eps / eps));
 
-        // Gaussian Kernel
-        ti[i] = sqrt(log(1 / mui[i]));
-        ki[i] = (int) (3 * ceil(r * ti[i]));
-        wi[i] = ki[i] / ti[i] * SQRT_2PI;
 //        std::cout << "Level " << i << ", samples " << Mi[i] <<
 //            ", target: "<< mui[i] << std::endl;
     }
@@ -40,12 +32,6 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double t
     X = data;
     kernel = k;
     numPoints = data->rows();
-    if (kernel->getName() == EXP_STR) {
-        double diam = dataUtils::estimateDiameter(data, tau);
-        exp_k = dataUtils::getPower(diam, 0.5);
-        exp_w = dataUtils::getWidth(exp_k, 0.5);
-    }
-
     lb = tau;
     buildLevels(tau, eps);
 }
@@ -75,21 +61,12 @@ AdaptiveRS::AdaptiveRS(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samp
     }
     kernel = k;
     numPoints = samples;
-
-    if (kernel->getName() == EXP_STR) {
-        double diam = dataUtils::estimateDiameter(data, tau);
-        exp_k = dataUtils::getPower(diam, 0.5);
-        exp_w = dataUtils::getWidth(exp_k, 0.5);
-    }
     lb = tau;
     buildLevels(tau, eps);
 }
 
 
 std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level) {
-    contrib.clear();
-    samples.clear();
-
     std::uniform_int_distribution<int> distribution(0, numPoints - 1);
 
     std::vector<double> results = std::vector<double>(2, 0);
@@ -104,9 +81,7 @@ std::vector<double> AdaptiveRS::evaluateQuery(VectorXd q, int level) {
         std::sort(indices.begin(), indices.end());
         for (int j = 0; j < results[1]; j ++) {
             int idx = indices[j];
-            samples.push_back(idx);
             double d = kernel->density(q, X->row(idx));
-            contrib.push_back(d);
             Z[i] += d;
         }
     }

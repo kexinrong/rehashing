@@ -147,7 +147,6 @@ vector<size_t> sort_indexes(const vector<T> &v) {
 }
 
 void AdaptiveRSDiag::getConstants() {
-    //std::cout << contrib.size() << std::endl;
     // Sort samples by contribution
     vector<int> tmp_samples;
     vector<double> tmp_weights;
@@ -177,7 +176,6 @@ void AdaptiveRSDiag::getConstants() {
         samples = tmp_samples;
         contrib = tmp_weights;
     };
-
 
 
     set_start.clear();
@@ -257,7 +255,7 @@ void AdaptiveRSDiag::findRings(int strategy, double eps, VectorXd &q, int level)
         u[i] = 0;
         vector<double> wpp;
         vector<double> wp;
-        for (int j = set_start[3-i]; j < set_start[4-i]; j ++) {
+        for (size_t j = set_start[3-i]; j < set_start[4-i]; j ++) {
             u[i] += contrib[j];
             if (contrib[j] < thresh) { continue; }
             w_maxs[i] = max(contrib[j], w_maxs[i]);
@@ -301,7 +299,7 @@ void AdaptiveRSDiag::findRings(int strategy, double eps, VectorXd &q, int level)
 }
 
 
-double AdaptiveRSDiag::RSDirect() {
+double AdaptiveRSDiag::vbRS() {
     double up = w_maxs[3] * u[3];
     double t2_factor = (set_start[1] - set_start[0]) * 1.0 / sample_count;
     for (int i = 0; i < 3; i ++) {
@@ -316,7 +314,7 @@ double AdaptiveRSDiag::RSDirect() {
 }
 
 
-double AdaptiveRSDiag::HBEDirect() {
+double AdaptiveRSDiag::vbHBE() {
 //    double sup3 = w_pps[3][0] * pmaxs[3];
     double sup3 = w_ps[3][w_ps[3].size() - 1] ;
 

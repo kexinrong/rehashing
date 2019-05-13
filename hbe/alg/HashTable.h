@@ -13,27 +13,31 @@
 
 using namespace std;
 
+///
+/// Hash table for LSH
+///
 class HashTable {
 public:
+    ///
+    /// Table: map from hash keys to HashBucket objects
+    ///
     unordered_map<size_t, HashBucket> table;
-    MatrixXd G;
-    VectorXd b;
-    double binWidth;
-    int numHash;
-    int batchSize;
-    int bucket_count = 0;
 
-    int W_SCALE = 3;
-    double min_weight;
-    double max_weight;
-    double weight_step;
+    ///
+    /// Number of buckets in the hash table
+    ///
+    int bucket_count = 0;
 
     HashTable() {}
 
+    /// Construct an LSH table
+    /// \param X dataset
+    /// \param w bin wdith
+    /// \param k number of hash functions
+    /// \param rng
     HashTable(shared_ptr<MatrixXd> X, double w, int k, std::mt19937_64 &rng) {
         binWidth = w;
         numHash = k;
-        batchSize = 1;
 
         int d = X->cols();
         G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
@@ -59,11 +63,16 @@ public:
         }
     }
 
+    /// Construct an LSH table on from the specified set of weighted samples.
+    /// \param X dataset
+    /// \param w bin width
+    /// \param k number of hash functions
+    /// \param samples a collection of weighted samples; each pair contains the weight and index of the sample
+    /// \param rng random number generator
     HashTable(shared_ptr<MatrixXd> X, double w, int k,
             vector<pair<int, double>>& samples, std::mt19937_64 &rng) {
         binWidth = w;
         numHash = k;
-        batchSize = 1;
 
         int d = X->cols();
         G = mathUtils::randNormal(batchSize * k, d, rng) / binWidth;
@@ -96,15 +105,17 @@ public:
         }
     }
 
-    int getWeightBucket(double weight) {
-        return int(floor(log(weight/min_weight) / log(weight_step)));
-    }
-
+    /// Construct an LSH table on from the specified set of weighted samples.
+    /// \param X dataset
+    /// \param w bin width
+    /// \param k number of hash functions
+    /// \param samples a collection of weighted samples; each pair contains the weight and index of the sample
+    /// \param rng random number generator
+    /// \param scales number of weight scales for each bucket
     HashTable(shared_ptr<MatrixXd> X, double w, int k, vector<pair<int, double>>& samples,
             std::mt19937_64 &rng, int scales) {
         binWidth = w;
         numHash = k;
-        batchSize = 1;
         W_SCALE = scales;
 
         int d = X->cols();
@@ -149,6 +160,68 @@ public:
     }
 
 
+    /// Find hash buckets that the query falls in.
+    /// \param query query point
+    /// \return
+    vector<HashBucket> sample(VectorXd query) {
+        vector<size_t> keys = hashfunction(query);
+        vector<HashBucket> buckets;
+        for (auto key : keys) {
+            auto it = table.find(key);
+            if (it == table.end()) {
+                buckets.push_back(HashBucket());
+            } else {
+                buckets.push_back(it->second);
+            }
+        }
+        return buckets;
+    }
+
+private:
+    ///
+    /// Minimum weight in the bucket. Used to determine the weight scale.
+    ///
+    double min_weight;
+    ///
+    /// Maximum weight in the bucket. Used to determine the weight scale.
+    ///
+    double max_weight;
+    ///
+    /// Used to determine the weight scale.
+    ///
+    double weight_step;
+
+    ///
+    /// Hash function parameter: h(x) = (Gx + b) / binWidth
+    ///
+    MatrixXd G;
+
+    ///
+    /// Hash function parameter: h(x) = (Gx + b) / binWidth
+    ///
+    VectorXd b;
+
+    ///
+    /// Hash function parameter: h(x) = (Gx + b) / binWidth
+    ///
+    double binWidth;
+
+    ///
+    /// Concatenate numHash hash functions to make one hash key
+    ///
+    int numHash;
+
+    ///
+    /// Constructor and store batchSize number of hash tables together.
+    /// One call of sample() on the combined hash table returns batchSize * W_SCALE samples.
+    ///
+    int batchSize = 1;
+
+    ///
+    /// Number of weight scales for hash buckets.
+    ///
+    int W_SCALE = 3;
+
 
     vector<size_t> hashfunction(VectorXd x) {
         VectorXd v = G * x + b;
@@ -167,18 +240,8 @@ public:
         return keys;
     }
 
-    vector<HashBucket> sample(VectorXd query) {
-        vector<size_t> keys = hashfunction(query);
-        vector<HashBucket> buckets;
-        for (auto key : keys) {
-            auto it = table.find(key);
-            if (it == table.end()) {
-                buckets.push_back(HashBucket());
-            } else {
-                buckets.push_back(it->second);
-            }
-        }
-        return buckets;
+    int getWeightBucket(double weight) {
+        return int(floor(log(weight/min_weight) / log(weight_step)));
     }
 
 };

@@ -52,7 +52,6 @@ public:
         M = cfg.getM();
         sequential = (N == M);
 
-
         // Read source dataset
         MatrixXd X = dataUtils::readFile(
                 cfg.getDataFile(), cfg.ignoreHeader(), N, cfg.getStartCol(), cfg.getEndCol());

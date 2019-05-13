@@ -10,32 +10,68 @@
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
 
+///
+/// Diagnostic procedure implemented via adaptive random sampling.
+///
 class AdaptiveRSDiag : public AdaptiveEstimator {
 
 public:
-    shared_ptr<MatrixXd> X;
-    shared_ptr<Kernel> kernel;
-
-    vector<double> contrib;
+    ///
+    /// S0 in Algorithm 1, line 4
+    ///
     vector<int> samples;
 
+    ///
+    /// k(q, x) for each x in S0
+    ///
+    vector<double> contrib;
+
+    ///
+    /// Eq (9) in the main paper. Used for visualization.
+    ///
     double lambda;
+
+    ///
+    /// Eq (10) in the main paper. Used for visualization.
+    ///
     double l;
 
     AdaptiveRSDiag(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, double lb, double eps);
     AdaptiveRSDiag(shared_ptr<MatrixXd> data, shared_ptr<Kernel> k, int samples, double lb, double eps);
 
+    ///
+    /// \param q query
+    /// \param est final estimate from adapative sampling
+    /// \param eps relative error
+    /// \return smallest level that we can get an esimate within (1+/-eps) of est
     int findActualLevel(VectorXd &q, double est, double eps);
 
+    /// Set lambda and l according to different strategies
+    /// \param strategy 0: S2, S3 = {}; 1: Eq(9), (10)
+    /// \param eps
+    /// \param q
+    /// \param level
     void findRings(int strategy, double eps, VectorXd &q, int level);
 
+    ///
+    /// Precompute
     void getConstants();
     void clearSamples();
 
-    double RSDirect();
-    double HBEDirect();
+    ///
+    /// \return variance upper bound for RS
+    double vbRS();
+    ///
+    /// \return variance upper bound for HBE
+    double vbHBE();
 
 protected:
+    std::vector<double> evaluateQuery(VectorXd q, int level);
+
+private:
+    shared_ptr<MatrixXd> X;
+    shared_ptr<Kernel> kernel;
+
     double lb;
     std::mt19937_64 rng;
     int exp_k;
@@ -43,7 +79,7 @@ protected:
     double thresh;
 
     // Diagnosis constants
-    vector<int> set_start;
+    vector<size_t> set_start;
     vector<double> u;
     int sample_count;
     double u_global;
@@ -57,9 +93,7 @@ protected:
     vector<vector<int>> w_pp_idx;
     vector<vector<int>> w_p_idx;
 
-    std::vector<double> evaluateQuery(VectorXd q, int level);
 
-private:
     const double LOG2 = log(2);
     const double SQRT_2PI = sqrt(2.0 / M_PI);
 

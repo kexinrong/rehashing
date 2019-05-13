@@ -9,7 +9,7 @@
 
 #include <chrono>
 #include "../alg/RS.h"
-#include "../alg/MRSketch.h"
+#include "../alg/HBS.h"
 #include "../alg/Herding.h"
 #include "../alg/KCenter.h"
 #include "../utils/DataIngest.h"
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
         std::unordered_set<int> elems = mathUtils::pickSet(data.M, 10000, rng);
         for (size_t iter = 0; iter < 5; iter ++) {
             RS rs(data.X_ptr, data.kernel, m);
-            MRSketch hbs_simple = MRSketch(data.X_ptr, m, data.w, data.k, 5, rng);
+            HBS hbs_simple = HBS(data.X_ptr, m, data.w, data.k, 5, rng);
             Herding herding = Herding(data.X_ptr, data.kernel, m, rng);
             KCenter kcenter = KCenter(data.X_ptr, data.kernel, m, 1, rng);
 

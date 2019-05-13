@@ -8,22 +8,17 @@
 
 using Eigen::VectorXd;
 
+///
+/// Base class for the adaptive sampling procedure.
+/// Subclasses can be implemented via estimators like HBE and RS.
+///
 class AdaptiveEstimator {
 public:
-    int numPoints;
     double totalTime = 0;
-    double r;
-    double gamma = 0.5;
-    int I;
-    int L = 3;
-    std::vector<double> mui;
-    std::vector<int> Mi;
-    std::vector<double> ti;
-    std::vector<int> ki;
-    std::vector<double> wi;
 
-    std::string EXP_STR = "exp";
-
+    ///
+    /// Estimate density of query q via adaptively sampling.
+    ///
     std::vector<double> query(VectorXd q) {
         auto t1 = std::chrono::high_resolution_clock::now();
         std::vector<double> returns(2, 0);
@@ -50,8 +45,54 @@ public:
     void setMedians(int l) { L = l; }
 
 protected:
-    virtual std::vector<double> evaluateQuery(VectorXd q, int level) = 0;
+    int numPoints;
+    ///
+    /// decay rate of target density between each level
+    ///
+    double gamma = 0.5;
 
+    ///
+    /// number of levels
+    ///
+    int I;
+
+    ///
+    /// median of L means
+    ///
+    int L = 3;
+
+    ///
+    /// target density of the level i
+    ///
+    std::vector<double> mui;
+
+    ///
+    /// # samples for level i
+    ///
+    std::vector<int> Mi;
+
+    std::vector<double> ti;
+
+    ///
+    /// hashing scheme parameter for level i: # hash functions
+    ///
+    std::vector<int> ki;
+
+    ///
+    /// hashing scheme parameter for level i: binWidth
+    ///
+    std::vector<double> wi;
+
+    ///
+    /// Effective diameter sqrt(log(1/ tau))
+    ///
+    double r;
+
+    std::string EXP_STR = "exp";
+    ///
+    /// For subclasses to implement: evaluate density of query q at the given level.
+    ///
+    virtual std::vector<double> evaluateQuery(VectorXd q, int level) = 0;
 };
 
 

@@ -29,7 +29,6 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
     for (int i = 0; i < I; i ++) {
         if (i == 0) {
             mui[i] = (1 - gamma);
-//            mui[i] = 0.4;
         } else {
             mui[i] = (1 - gamma) * mui[i - 1];
         }
@@ -60,12 +59,12 @@ void AdaptiveHBE::buildLevels(shared_ptr<MatrixXd> X, shared_ptr<Kernel> k, doub
 
         for (int i = 0; i < I; i ++) {
             int t = int(Mi[i] * L * 1.1);
-            s_levels.push_back(SketchLSH(X, sketches, indices, t, wi[i], ki[i], k, rng));
+            s_levels.push_back(SketchHBE(X, sketches, indices, t, wi[i], ki[i], k, rng));
         }
     } else { // Uniform
         for (int i = 0; i < I; i ++) {
             int t = int(Mi[i] * L * 1.1);
-            b_levels.push_back(BaseLSH(X, t, wi[i], ki[i], k, samples));
+            u_levels.push_back(UniformHBE(X, t, wi[i], ki[i], k, samples));
         }
     }
 }
@@ -89,7 +88,7 @@ std::vector<double> AdaptiveHBE::evaluateQuery(VectorXd q, int l) {
         if (use_sketch) {
             Z[i] = s_levels[l].query(q, tau, results[1]);
         } else {
-            Z[i] = b_levels[l].query(q, tau, results[1]);
+            Z[i] = u_levels[l].query(q, tau, results[1]);
         }
     }
 

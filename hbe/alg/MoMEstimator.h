@@ -8,10 +8,22 @@
 
 using Eigen::VectorXd;
 
+///
+/// Base class for median-of-means estimators.
+///
 class MoMEstimator {
 public:
+    ///
+    /// Timing variable
+    ///
     double totalTime = 0;
 
+    ///
+    /// \param q: query
+    /// \param lb: lower bound of query density
+    /// \param m: means of m samples
+    /// \return: estimate of query if it's > lb, otherwise 0
+    ///
     double query(VectorXd q, double lb, int m) {
         int L = 1;
         auto t1 = std::chrono::high_resolution_clock::now();
@@ -27,6 +39,12 @@ public:
     }
 
 protected:
+    ///
+    /// \param q: query
+    /// \param L: median of L means
+    /// \param m: means of m samples
+    /// \return: a vector of L elements, where each element is a sum of m samples
+    ///
     virtual std::vector<double> MoM(VectorXd q, int L, int m) = 0;
 
 };

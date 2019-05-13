@@ -25,8 +25,8 @@
 #include "../utils/DataIngest.h"
 #include "../alg/RS.h"
 #include "../alg/naiveKDE.h"
-#include "../alg/BaseLSH.h"
-#include "../alg/SketchLSH.h"
+#include "../alg/UniformHBE.h"
+#include "../alg/SketchHBE.h"
 
 double relErr(double est, double exact) {
     return fabs(est - exact) / exact;
@@ -52,19 +52,19 @@ int main(int argc, char *argv[]) {
     int subsample = int(sqrt(data.N));
     std::cout << "M=" << tables << ",w=" << data.w << ",k=" << data.k << ",samples=" << subsample << std::endl;
     auto t1 = std::chrono::high_resolution_clock::now();
-    BaseLSH hbe(data.X_ptr, tables, data.w, data.k, data.kernel, subsample);
+    UniformHBE hbe(data.X_ptr, tables, data.w, data.k, data.kernel, subsample);
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Uniform Sample Table Init: " <<
         std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
     t1 = std::chrono::high_resolution_clock::now();
-    SketchLSH sketch(data.X_ptr, tables, data.w, data.k, data.kernel);
+    SketchHBE sketch(data.X_ptr, tables, data.w, data.k, data.kernel);
     t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Sketch Table Init: " <<
         std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;
 
     t1 = std::chrono::high_resolution_clock::now();
-    SketchLSH sketch4(data.X_ptr, tables, data.w, data.k, 3, data.kernel);
+    SketchHBE sketch4(data.X_ptr, tables, data.w, data.k, 3, data.kernel);
     t2 = std::chrono::high_resolution_clock::now();
     std::cout << "Sketch Table Init (3 scales): " <<
         std::chrono::duration_cast<std::chrono::seconds>(t2-t1).count() << std::endl;

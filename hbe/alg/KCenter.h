@@ -3,6 +3,10 @@
 
 using namespace std;
 
+///
+/// Sparse Kernel Approximation (SKA) algorithm
+/// See details in supplementary material, Section 5.3
+///
 class KCenter {
 public:
     int N;

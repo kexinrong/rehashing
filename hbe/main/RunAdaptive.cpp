@@ -4,10 +4,10 @@
  *
  *
  *  Example usage:
- *      ./hbe conf/shuttle.cfg 0.2 true
+ *      /hbe conf/shuttle.cfg gaussian 0.2 true
  *          => Run adaptive sampling with RS, with eps=0.2
  *
- *      ./hbe conf/shuttle.cfg 0.9
+ *      ./hbe conf/shuttle.cfg gaussian 0.9
  *          => Run adaptive sampling with HBE, with eps=0.9
  *
  */

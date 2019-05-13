@@ -1,6 +1,6 @@
-#include "SketchLSH.h"
+#include "SketchHBE.h"
 
-SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker) {
+SketchHBE::SketchHBE(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<Kernel> ker) {
     numTables = M;
     binWidth = w;
     numHash = k;
@@ -23,7 +23,7 @@ SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, shared_ptr<
     std::random_shuffle ( tables.begin(), tables.end() );
 }
 
-SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int scales, shared_ptr<Kernel> ker) {
+SketchHBE::SketchHBE(shared_ptr<MatrixXd> X, int M, double w, int k, int scales, shared_ptr<Kernel> ker) {
     numTables = M;
     binWidth = w;
     numHash = k;
@@ -46,7 +46,7 @@ SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, int M, double w, int k, int scales,
     std::random_shuffle ( tables.begin(), tables.end() );
 }
 
-SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, vector<SketchTable> &sketches, vector<vector<int>> &indices,
+SketchHBE::SketchHBE(shared_ptr<MatrixXd> X, vector<SketchTable> &sketches, vector<vector<int>> &indices,
         int M, double w, int k, shared_ptr<Kernel> ker, std::mt19937_64& rng) {
     binWidth = w;
     numHash = k;
@@ -72,7 +72,7 @@ SketchLSH::SketchLSH(shared_ptr<MatrixXd> X, vector<SketchTable> &sketches, vect
 }
 
 
-vector<double> SketchLSH::MoM(VectorXd query, int L, int m) {
+vector<double> SketchHBE::MoM(VectorXd query, int L, int m) {
     std::vector<double> Z = std::vector<double>(L, 0);
     for (int i = 0; i < L; i ++) {
         for (int j = 0; j < m; j ++){
@@ -82,7 +82,7 @@ vector<double> SketchLSH::MoM(VectorXd query, int L, int m) {
     return Z;
 }
 
-double SketchLSH::evaluateQuery(VectorXd query) {
+double SketchHBE::evaluateQuery(VectorXd query) {
     idx = (idx + 1) % numTables;
     auto buckets = tables[idx].sample(query);
     double results = 0;

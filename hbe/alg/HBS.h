@@ -4,12 +4,16 @@
 #include "SketchTable.h"
 #include "dataUtils.h"
 
-class MRSketch {
+///
+/// HBS for the sketching experiments.
+/// See details in supplementary material, Section 5.3
+///
+class HBS {
 public:
     vector<pair<int, double>> final_samples;
 
     // Single Resolution
-    MRSketch(shared_ptr<MatrixXd> X, int m, double w, int k, int ntbls, std::mt19937_64 & rng) {
+    HBS(shared_ptr<MatrixXd> X, int m, double w, int k, int ntbls, std::mt19937_64 & rng) {
         final_samples.clear();
         int N = X->rows();
 
