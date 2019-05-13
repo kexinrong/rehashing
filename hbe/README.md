@@ -35,14 +35,14 @@ Finally, you can build the main programs by
 - ```conf/```: default location for config files.
 - ```main/```: main programs that depends on the HBE library.
 
-## Usage 
-In ```main/```, we provide a few example main programs that uses the HBE library. To start, specify the input dataset, KDE parameters (kernel type, bandwidth), error tolerance (\tau and \epsilon) via a config file. See examples in ```conf/```.
+## Examples 
+In ```main/```, we provide a few example main programs that uses the HBE library. To start, specify the input dataset, KDE parameters (kernel type, bandwidth), error tolerance (\tau and \epsilon) via a config file. See details in ```conf/```. 
+
+With the config file, we can exhaustively compute the KDE for the specified setup. Uncomment ```add_executable(hbe main/ComputeExact.cpp)``` in ```CMakeLists.txt``` to build the executable. The exact densities can be used to evaluate the accuracy of different approximation algorithms. 
 
 #### Diagnosis 
 Output the estimated relative variance of HBE and RS given dataset and hashing scheme. This can be used to compare the sampling efficiency of HBE and RS before committing to either of the algorithms for the given dataset. Uncomment ```add_executable(hbe main/Diagnosis.cpp)``` in ```CMakeLists.txt``` and build the executable.
 
-#### Naive KDE  
-Exhaustively compute the KDE for random queries give dataset, bandwidth and kernel. Uncomment ```add_executable(hbe main/ComputeExact.cpp)``` in ```CMakeLists.txt``` to build the executable. The exact densities can be used to evaluate the accuracy of different approximation algorithms. 
 
 #### Adaptive sampling 
 Run the adaptive sampling algorithm given 1) dataset 2) epsilon 3) RS or HBE. Uncomment ```add_executable(hbe main/RunAdaptive.cpp)``` in ```CMakeLists.txt``` to build the executable. 
