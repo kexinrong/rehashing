@@ -49,8 +49,8 @@ Run the adaptive sampling algorithm given 1) dataset 2) epsilon 3) RS or HBE. Un
 
 The first example below runs adaptive sampling with RS, with epsilon=0.2. The second example below runs adaptive sampling with HBE, with epsilon=0.9.
 ```sh
-~/rehashing/hbe/$ ./hbe conf/shuttle.cfg 0.2 true
-~/rehashing/hbe/$ ./hbe conf/shuttle.cfg 0.9
+~/rehashing/hbe/$ ./hbe conf/shuttle.cfg gaussian 0.2 true
+~/rehashing/hbe/$ ./hbe conf/shuttle.cfg gaussian 0.9
 ```
 
 #### Sketching
