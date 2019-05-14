@@ -29,10 +29,10 @@ Finally, you can build the main programs by
 ```
 
 ## Project Structure
-- ```alg/```: implementations of main algorithms, including HBS, HBE, diagnosis, the adaptive sampling algorithm, baseline sketching algorithms and baseline KDE algorithms.
+- ```alg/```: implementations of main algorithms, including HBS, HBE, diagnosis, the adaptive sampling algorithm, baseline sketching algorithms and baseline KDE algorithms. Please refer to the [documentation](https://kexinrong.github.io/rehashing/hierarchy.html) for details of each class.
 - ```data/```: implementations to generate various synthetic datasets, including the "worst-case" instance and "D-structure" instance described in the paper.
 - ```util/```: various utility functions.
-- ```conf/```: default location for config files.
+- ```conf/```: default location for config files. 
 - ```main/```: main programs that depends on the HBE library.
 
 ## Examples 
