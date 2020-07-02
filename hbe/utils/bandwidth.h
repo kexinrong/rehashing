@@ -25,25 +25,10 @@ public:
         scaleFactor = pow(n, -1.0/(d+4));
     }
 
+    // IMPORTANT: The code assume that the input dataset is preprocessed
+    // such that the standard deviation for each column is 1.
     void useConstant(double h) {
         for (int i = 0; i < dim; i++) { bw[i] = h; }
-    }
-
-    void getBandwidth(MatrixXd &X) {
-        int n = X.rows();
-        for (int i = 0; i < dim; i ++) {
-            VectorXd vec = X.col(i);
-            std::vector<double> v(vec.data(), vec.data() + vec.size());
-            double sum = std::accumulate(std::begin(v), std::end(v), 0.0);
-            double m =  sum / n;
-            double accum = 0.0;
-            std::for_each (std::begin(v), std::end(v), [&](const double d) {
-                accum += (d - m) * (d - m);
-            });
-            double stdev = sqrt(accum / (v.size()-1));
-            bw[i] = stdev * scaleFactor * multiplier;
-            if (bw[i] == 0) { bw[i] = 1; }
-        }
     }
 };
 
