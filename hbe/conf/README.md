@@ -26,4 +26,4 @@ gaussian {
 }
 ```
 
-By default, the data ingestion code assumes that the dataset has been preprocessed so that the **standard deviation for each column is 1**. This means that the bandwidth parameter is a constant for each column. If this is not the case, the bandwidth should be scaled with the standard deviation for each column (set bandwidth using Bandwidth::getBandwidth() instead of  Bandwidth::useConstant()[https://github.com/kexinrong/rehashing/blob/master/hbe/utils/DataIngest.h#L80]).
+By default, the data ingestion code assumes that the dataset has been preprocessed so that the **standard deviation for each column is 1**. This means that the bandwidth parameter is a constant for each column. If this is not the case, the bandwidth should be scaled with the standard deviation for each column ([set bandwidth](https://github.com/kexinrong/rehashing/blob/master/hbe/utils/DataIngest.h#L80) using ```Bandwidth::getBandwidth()``` instead of  ```Bandwidth::useConstant()```).
