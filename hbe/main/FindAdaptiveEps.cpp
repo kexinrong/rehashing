@@ -3,6 +3,8 @@
  *      This program finds the smallest epsilon for random sampling and HBE that achieves a true relative error < 0.1.
  *      Epsilon is a parameter that controls error in the adaptive sampling procedure.
  *
+ *  Example usage:
+ *      /hbe conf/shuttle.cfg gaussian
  */
 
 
